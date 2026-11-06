@@ -1,0 +1,17 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+node_modules/
+target/
+dist/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials/
+.near-credentials/
+artifacts/
+local/
