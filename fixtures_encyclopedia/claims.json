@@ -1,0 +1,259 @@
+[
+  {
+    "identity": {
+      "question": "Will fictional event A resolve YES on November 10?",
+      "scope": "A binary event in a fictional registry; all records and observations are synthetic.",
+      "resolution_rule": "YES only if the registry's final entry for this exact event is YES; otherwise NO. A disputed entry is not final.",
+      "resolution_source": "synthetic://encyclopedia-registry/v1",
+      "resolution_at": "2026-11-10T12:00:00Z"
+    },
+    "publication": {
+      "allowed": true,
+      "consent": {
+        "by": "synthetic demo owner",
+        "at": "2026-11-06T00:00:00Z",
+        "statement": "Publish this claim and its complete version history"
+      }
+    },
+    "snapshots": [
+      {
+        "as_of": "2026-11-06T10:00:00Z",
+        "change_reason": "Initial forecast, frozen at cutoff.",
+        "evidence": [
+          {
+            "id": "observations",
+            "source": "synthetic://encyclopedia-registry/v1",
+            "excerpt": "15 of 20 fictional comparable events were YES.",
+            "observed_at": "2026-11-06T10:00:00Z",
+            "available_at": "2026-11-06T10:00:00Z",
+            "synthetic": true,
+            "url": null
+          }
+        ],
+        "statements": [
+          {
+            "text": "The supplied batch records 15 YES results in 20 fictional events.",
+            "evidence_ids": [
+              "observations"
+            ]
+          }
+        ],
+        "criticism": [
+          "Template commentary: fictional frequencies are not a calibrated forecast.",
+          "Comparability and independence are unproven; agreement cannot make a claim factual."
+        ],
+        "forecast": {
+          "cutoff": "2026-11-06T10:00:00Z",
+          "probability_bps": 7500,
+          "evidence_ids": [
+            "observations"
+          ],
+          "method": "Scripted synthetic frequency; no LLM call."
+        },
+        "delivery_validity": "VALID",
+        "customer_acceptance": "AWAITING_CUSTOMER",
+        "outcome": {
+          "status": "UNRESOLVED",
+          "value": null,
+          "resolved_at": null,
+          "evidence_ids": []
+        }
+      }
+    ]
+  },
+  {
+    "identity": {
+      "question": "Did fictional event B resolve YES on November 2?",
+      "scope": "A binary event in a fictional registry; all records and observations are synthetic.",
+      "resolution_rule": "YES only if the registry's final entry for this exact event is YES; otherwise NO. A disputed entry is not final.",
+      "resolution_source": "synthetic://encyclopedia-registry/v1",
+      "resolution_at": "2026-11-02T12:00:00Z"
+    },
+    "publication": {
+      "allowed": true,
+      "consent": {
+        "by": "synthetic demo owner",
+        "at": "2026-11-06T00:00:00Z",
+        "statement": "Publish this claim and its complete version history"
+      }
+    },
+    "snapshots": [
+      {
+        "as_of": "2026-11-01T10:00:00Z",
+        "change_reason": "Initial forecast, frozen at cutoff.",
+        "evidence": [
+          {
+            "id": "observations",
+            "source": "synthetic://encyclopedia-registry/v1",
+            "excerpt": "15 of 20 fictional comparable events were YES.",
+            "observed_at": "2026-11-01T10:00:00Z",
+            "available_at": "2026-11-01T10:00:00Z",
+            "synthetic": true,
+            "url": null
+          }
+        ],
+        "statements": [
+          {
+            "text": "The supplied batch records 15 YES results in 20 fictional events.",
+            "evidence_ids": [
+              "observations"
+            ]
+          }
+        ],
+        "criticism": [
+          "Template commentary: fictional frequencies are not a calibrated forecast.",
+          "Comparability and independence are unproven; agreement cannot make a claim factual."
+        ],
+        "forecast": {
+          "cutoff": "2026-11-01T10:00:00Z",
+          "probability_bps": 7500,
+          "evidence_ids": [
+            "observations"
+          ],
+          "method": "Scripted synthetic frequency; no LLM call."
+        },
+        "delivery_validity": "VALID",
+        "customer_acceptance": "AWAITING_CUSTOMER",
+        "outcome": {
+          "status": "UNRESOLVED",
+          "value": null,
+          "resolved_at": null,
+          "evidence_ids": []
+        }
+      },
+      {
+        "as_of": "2026-11-03T10:00:00Z",
+        "change_reason": "Final NO outcome added; the wrong forecast remains unchanged.",
+        "evidence": [
+          {
+            "id": "observations",
+            "source": "synthetic://encyclopedia-registry/v1",
+            "excerpt": "15 of 20 fictional comparable events were YES.",
+            "observed_at": "2026-11-01T10:00:00Z",
+            "available_at": "2026-11-01T10:00:00Z",
+            "synthetic": true,
+            "url": null
+          },
+          {
+            "id": "resolution",
+            "source": "synthetic://encyclopedia-registry/v1",
+            "excerpt": "Final registry entry for event B is NO.",
+            "observed_at": "2026-11-02T12:05:00Z",
+            "available_at": "2026-11-02T12:05:00Z",
+            "synthetic": true,
+            "url": null
+          }
+        ],
+        "statements": [
+          {
+            "text": "The supplied batch records 15 YES results in 20 fictional events.",
+            "evidence_ids": [
+              "observations"
+            ]
+          },
+          {
+            "text": "The final registry entry says NO.",
+            "evidence_ids": [
+              "resolution"
+            ]
+          }
+        ],
+        "criticism": [
+          "Template commentary: fictional frequencies are not a calibrated forecast.",
+          "Comparability and independence are unproven; agreement cannot make a claim factual."
+        ],
+        "forecast": {
+          "cutoff": "2026-11-01T10:00:00Z",
+          "probability_bps": 7500,
+          "evidence_ids": [
+            "observations"
+          ],
+          "method": "Scripted synthetic frequency; no LLM call."
+        },
+        "delivery_validity": "VALID",
+        "customer_acceptance": "ACCEPTED",
+        "outcome": {
+          "status": "FINAL",
+          "value": 0,
+          "resolved_at": "2026-11-02T12:00:00Z",
+          "evidence_ids": [
+            "resolution"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "identity": {
+      "question": "Did fictional event C resolve YES on November 2?",
+      "scope": "A binary event in a fictional registry; all records and observations are synthetic.",
+      "resolution_rule": "YES only if the registry's final entry for this exact event is YES; otherwise NO. A disputed entry is not final.",
+      "resolution_source": "synthetic://encyclopedia-registry/v1",
+      "resolution_at": "2026-11-02T12:00:00Z"
+    },
+    "publication": {
+      "allowed": true,
+      "consent": {
+        "by": "synthetic demo owner",
+        "at": "2026-11-06T00:00:00Z",
+        "statement": "Publish this claim and its complete version history"
+      }
+    },
+    "snapshots": [
+      {
+        "as_of": "2026-11-03T10:00:00Z",
+        "change_reason": "No usable forecast observations; conflicting resolution excerpts remain disputed.",
+        "evidence": [
+          {
+            "id": "dispute-a",
+            "source": "synthetic://encyclopedia-registry/v1",
+            "excerpt": "Provisional entry says YES, contested by an alternative entry.",
+            "observed_at": "2026-11-02T12:05:00Z",
+            "available_at": "2026-11-02T12:05:00Z",
+            "synthetic": true,
+            "url": null
+          },
+          {
+            "id": "dispute-b",
+            "source": "synthetic://encyclopedia-registry/v1",
+            "excerpt": "Alternative entry says NO; no final resolution has been issued.",
+            "observed_at": "2026-11-02T12:06:00Z",
+            "available_at": "2026-11-02T12:06:00Z",
+            "synthetic": true,
+            "url": null
+          }
+        ],
+        "statements": [
+          {
+            "text": "The supplied provisional entries disagree.",
+            "evidence_ids": [
+              "dispute-a",
+              "dispute-b"
+            ]
+          }
+        ],
+        "criticism": [
+          "Template commentary: fictional frequencies are not a calibrated forecast.",
+          "Comparability and independence are unproven; agreement cannot make a claim factual."
+        ],
+        "forecast": {
+          "cutoff": "2026-11-01T10:00:00Z",
+          "probability_bps": null,
+          "evidence_ids": [],
+          "method": "Scripted synthetic frequency; no LLM call."
+        },
+        "delivery_validity": "INSUFFICIENT_DATA",
+        "customer_acceptance": "AWAITING_CUSTOMER",
+        "outcome": {
+          "status": "DISPUTED",
+          "value": null,
+          "resolved_at": null,
+          "evidence_ids": [
+            "dispute-a",
+            "dispute-b"
+          ]
+        }
+      }
+    ]
+  }
+]

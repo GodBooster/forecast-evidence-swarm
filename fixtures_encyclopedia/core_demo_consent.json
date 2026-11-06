@@ -1,0 +1,42 @@
+{
+  "05c826d4f5aa43404a884150fe0b488a06c85b3af6436edf02fe4ced277cd54a": {
+    "allowed": true,
+    "consent": {
+      "at": "2026-11-06T00:00:00Z",
+      "by": "synthetic demo owner",
+      "statement": "Publish this claim and its complete version history"
+    }
+  },
+  "5889a0ddc669a052a1edd27b573c380109d0a2abb6186254fd736ffd59f5c7a5": {
+    "allowed": true,
+    "consent": {
+      "at": "2026-11-06T00:00:00Z",
+      "by": "synthetic demo owner",
+      "statement": "Publish this claim and its complete version history"
+    }
+  },
+  "62b713e440c23543b2b7017beb5c3472463d6c732e1a03e26428bb953f54f126": {
+    "allowed": true,
+    "consent": {
+      "at": "2026-11-06T00:00:00Z",
+      "by": "synthetic demo owner",
+      "statement": "Publish this claim and its complete version history"
+    }
+  },
+  "b0afc0a7ef1aca229124ae29807d52e0bb7e323f94bc2b50062ebca6c8320a52": {
+    "allowed": true,
+    "consent": {
+      "at": "2026-11-06T00:00:00Z",
+      "by": "synthetic demo owner",
+      "statement": "Publish this claim and its complete version history"
+    }
+  },
+  "ba7aa4bf1e5ae00ac6a1a124f042c9dab37ab0bae903671ad640451066db816d": {
+    "allowed": true,
+    "consent": {
+      "at": "2026-11-06T00:00:00Z",
+      "by": "synthetic demo owner",
+      "statement": "Publish this claim and its complete version history"
+    }
+  }
+}
