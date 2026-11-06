@@ -6,6 +6,14 @@ The private research infrastructure is baseline. Its existence is not evidence o
 
 Repository creation date: 2026-11-06. Initial commit contains project documentation only. Implementation commits will identify the new features. Do not backdate commits or present imported work as newly written.
 
+Offline milestone, implemented in this repository: independent Python scripted roles,
+synthetic fixtures, strict timestamp/finality checks, canonical delivery commitments,
+HTML/JSON reporting, synchronous budget simulation and tests. No private InvariFi or
+BUMM source was copied. The related BUMM Guard `swarm-jobs` branch was reviewed for
+future NEAR design lessons; see [reuse assessment](NEAR_REUSE.md). That existing
+contract and review tooling remain prior work, not newly implemented capabilities
+of Forecast Evidence Swarm.
+
 Before submission, add exact baseline/new-work references, dependencies and licenses. Disclose the owner's related BUMM project in both READMEs if both are submitted; describe shared components and demonstrate independent products.
 
 Rules checked on 2026-11-06: https://nearhackathon.com/HACKATHON.md. Existing libraries and products are permitted with disclosure; the new NEAR integration is evaluated. Recheck the live rules before submission.

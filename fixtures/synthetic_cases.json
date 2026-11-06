@@ -1,0 +1,177 @@
+[
+  {
+    "schema_version": "forecast-evidence-swarm/v1",
+    "scenario": "valid_wrong",
+    "title": "Valid delivery, incorrect forecast",
+    "synthetic": true,
+    "terms": {
+      "job_id": "synthetic-01",
+      "question": "Will the next synthetic registry event be YES?",
+      "source": "synthetic://event-registry/v1",
+      "decision_at": "2026-11-01T12:00:00Z",
+      "delivery_deadline": "2026-11-01T13:00:00Z",
+      "resolution_at": "2026-11-02T12:00:00Z",
+      "acceptance_deadline": "2026-11-01T14:00:00Z",
+      "dispute_deadline": "2026-11-01T16:00:00Z",
+      "budget_credits": 100
+    },
+    "evidence": [
+      {
+        "id": "batch-01",
+        "source": "synthetic://event-registry/v1",
+        "observed_at": "2026-11-01T10:00:00Z",
+        "available_at": "2026-11-01T11:00:00Z",
+        "yes_count": 15,
+        "sample_count": 20
+      }
+    ],
+    "outcome": {
+      "source": "synthetic://event-registry/v1",
+      "value": 0,
+      "final": true,
+      "resolved_at": "2026-11-02T12:00:00Z",
+      "available_at": "2026-11-02T12:05:00Z"
+    },
+    "evaluation_at": "2026-11-03T12:00:00Z"
+  },
+  {
+    "schema_version": "forecast-evidence-swarm/v1",
+    "scenario": "future_data",
+    "title": "Reject evidence published after the decision",
+    "synthetic": true,
+    "terms": {
+      "job_id": "synthetic-02",
+      "question": "Will the next synthetic registry event be YES?",
+      "source": "synthetic://event-registry/v1",
+      "decision_at": "2026-11-01T12:00:00Z",
+      "delivery_deadline": "2026-11-01T13:00:00Z",
+      "resolution_at": "2026-11-02T12:00:00Z",
+      "acceptance_deadline": "2026-11-01T14:00:00Z",
+      "dispute_deadline": "2026-11-01T16:00:00Z",
+      "budget_credits": 100
+    },
+    "evidence": [
+      {
+        "id": "batch-01",
+        "source": "synthetic://event-registry/v1",
+        "observed_at": "2026-11-01T10:00:00Z",
+        "available_at": "2026-11-01T12:00:01Z",
+        "yes_count": 15,
+        "sample_count": 20
+      }
+    ],
+    "outcome": {
+      "source": "synthetic://event-registry/v1",
+      "value": 0,
+      "final": true,
+      "resolved_at": "2026-11-02T12:00:00Z",
+      "available_at": "2026-11-02T12:05:00Z"
+    },
+    "evaluation_at": "2026-11-03T12:00:00Z"
+  },
+  {
+    "schema_version": "forecast-evidence-swarm/v1",
+    "scenario": "missing_data",
+    "title": "Abstain when source and observations are unknown",
+    "synthetic": true,
+    "terms": {
+      "job_id": "synthetic-03",
+      "question": "Will the next synthetic registry event be YES?",
+      "source": "synthetic://event-registry/v1",
+      "decision_at": "2026-11-01T12:00:00Z",
+      "delivery_deadline": "2026-11-01T13:00:00Z",
+      "resolution_at": "2026-11-02T12:00:00Z",
+      "acceptance_deadline": "2026-11-01T14:00:00Z",
+      "dispute_deadline": "2026-11-01T16:00:00Z",
+      "budget_credits": 100
+    },
+    "evidence": [
+      {
+        "id": "batch-01",
+        "source": null,
+        "observed_at": "2026-11-01T10:00:00Z",
+        "available_at": "2026-11-01T11:00:00Z",
+        "yes_count": null,
+        "sample_count": null
+      }
+    ],
+    "outcome": {
+      "source": "synthetic://event-registry/v1",
+      "value": 0,
+      "final": true,
+      "resolved_at": "2026-11-02T12:00:00Z",
+      "available_at": "2026-11-02T12:05:00Z"
+    },
+    "evaluation_at": "2026-11-03T12:00:00Z"
+  },
+  {
+    "schema_version": "forecast-evidence-swarm/v1",
+    "scenario": "unresolved",
+    "title": "Valid delivery, outcome not final",
+    "synthetic": true,
+    "terms": {
+      "job_id": "synthetic-04",
+      "question": "Will the next synthetic registry event be YES?",
+      "source": "synthetic://event-registry/v1",
+      "decision_at": "2026-11-01T12:00:00Z",
+      "delivery_deadline": "2026-11-01T13:00:00Z",
+      "resolution_at": "2026-11-02T12:00:00Z",
+      "acceptance_deadline": "2026-11-01T14:00:00Z",
+      "dispute_deadline": "2026-11-01T16:00:00Z",
+      "budget_credits": 100
+    },
+    "evidence": [
+      {
+        "id": "batch-01",
+        "source": "synthetic://event-registry/v1",
+        "observed_at": "2026-11-01T10:00:00Z",
+        "available_at": "2026-11-01T11:00:00Z",
+        "yes_count": 15,
+        "sample_count": 20
+      }
+    ],
+    "outcome": {
+      "source": "synthetic://event-registry/v1",
+      "value": null,
+      "final": false,
+      "resolved_at": null,
+      "available_at": null
+    },
+    "evaluation_at": "2026-11-03T12:00:00Z"
+  },
+  {
+    "schema_version": "forecast-evidence-swarm/v1",
+    "scenario": "zero_successes",
+    "title": "Zero successes are known data",
+    "synthetic": true,
+    "terms": {
+      "job_id": "synthetic-05",
+      "question": "Will the next synthetic registry event be YES?",
+      "source": "synthetic://event-registry/v1",
+      "decision_at": "2026-11-01T12:00:00Z",
+      "delivery_deadline": "2026-11-01T13:00:00Z",
+      "resolution_at": "2026-11-02T12:00:00Z",
+      "acceptance_deadline": "2026-11-01T14:00:00Z",
+      "dispute_deadline": "2026-11-01T16:00:00Z",
+      "budget_credits": 100
+    },
+    "evidence": [
+      {
+        "id": "batch-01",
+        "source": "synthetic://event-registry/v1",
+        "observed_at": "2026-11-01T10:00:00Z",
+        "available_at": "2026-11-01T11:00:00Z",
+        "yes_count": 0,
+        "sample_count": 20
+      }
+    ],
+    "outcome": {
+      "source": "synthetic://event-registry/v1",
+      "value": 0,
+      "final": true,
+      "resolved_at": "2026-11-02T12:00:00Z",
+      "available_at": "2026-11-02T12:05:00Z"
+    },
+    "evaluation_at": "2026-11-03T12:00:00Z"
+  }
+]
