@@ -4,7 +4,7 @@ Imports the core verifier and simulator to replay supplied artifacts, never to
 modify core files or execute external payments. Publication is never inferred.
 """
 import copy
-from .model import fields, canonical, new_claim, append_version, timestamp
+from .model import fields, canonical, new_claim, append_version, timestamp, validate_record, verify_extension, digest
 
 CONTRACT = "forecast-evidence-swarm/v1"
 
@@ -77,3 +77,58 @@ def adapt_report(report, grants=None):
     if grants.keys() - seen:
         raise ValueError("Consent grant does not match a supplied core delivery")
     return records
+
+
+def update_core_history(report, previous_records, grants=None):
+    """Merge a verified report into retained local history without rewriting it.
+
+    Current explicit grants control publication. Previously known records omitted
+    from this report remain in the returned audit collection, but become private.
+    Callers persist the returned full records in private storage, not a public URL.
+    """
+    previous = {}
+    for record in previous_records:
+        validate_record(record)
+        if record["id"] in previous:
+            raise ValueError("Duplicate trusted claim")
+        previous[record["id"]] = copy.deepcopy(record)
+    updated = {}
+    for incoming in adapt_report(report, grants):
+        old = previous.get(incoming["id"])
+        if old is None:
+            updated[incoming["id"]] = incoming
+            continue
+        if canonical(old["versions"][0]) != canonical(incoming["versions"][0]):
+            raise ValueError("Core report rewrites the trusted initial forecast version")
+        candidate = copy.deepcopy(old)
+        candidate.pop("publication", None)
+        if "publication" in incoming:
+            candidate["publication"] = copy.deepcopy(incoming["publication"])
+        latest = copy.deepcopy(incoming["versions"][-1]["snapshot"])
+        retained = {e["id"]: copy.deepcopy(e) for e in old["versions"][-1]["snapshot"]["evidence"]}
+        for evidence in latest["evidence"]:
+            if evidence["id"] in retained and canonical(retained[evidence["id"]]) != canonical(evidence):
+                if evidence["id"] != "core-outcome":
+                    raise ValueError("Core evidence rewrites an existing evidence ID")
+                # A revised result is a new source record, never an overwrite of
+                # a provisional excerpt. Keep baseline v1 import IDs compatible.
+                new_id = "core-outcome-" + digest("outcome-evidence", evidence)
+                evidence["id"] = new_id
+                latest["outcome"]["evidence_ids"] = [new_id if x == "core-outcome" else x for x in latest["outcome"]["evidence_ids"]]
+                for statement in latest["statements"]:
+                    statement["evidence_ids"] = [new_id if x == "core-outcome" else x for x in statement["evidence_ids"]]
+                if new_id in retained and canonical(retained[new_id]) != canonical(evidence):
+                    raise ValueError("Outcome evidence commitment mismatch")
+            retained[evidence["id"]] = evidence
+        latest["evidence"] = sorted(retained.values(), key=lambda e: e["id"])
+        if canonical(latest) != canonical(old["versions"][-1]["snapshot"]):
+            if timestamp(latest["as_of"]) <= timestamp(old["versions"][-1]["snapshot"]["as_of"]):
+                raise ValueError("Changed report times must strictly increase")
+            candidate = append_version(candidate, latest)
+        verify_extension(old, candidate)
+        updated[candidate["id"]] = candidate
+    for key, old in previous.items():
+        if key not in updated:
+            old.pop("publication", None)
+            updated[key] = old
+    return [updated[key] for key in sorted(updated)]

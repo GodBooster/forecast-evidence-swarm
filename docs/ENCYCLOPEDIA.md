@@ -37,6 +37,30 @@ keys, floats, malformed dates and unsupported schema states are rejected. The in
 contains identities, snapshots and optional publication consent; the builder
 creates and verifies complete version records. No public permission is inferred.
 
+## One-command product demonstration
+
+```sh
+python3 -m forecast_encyclopedia --core-demo \
+  --core-consent fixtures_encyclopedia/core_demo_consent.json \
+  --out artifacts/product-demo
+```
+
+This runs the current core generator in memory, replays its evidence, quality and
+acceptance checks, applies the exact synthetic consent grants, and writes the
+combined encyclopedia. It produced 8 public claims and 46 HTML/JSON files. No raw
+private core report is written into the public export. Without `--core-consent`,
+core claims stay private and only the three permitted encyclopedia fixtures appear.
+`--core-demo` and `--core-report` are mutually exclusive.
+
+The repository is now available privately at
+[GodBooster/forecast-evidence-swarm](https://github.com/GodBooster/forecast-evidence-swarm).
+The owner authorized repository creation and upload after the original offline
+milestone. Private repository hosting does not make this a deployed website or
+constitute a public hackathon submission. Generated artifacts remain excluded.
+
+See [the demonstration script](../forecast_encyclopedia/DEMO.md) for a short guided
+walkthrough and a draft product description with explicit implementation limits.
+
 ## Actual core integration
 
 The read-only adapter supports **`forecast-evidence-swarm/v1`**, specifically the
@@ -106,6 +130,37 @@ explicit resolution-policy identity, source authentication, authenticated consen
 and real acceptance provenance. Changes to the core demo algorithm can invalidate
 this adapter's exact replay and must be reviewed with contract tests. The adapter
 imports core validation functions; the standalone encyclopedia demo does not.
+
+## Updating a core report without losing history
+
+Use `update_core_history(report, previous_records, grants)` from
+`forecast_encyclopedia.adapter` when refreshing an already imported report. The
+stateless `adapt_report` remains compatible with the initial import contract.
+
+```python
+from forecast_encyclopedia.adapter import adapt_report, update_core_history
+
+history = adapt_report(first_report, explicit_grants)
+history = update_core_history(later_report, history, explicit_grants)
+```
+
+The caller stores the complete returned history in private local audit storage.
+`export(history, destination)` produces only the currently permitted public subset.
+The updater validates both histories, retains the trusted prefix, rejects older or
+changed same-time reports, and is idempotent for an identical report. A changed
+initial forecast version fails instead of rewriting trusted history.
+
+A provisional outcome becoming final retains its earlier evidence. Revised outcome
+excerpts receive a new ID using the `outcome-evidence` hash domain; existing baseline
+v1 import IDs stay compatible. Final declarations still cannot reverse in place.
+Previously known claims absent from the latest report stay in the returned audit
+collection but become private. Current grants must be supplied explicitly on each
+update; neither a prior public export nor past acceptance implies renewed consent.
+This conservative import rule is separate from editing a local claim whose existing
+consent declaration explicitly covers its full history.
+
+The update API is deliberately an in-memory operation: no audit database, concurrent
+writer coordination or authenticated consent service is claimed.
 
 ## History and canonical commitments
 
@@ -215,14 +270,17 @@ publication, authenticated history storage and multi-user editing remain future 
 
 On 2026-11-06 with Python 3.14.7:
 
-- `python3 -m unittest discover -s tests_encyclopedia -v`: **23 tests passed**.
+- `python3 -m unittest discover -s tests_encyclopedia -v`: **30 tests passed**.
   Covers immutable prior versions and forecasts, identity revisions, cutoff equality
   and rejection, strict times, finality, wrong-but-valid/accepted forecasts,
   abstention versus zero, privacy default, explicit permission, revocation cleanup,
   private links, escaped HTML, safe URLs/paths, symlinks, manifest tampering, forged
   roles, quality/acceptance substitution, canonical JSON, trusted-history comparison,
   deterministic file bytes, every local page link and citation anchor.
-- The CLI ran twice with socket construction/connections blocked in the test and
+- Seven additional adapter/update tests cover actual-core one-command execution,
+  idempotent refresh, preserved history, proposed-to-final source records, stale
+  evaluation rejection, omitted claims and explicit renewed publication grants.
+- Both standalone and combined CLIs ran twice with socket construction/connections blocked in tests and
   produced byte-identical exports. Separate ordinary CLI executions also succeeded.
 - `python3 -m unittest discover -s tests -v`: **35 existing core tests passed**.
   Core source and tests were not modified by this module.

@@ -69,3 +69,13 @@ Implementation and verification details are in `docs/ENCYCLOPEDIA.md`.
   grant file covers only the five known synthetic core deliveries.
 - HTML/JSON and link validation passed. Visual browser inspection is outstanding
   because the embedded browser blocked local file URLs; no visual QA claim is made.
+
+## Integration follow-up (2026-11-06)
+
+`--core-demo` executes the actual core generator and consented encyclopedia export
+in one offline command. `update_core_history` preserves trusted prior versions when
+refreshing a report, retains provisional outcome evidence, rejects time regression,
+and requires current publication grants. Seven follow-up tests bring this module's
+verified suite to 30 tests. Initial stateless adapter output remains compatible.
+The owner subsequently authorized a private GitHub repository under GodBooster;
+this is separate from public hosting, mainnet and hackathon submission.
