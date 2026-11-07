@@ -73,3 +73,14 @@ passed **30 tests** against the current independently developed encyclopedia mod
 generated the landing page, encyclopedia history and two consented paid SIMULATION
 entries. Refunded imported claims stayed private. These runs confirm the offline
 integration and do not establish that a NEAR transfer occurred.
+
+## Contract follow-up — 2026-11-07
+
+The independent `contracts/forecast_jobs/` crate compiled using Rust 1.99.1 and
+cached dependencies. Eight native unit tests passed and a release wasm build
+succeeded. The output is 230,688 bytes; SHA-256:
+`1ac693ee9f3a44b230cc6cfc076d90f557209938adc122e10b4de6bfd0ea6c3c`.
+See [contract specification](NEAR_CONTRACT.md) for the actual API and transfer recovery
+limits. Sandbox tests remain uncompiled/unexecuted because dependency setup through
+Docker was blocked by an automatic approval account usage limit. No sandbox receipt
+or chain transfer is part of this validation. Rustfmt was unavailable locally.

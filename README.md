@@ -2,7 +2,7 @@
 
 A NEAR hackathon prototype for commissioning forecasts with evidence, criticism and reproducible validation.
 
-**Status: runnable offline milestone.** Five synthetic scenarios, three explicitly scripted roles, deterministic evidence commitments, HTML/JSON reports and a local budget simulator. No NEAR contract is implemented here. Forecast quality and trading profitability have not been established.
+**Status: runnable offline product and compiled NEAR contract prototype.** Five synthetic scenarios, three explicitly scripted roles, deterministic evidence commitments, HTML/JSON reports, consent-gated knowledge pages and a local budget simulator. The contract passes native unit tests and builds to wasm; actual NEAR sandbox transfers remain unverified. Forecast quality and trading profitability have not been established.
 
 A customer defines a question, resolution source, deadline and budget. Analyst, critic and verifier roles produce a forecast and evidence bundle. Deterministic checks evaluate data timing, completeness and acceptance rules. A planned NEAR contract records the job, budget and artifact commitment; the customer accepts delivery.
 
@@ -73,11 +73,27 @@ are labelled SIMULATION; refunds never grant publication. An optional strict loc
 sandbox receipt input is described in [knowledge integration](docs/KNOWLEDGE_DEMO.md).
 Receipt JSON is a local runner assertion, not an authenticated payment proof.
 
-Planned next: a minimal contract and local sandbox tests for bounded job budgets,
-deadlines, artifact submission, customer acceptance, refunds, asynchronous transfer
-failure recovery and duplicate payment protection. Offline simulation is not evidence
-of an onchain deployment. Real LLM workers, inference budgets, live data adapters and
-marketplace integrations remain planned.
+The independent contract in `contracts/forecast_jobs/` implements bounded job
+budgets, deadlines, artifact submission, customer acceptance, disputes and
+asynchronous payout/refund states with fixed-entitlement retry after a known failed
+transfer. Eight native Rust tests pass and a release wasm builds successfully:
+
+```sh
+cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline
+cargo +1.99.1 build --manifest-path contracts/forecast_jobs/Cargo.toml --locked --target wasm32-unknown-unknown --release --offline
+```
+
+These commands use the installed toolchain/target and cached dependencies. See
+[contract specification and validation](docs/NEAR_CONTRACT.md). The bounded prototype
+supports ten jobs and requires a separate initialization storage reserve; job rewards
+do not fund arbitrary worker spending.
+
+The [sandbox harness](docs/SANDBOX.md) is prepared but has **not been compiled or
+executed**: dependency setup through Docker was blocked by an automatic approval
+account usage limit. No actual sandbox payment, refund, receipt or onchain anchoring
+is claimed. A callback that fails to execute can leave an unknown pending transfer;
+the contract does not permit unsafe retries from that state. Real LLM workers,
+inference budgets, live data adapters and marketplace integrations remain planned.
 
 [NEAR reuse assessment](docs/NEAR_REUSE.md) describes the adjacent BUMM Guard
 `swarm_jobs` / `review-job` implementation and potential mutual value. BUMM checks

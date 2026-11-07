@@ -68,7 +68,13 @@ The reward remains a liability until a transfer callback confirms success. A kno
 
 This design cannot safely recover if the callback itself never executes or runs out of gas: transfer outcome may be unknown, so the contract deliberately does not allow another transfer from a pending state. Such a job can remain `PAYOUT_PENDING` or `REFUND_PENDING`. Callback gas and execution need to be checked in sandbox tests; this prototype does not claim recovery from callback failure.
 
-The resolver is a trusted single party; this is not trustless arbitration. The worker's hash is not an on-chain evidence proof. Forecast correctness and eventual outcome do not trigger payment. The customer explicitly accepts a valid delivery, or the resolver chooses an entitlement after dispute.
+The resolver is a trusted single party; this is not trustless arbitration. The worker's hash is not an on-chain evidence proof. Forecast correctness and eventual outcome do not trigger payment. The customer explicitly accepts an artifact, or the resolver chooses an entitlement after dispute.
+
+Before deployment on a shared network, deploy and initialize in one atomic batch.
+The prototype's initializer can be called by the first caller after deployment; the
+draft isolated sandbox harness uses separate deploy and initialization calls and
+does not test protection against initialization takeover. No public deployment is
+authorized by this milestone.
 
 ## Next verification
 
