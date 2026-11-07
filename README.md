@@ -57,9 +57,21 @@ See [schema and commitments](docs/SCHEMA.md), [payment state machine](docs/PAYME
 and the original [build specification](docs/BUILD_SPEC.md). Tests cover timing boundaries,
 missing data, finality, tampering, deterministic replay, permissions and duplicate settlement.
 The [validation record](docs/VALIDATION.md) lists 35 passing tests, replay hashes and
-the outstanding browser visual check.
+the completed desktop browser check through a local HTTP preview.
 
 ## NEAR integration
+
+The consent-gated knowledge flow can already be run locally:
+
+```sh
+python3 -m forecast_swarm.knowledge_demo --fixture-consent --out artifacts/knowledge-demo
+```
+
+Open `artifacts/knowledge-demo/index.html`. Only valid deliveries with matching paid
+receipts and explicit hash-bound consent are imported publicly. The default receipts
+are labelled SIMULATION; refunds never grant publication. An optional strict local
+sandbox receipt input is described in [knowledge integration](docs/KNOWLEDGE_DEMO.md).
+Receipt JSON is a local runner assertion, not an authenticated payment proof.
 
 Planned next: a minimal contract and local sandbox tests for bounded job budgets,
 deadlines, artifact submission, customer acceptance, refunds, asynchronous transfer

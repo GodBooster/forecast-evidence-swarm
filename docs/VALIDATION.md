@@ -36,9 +36,26 @@ Generated output remains under Git-ignored `artifacts/` and is rebuilt by the co
 
 The report test parses HTML, checks five scenario sections, internal navigation,
 required status labels, absence of script/external assets, and escaped untrusted text.
-Browser visual QA is **not completed**: the embedded browser was verified working for
-an HTTPS page, but its URL policy rejected opening this local `file://` report. No
-visual rendering or responsive-layout claim is made from the HTML parser checks.
+The initial browser check could not open `file://`. A subsequent owner-authorized
+HTTP preview on 2026-11-06 completed desktop visual QA in the embedded browser:
+the overview and scenario detail are readable at its default 1280×720 viewport;
+the overview link opens the expected scenario; role cards and the evidence table
+fit without overlap. The integrated encyclopedia's valid-but-wrong forecast page
+also renders correctly, and its version-1 link retains the original unresolved
+forecast while version 2 shows final NO. Screenshots are local artifacts at
+`artifacts/demo/visual-desktop.png` and `artifacts/demo/visual-encyclopedia.png`.
+Mobile widths have not been visually checked.
+
+Preview command (binds only to the local computer and serves generated artifacts):
+
+```sh
+python3 -m http.server 8873 --bind 127.0.0.1 --directory artifacts
+```
+
+Open `http://127.0.0.1:8873/demo/report.html` or
+`http://127.0.0.1:8873/encyclopedia-integrated/index.html` after generating the
+respective outputs. Stop the server before rebuilding encyclopedia exports; the
+exporter is single-writer and does not provide an atomic live deployment.
 
 ## Limits
 
@@ -46,3 +63,13 @@ No NEAR contract, sandbox transaction, external forecast evaluation, authenticat
 source, real funds, LLM or paid API was exercised. Budget transitions are synchronous
 simulations, not asynchronous receipt tests. The BUMM comparison is a read-only source
 review; its tests and CI success were not independently rerun in this milestone.
+
+## Knowledge integration follow-up — 2026-11-07
+
+`python3 -m unittest discover -s tests -v` passed **41 tests**, including six new
+consent/receipt/export tests. `python3 -m unittest discover -s tests_encyclopedia -v`
+passed **30 tests** against the current independently developed encyclopedia module.
+`python3 -m forecast_swarm.knowledge_demo --fixture-consent --out artifacts/knowledge-demo`
+generated the landing page, encyclopedia history and two consented paid SIMULATION
+entries. Refunded imported claims stayed private. These runs confirm the offline
+integration and do not establish that a NEAR transfer occurred.
