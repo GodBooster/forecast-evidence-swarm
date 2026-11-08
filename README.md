@@ -1,113 +1,155 @@
 # Forecast Evidence Swarm
 
-A NEAR hackathon prototype for commissioning forecasts with evidence, criticism and reproducible validation.
+Commission a binary forecast, get an evidence bundle checked by analyst, critic and
+verifier roles, pay the worker through a NEAR escrow contract only when the customer
+accepts the exact delivered artifact, and publish the permitted result as an
+encyclopedia page whose forecast history can never be rewritten.
 
-**Status: runnable offline product and compiled NEAR contract prototype.** Five synthetic scenarios, three explicitly scripted roles, deterministic evidence commitments, HTML/JSON reports, consent-gated knowledge pages and a local budget simulator. The contract passes native unit tests, builds to wasm, and one local NEAR Sandbox run (2026-11-08) verified payout, timeout refund and failed-transfer recovery with real receipts and balances; no testnet or mainnet deployment exists. Forecast quality and trading profitability have not been established.
+> **Status (2026-11-08): working prototype, synthetic data only.** The Python product
+> runs offline; the NEAR contract is unit-tested and was exercised end to end on a
+> local, ephemeral NEAR Sandbox. Analyst/critic/verifier are **scripted functions, not
+> LLM agents**. No testnet/mainnet deployment, real funds, live data source or model API
+> is used. Forecast accuracy and trading profitability are **not** established.
 
-A customer defines a question, resolution source, deadline and budget. Analyst, critic and verifier roles produce a forecast and evidence bundle. Deterministic checks evaluate data timing, completeness and acceptance rules. A planned NEAR contract records the job, budget and artifact commitment; the customer accepts delivery.
+## The problem
 
-## Run the offline demo
+Paid forecasting and research work has three failure modes that usually get blurred
+together:
 
-From this repository directory, with Python 3.10+ (verified locally with Python 3.14.7):
+1. **Invalid evidence** — data published after the decision cutoff, missing sources or
+   observations, or an outcome that is still provisional.
+2. **Wrong but honest forecasts** — a properly evidenced 75% YES that resolves NO.
+3. **Payment and publication disputes** — who accepted what, whether a refund was owed,
+   and whether a later "updated" page silently replaced the original forecast.
 
-```sh
-python3 -m forecast_swarm
+Forecast Evidence Swarm keeps these as separate, inspectable facts: *delivery validity*,
+*forecast quality*, *customer acceptance*, *payment provenance* and *publication consent*
+are distinct fields, each checked by its own rule. A valid delivery can be wrong and still
+be paid; an invalid one is never paid or published; a page update appends a version and
+never edits the original forecast.
+
+## Try it in 30 seconds (Python 3.10+, standard library only)
+
+From the repository root. No install, network, credentials or wallet needed.
+
+1. **Run the walkthrough.**
+
+   ```sh
+   python3 -m forecast_swarm.walkthrough
+   ```
+
+   **See:** five numbered steps — ORDER → RESEARCH → EVIDENCE CHECKS →
+   ACCEPTANCE / PAYMENT → KNOWLEDGE PAGE — ending with `All walkthrough checks passed.`
+   The command exits non-zero if any invariant fails. Step 3 shows `future_data INVALID`
+   and `missing_data INSUFFICIENT_DATA`; step 4 shows a `PAID` receipt bound to delivery
+   hash `ba7aa4bf…816d`; step 5 shows the claim's v1 (`UNRESOLVED`, 75% YES) preserved
+   next to v2 (`FINAL`, outcome NO).
+
+2. **Replay the recorded local-chain receipts instead of simulated ones.**
+
+   ```sh
+   python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-08/near-receipts.json --out artifacts/walkthrough-sandbox
+   ```
+
+   **See:** step 4 reports `receipts: LOCAL_NEAR_SANDBOX`, one `PAID` job with transaction
+   IDs, and the chain-refunded `zero_successes` delivery kept private
+   (`public paid claims: 1`). These receipts were produced by the local sandbox run
+   recorded in [docs/evidence](docs/evidence/sandbox-2026-11-08/README.md); that chain no
+   longer exists, so the IDs cannot be checked on an explorer.
+
+3. **Look at the pages.**
+
+   ```sh
+   python3 -m http.server 8873 --bind 127.0.0.1 --directory artifacts
+   ```
+
+   **See:** `http://127.0.0.1:8873/walkthrough/core/report.html` (five scenarios with
+   role cards, evidence tables, simulated ledgers and hashes) and
+   `http://127.0.0.1:8873/walkthrough/knowledge/encyclopedia/index.html` (public claims;
+   open the "next synthetic registry event" claim and its v1 link). Pre-captured synthetic
+   screenshots are in [docs/screenshots](docs/screenshots/README.md).
+
+4. **Run the tests.**
+
+   ```sh
+   python3 -m unittest discover -s tests -q
+   python3 -m unittest discover -s tests_encyclopedia -q
+   ```
+
+   **See:** `Ran 44 tests … OK` and `Ran 30 tests … OK`.
+
+The full scripted demo, with expected output and the optional fresh chain run, is in
+[DEMO.md](DEMO.md).
+
+## How it works
+
+```
+customer order ──► analyst ─► critic ─► verifier ──► delivery bundle (canonical JSON, SHA-256)
+ (question, source,     scripted roles, deterministic         │
+  cutoff, deadlines,    evidence gates                        ▼
+  budget)                                         NEAR escrow: create_job → assign → submit(hash)
+                                                   → accept(hash) | dispute → resolve | timeout
+                                                   → async transfer + callback (retry on failure)
+                                                              │ receipt bound to the same hash
+                                                              ▼
+                               encyclopedia: published only if VALID + PAID + hash-bound consent;
+                               append-only, hash-linked versions (forecast never rewritten)
 ```
 
-No installation, network, credentials, LLM calls or nonstandard packages are required.
-Open `artifacts/demo/report.html` directly in a browser; its companion
-`artifacts/demo/report.json` contains inputs, role outputs, hashes, quality and the
-simulated job ledger. Both outputs are deterministic and ignored by Git.
-Choose another directory with `python3 -m forecast_swarm --out artifacts/replay`.
+| Component | Path | What it does |
+| --- | --- | --- |
+| Evidence pipeline | `forecast_swarm/evidence.py`, `demo.py` | Five synthetic scenarios; cutoff, completeness and finality gates; canonical integer-only JSON; domain-separated SHA-256 commitments; HTML/JSON report |
+| Budget simulator | `forecast_swarm/payments.py` | Synchronous model of the escrow states (labelled SIMULATION) |
+| Knowledge gate | `forecast_swarm/knowledge_demo.py` | Strict receipt schema; publishes only paid, valid, consented deliveries; payment provenance sidecar |
+| Walkthrough | `forecast_swarm/walkthrough.py` | The end-to-end "do X, see Y" command with self-checks |
+| Encyclopedia | `forecast_encyclopedia/` | Private-by-default claim pages, append-only hash-linked history, core report adapter |
+| NEAR contract | `contracts/forecast_jobs/` | `near-sdk` 5.17.2 escrow: bounded jobs, deadlines, hash-bound acceptance, disputes with a named resolver, timeouts, cancel, async payout/refund with fixed-beneficiary retry |
+| Sandbox harness | `sandbox/` | `near-workspaces` 0.24 integration tests against a local NEAR Sandbox in Docker |
 
-```sh
-python3 -m unittest discover -s tests -v
-```
+## Verification status
 
-The examples make three independent statuses visible:
+| Claim | Evidence | How to reproduce |
+| --- | --- | --- |
+| Evidence gates, commitments, simulator, knowledge gate, walkthrough | 44 Python tests | `python3 -m unittest discover -s tests -q` |
+| Encyclopedia history, consent, adapter | 30 Python tests | `python3 -m unittest discover -s tests_encyclopedia -q` |
+| Contract state machine and transfer recovery | 8 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline` |
+| Real local-chain payout, timeout refund, failed-transfer retry, dispute/resolve, cancel | 2 sandbox integration tests, checked by balances and liabilities | `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker, ~5–10 min) — see [docs/SANDBOX.md](docs/SANDBOX.md) |
 
-| Synthetic scenario | Delivery validity | Later forecast quality | Customer acceptance |
-| --- | --- | --- | --- |
-| Valid evidence, 75% YES, final outcome NO | VALID | EVALUATED, incorrect direction | Explicitly ACCEPTED |
-| Published one second after cutoff | INVALID | INSUFFICIENT_DATA | Submission rejected, budget REFUNDED at timeout |
-| Missing source and observations | INSUFFICIENT_DATA | INSUFFICIENT_DATA | Submission rejected, budget REFUNDED at timeout |
-| Provisional/unknown outcome | VALID | INSUFFICIENT_DATA | AWAITING_CUSTOMER; budget held |
-| Zero successes in 20 observations | VALID | EVALUATED, correct direction | Explicitly ACCEPTED |
+Details and exact recorded values: [docs/VALIDATION.md](docs/VALIDATION.md).
 
-Zero known successes are different from missing observations. Unresolved outcomes
-cannot receive a positive quality verdict. A valid delivery can be wrong and still
-be accepted for payment. The unresolved case intentionally shows an open review;
-tests also exercise its acceptance timeout and dispute timeout refund paths.
+## Limitations (read before judging)
 
-## What is implemented
+- **No AI inference yet.** The three roles are deterministic scripted functions. A bounded
+  LLM worker is planned behind the same evidence gates; it needs approved inference access.
+- **Synthetic data only.** Sources such as `synthetic://event-registry/v1` are fixture labels,
+  not authenticated feeds. A SHA-256 commitment proves byte agreement, not truth.
+- **Local chain only.** No testnet or mainnet deployment. Sandbox transaction IDs come from
+  an ephemeral chain and are runner evidence, not public anchoring.
+- **Contract prototype limits.** Ten jobs per deployment; single trusted resolver; a callback
+  that fails to execute (e.g. out of gas) can leave a pending transfer with unknown outcome,
+  which is deliberately not retryable; deploy and `new` must be one atomic batch on a public
+  network (the local harness separates them). See [docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md).
+- **No claims of forecasting skill or profitability.** One synthetic Brier score proves nothing.
 
-- Independent scripted analyst, critic and verifier functions, explicitly labelled
-  in every report. This is a sequential deterministic pipeline, not autonomous agents.
-- Strict versioned synthetic inputs, pre-decision publication checks, outcome finality
-  checks and separate retrospective scores. Source strings are fixture labels, not
-  authenticated external records.
-- Canonical integer-only JSON with domain-separated SHA-256 evidence and delivery
-  commitments. Later outcomes and payment history are excluded from the delivery hash.
-  Repeating the demo produces identical files. A hash proves byte agreement, not truth.
-- A synchronous escrow **SIMULATION** with explicit customer acceptance, named dispute
-  resolver, finite timeout rules, permissions and full-budget payout/refund conservation.
-  No real balances or transactions are involved.
+## Documentation map
 
-See [schema and commitments](docs/SCHEMA.md), [payment state machine](docs/PAYMENT_STATE_MACHINE.md)
-and the original [build specification](docs/BUILD_SPEC.md). Tests cover timing boundaries,
-missing data, finality, tampering, deterministic replay, permissions and duplicate settlement.
-The [validation record](docs/VALIDATION.md) lists 35 passing tests, replay hashes and
-the completed desktop browser check through a local HTTP preview.
-
-## NEAR integration
-
-The consent-gated knowledge flow can already be run locally:
-
-```sh
-python3 -m forecast_swarm.knowledge_demo --fixture-consent --out artifacts/knowledge-demo
-```
-
-Open `artifacts/knowledge-demo/index.html`. Only valid deliveries with matching paid
-receipts and explicit hash-bound consent are imported publicly. The default receipts
-are labelled SIMULATION; refunds never grant publication. An optional strict local
-sandbox receipt input is described in [knowledge integration](docs/KNOWLEDGE_DEMO.md).
-Receipt JSON is a local runner assertion, not an authenticated payment proof.
-
-The independent contract in `contracts/forecast_jobs/` implements bounded job
-budgets, deadlines, artifact submission, customer acceptance, disputes and
-asynchronous payout/refund states with fixed-entitlement retry after a known failed
-transfer. Eight native Rust tests pass and a release wasm builds successfully:
-
-```sh
-cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline
-cargo +1.99.1 build --manifest-path contracts/forecast_jobs/Cargo.toml --locked --target wasm32-unknown-unknown --release --offline
-```
-
-These commands use the installed toolchain/target and cached dependencies. See
-[contract specification and validation](docs/NEAR_CONTRACT.md). The bounded prototype
-supports ten jobs and requires a separate initialization storage reserve; job rewards
-do not fund arbitrary worker spending.
-
-The [sandbox harness](docs/SANDBOX.md) was compiled and executed on 2026-11-08 in a
-Docker runner against an ephemeral local NEAR Sandbox: one accepted job paid the worker
-exactly the reward, one submitted job refunded at the acceptance deadline, duplicate
-settlement and wrong callers were rejected, and two deliberately failed transfers were
-recovered by permissionless retries with the fixed beneficiary. Those hashes live on a
-local chain that no longer exists; they are runner evidence, not public anchoring.
-A callback that fails to execute can leave an unknown pending transfer;
-the contract does not permit unsafe retries from that state. Real LLM workers,
-inference budgets, live data adapters and marketplace integrations remain planned.
-
-[NEAR reuse assessment](docs/NEAR_REUSE.md) describes the adjacent BUMM Guard
-`swarm_jobs` / `review-job` implementation and potential mutual value. BUMM checks
-contract-code work; this project checks forecast evidence. Shared escrow/testing
-patterns are candidates for explicit reuse, not a claim that either product provides
-the other's domain validation. No BUMM source code was copied into this milestone.
+- [DEMO.md](DEMO.md) — scripted demo with expected output.
+- [docs/BUILD_SPEC.md](docs/BUILD_SPEC.md), [docs/SCHEMA.md](docs/SCHEMA.md), [docs/PAYMENT_STATE_MACHINE.md](docs/PAYMENT_STATE_MACHINE.md) — product, commitments, simulator.
+- [docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md), [docs/SANDBOX.md](docs/SANDBOX.md) — contract API and chain harness.
+- [docs/ENCYCLOPEDIA.md](docs/ENCYCLOPEDIA.md), [docs/KNOWLEDGE_DEMO.md](docs/KNOWLEDGE_DEMO.md) — history, consent and receipt gate.
+- [docs/VALIDATION.md](docs/VALIDATION.md) — what was actually executed, when, with what result.
+- [docs/PRIOR_WORK.md](docs/PRIOR_WORK.md), [docs/NEAR_REUSE.md](docs/NEAR_REUSE.md) — prior work and relationship to BUMM Guard.
 
 ## Prior work and disclosure
 
-See [prior work](docs/PRIOR_WORK.md). The baseline predates this repository; only new features and integration are presented as hackathon work. Related project: BUMM, an independently developed security project; its public link and exact overlap must be confirmed before submission.
+The ideas (timestamped forecast journals, outcome finality, deterministic replay, fixed
+evaluation rules) come from the owner's private InvariFi prediction-market research. That
+research is background, not evidence of forecasting skill or profitability, and none of
+its code, strategies or data is in this repository. All code here was written for this
+hackathon starting 2026-11-06 (see Git history). BUMM Guard is a separate project by the
+same owner (NEAR contract-code review); no BUMM source was copied, and design lessons are
+documented in [docs/NEAR_REUSE.md](docs/NEAR_REUSE.md). See [docs/PRIOR_WORK.md](docs/PRIOR_WORK.md).
 
 ## License
 
-License selection is pending. A LICENSE file must be added before publication or submission.
+Not yet selected; no license is granted until a LICENSE file is added by the owner.

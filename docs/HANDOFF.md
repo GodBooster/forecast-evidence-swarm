@@ -34,7 +34,8 @@ track names and eligibility before submission.
 | `forecast_encyclopedia/` | Consent-gated pages, append-only history, core adapter, one-command product demo | 30 Python tests pass |
 | `forecast_swarm/knowledge_demo.py` | Paid-receipt/hash/consent export gate, separate payment provenance | Two consented SIMULATION entries exported; refunded imports excluded |
 | `contracts/forecast_jobs/` | Independent NEAR escrow with async payout/refund and immutable entitlement on retry | Eight native Rust tests pass; release wasm built |
-| `sandbox/` | Local-chain harness, runner image and Docker wrapper | Executed 2026-11-08: 1 integration test passed on an ephemeral NEAR Sandbox (see `docs/SANDBOX.md`) |
+| `sandbox/` | Local-chain harness, runner image and Docker wrapper | Executed 2026-11-08: 2 integration tests (escrow/recovery; dispute/resolve/timeout/cancel) passed on ephemeral NEAR Sandbox nodes (see `docs/SANDBOX.md`) |
+| `forecast_swarm/walkthrough.py` | One-command end-to-end demo with self-checks | 3 tests; documented in `DEMO.md`; submission draft in `docs/SUBMISSION_DRAFT.md` |
 | UI | Standalone generated HTML | Desktop HTTP preview checked in embedded browser; mobile visual QA pending |
 | LLM agents / live sources | Planned | No inference, authenticated source or model API exercised |
 

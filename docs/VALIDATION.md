@@ -104,5 +104,40 @@ The two exported receipts flowed through `forecast_swarm.knowledge_demo`; the pa
 `valid_wrong` claim was published with its transaction IDs, the refunded claim was not.
 Evidence: `artifacts/near-sandbox-run.nzgFCx/` (Git-ignored). Details and limits: `docs/SANDBOX.md`.
 
-Not covered: dispute/resolve/cancel on chain, callback out-of-gas recovery,
-initialization takeover, gas measurement, testnet/mainnet, rustfmt.
+Not covered by that run: dispute/resolve/cancel on chain (added below), callback
+out-of-gas recovery, initialization takeover, gas measurement, testnet/mainnet, rustfmt.
+
+## Submission-readiness follow-up — 2026-11-08 (later the same day)
+
+Commands executed on the reference Intel Mac (Python 3.14.7, Rust 1.99.1, Docker 29.9.2):
+
+```sh
+python3 -m unittest discover -s tests -q            # Ran 44 tests ... OK
+python3 -m unittest discover -s tests_encyclopedia -q   # Ran 30 tests ... OK
+cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline   # 8 passed
+python3 -m forecast_swarm.walkthrough               # All walkthrough checks passed.
+python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-08/near-receipts.json --out artifacts/walkthrough-sandbox
+FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh     # 2 chain tests ok (separate processes)
+git diff --check
+```
+
+- New `forecast_swarm/walkthrough.py` runs order → research → evidence checks →
+  acceptance/payment → encyclopedia page in one command and fails non-zero if an invariant
+  breaks. Three new tests (`tests/test_walkthrough.py`) cover the simulation path, a
+  sandbox-style receipt document (only the paid delivery published; refunded kept private)
+  and a failing case without a PAID receipt. Python total: 44.
+- New chain test `real_local_chain_dispute_resolve_timeout_and_cancel` passed on a local
+  NEAR Sandbox: resolver-only dispute decisions in both directions with exact balances,
+  silent-resolver refund after the dispute deadline, customer-only cancel with liability
+  2 NEAR → 0, assigned job not cancellable and refunded at the delivery deadline. The
+  existing escrow/recovery test passed again in the same run. Two failed attempts before
+  the passing run, their causes and fixes are recorded in `docs/SANDBOX.md`.
+- Wasm unchanged: SHA-256 `1ac693ee9f3a44b230cc6cfc076d90f557209938adc122e10b4de6bfd0ea6c3c`.
+- The recorded receipts/diagnostics were copied to `docs/evidence/sandbox-2026-11-08/` and
+  replayed through the walkthrough (1 public paid claim; refunded claim private).
+- A scan of the full Git history for private-key, token and NEAR secret-key patterns found
+  no matches (pattern scan, not a guarantee).
+- Synthetic screenshots of the generated pages are in `docs/screenshots/`.
+
+Still not covered: callback out-of-gas recovery, initialization takeover, gas measurement,
+testnet/mainnet, rustfmt, mobile visual QA, any LLM inference.
