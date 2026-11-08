@@ -171,9 +171,21 @@ The ideas (timestamped forecast journals, outcome finality, deterministic replay
 evaluation rules) come from the owner's private InvariFi prediction-market research. That
 research is background, not evidence of forecasting skill or profitability, and none of
 its code, strategies or data is in this repository. All code here was written for this
-hackathon starting 2026-11-06 (see Git history). BUMM Guard is a separate project by the
-same owner (NEAR contract-code review); no BUMM source was copied, and design lessons are
-documented in [docs/NEAR_REUSE.md](docs/NEAR_REUSE.md). See [docs/PRIOR_WORK.md](docs/PRIOR_WORK.md).
+hackathon starting 2026-11-06 (see Git history).
+
+- **Other project by the same owner:** BUMM Guard — an independent NEAR HACKATHON entry
+  for NEAR contract-code security review, in its own repository. No BUMM source was copied; design lessons are documented in
+  [docs/NEAR_REUSE.md](docs/NEAR_REUSE.md).
+- **AI-written code:** the code and documentation were written with AI coding agents —
+  OpenAI Codex and Anthropic Claude Code — under the owner's direction (commit authors
+  `Codex` and `Claude Code`).
+- **Libraries and services:** Rust `near-sdk` 5.17.2, `near-workspaces` 0.24, `near-sandbox`,
+  `serde_json`, `sha2`, `anyhow`, `tokio` (MIT and/or Apache-2.0). Python uses only the
+  standard library. The optional live analyst (`--roles llm --live`) calls an external
+  model API chosen by the operator (one run used the OpenAI API).
+- **License:** `MIT OR Apache-2.0` ([LICENSE-MIT](LICENSE-MIT), [LICENSE-APACHE](LICENSE-APACHE)).
+
+See [docs/PRIOR_WORK.md](docs/PRIOR_WORK.md).
 
 ## License
 
