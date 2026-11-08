@@ -2,7 +2,7 @@
 
 > **This is a chronological log.** Each section records what was executed on that date,
 > with the test counts of that moment; earlier counts (35, 41, 44) are historical.
-> **Current totals: 79 Python tests (`tests/`), 30 encyclopedia tests
+> **Current totals: 84 Python tests (`tests/`), 30 encyclopedia tests
 > (`tests_encyclopedia/`), 8 native Rust contract tests and 2 sandbox integration tests.**
 > Re-verify with the commands in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
@@ -240,3 +240,29 @@ Files (Git-ignored, not published): `artifacts/live-cassette-2026-11-08.json`
 `artifacts/live-cassette-2026-11-08.original.json`
 (`2a0bf925a9647f59fdb20a1668b3e9a055f004899c173691bd110347da87bfda`, as recorded).
 Whether to commit the recorded cassette is the owner's decision.
+
+## Pre-publication review fixes — 2026-11-08 (evening)
+
+A review before making the repository public found no code or test defects but several
+documentation problems: private process files with absolute local paths, stale "planned"
+statements about the contract, overclaims ("never be rewritten", "gates decide payment"),
+stale test counts, a test that hard-coded `/private/tmp` and cargo instructions that fail on
+a cold cache. The fixes are documentation-only except for three small code changes:
+`forecast_encyclopedia/render.py` and `forecast_swarm/knowledge_demo.py` label a chain-paid
+page "Customer acceptance · local NEAR Sandbox receipt" (one new test), and the new
+`forecast_swarm/verify.py` implements the customer's pre-`accept` check (four new tests).
+Commands executed on the reference Intel Mac (Python 3.14.7, Rust 1.99.1) after the change:
+
+```sh
+python3 -m unittest discover -s tests -q                 # Ran 84 tests ... OK
+python3 -m unittest discover -s tests_encyclopedia -q    # Ran 30 tests ... OK
+python3 -m forecast_swarm.walkthrough                    # All walkthrough checks passed.
+python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-08/near-receipts.json --out artifacts/walkthrough-sandbox
+python3 -m forecast_swarm.walkthrough --roles llm --replay fixtures/llm_cassettes/hand_authored_analyst.json --out artifacts/walkthrough-llm
+python3 -m forecast_swarm.verify --bundle artifacts/walkthrough --expect-sha256 ba7aa4bf1e5ae00ac6a1a124f042c9dab37ab0bae903671ad640451066db816d   # exit 0
+cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked   # 8 passed
+# plus a scan of all tracked files for absolute local home-directory paths: no matches
+```
+
+The contract source, wasm and sandbox harness were not changed; the sandbox run was not
+repeated. Scripted delivery hashes are unchanged (focus `ba7aa4bf…816d`).

@@ -57,6 +57,29 @@ The wasm output is `contracts/forecast_jobs/target/wasm32-unknown-unknown/releas
 
 All time checks use `env::block_timestamp_ms()`; callers cannot submit a timestamp as proof. Action boundaries do not overlap: customer actions must be strictly before their deadline, while timeout is legal at or after it. Thus acceptance can win only before the acceptance boundary; timeout wins at the boundary.
 
+## Customer verification before `accept`
+
+`submit` validates digest syntax only, and `accept` pays the worker for whatever digest the
+customer names. The contract never sees the delivered bytes, so the customer performs the
+validity check off chain, immediately before accepting:
+
+1. `get_job(job_id)` → read `artifact_sha256` as submitted by the worker.
+2. Run the deterministic validator on the delivered bundle and compare:
+
+   ```sh
+   python3 -m forecast_swarm.verify --bundle <bundle.json | report.json | directory> --expect-sha256 <artifact_sha256>
+   ```
+
+   The command replays `validate_bundle` (role outputs, evidence gate, commitment), requires
+   `delivery_validity == VALID`, and exits 0 only if the recomputed SHA-256 equals the
+   expected digest. A tampered bundle, a non-VALID delivery or a digest mismatch exits 1
+   with `DO NOT ACCEPT`.
+3. Call `accept(job_id, artifact_sha256)` with that exact digest, or `dispute(job_id)`.
+
+The Python simulator (`docs/PAYMENT_STATE_MACHINE.md`) performs the same replay inside
+`submit`; the contract deliberately does not, which keeps it independent of the Python
+roles and of any evidence format. A match proves byte agreement, not forecast truth.
+
 ## State and payment recovery
 
 ```text

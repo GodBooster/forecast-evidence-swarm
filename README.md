@@ -47,7 +47,7 @@ Forecast Evidence Swarm keeps these as separate, inspectable facts: *delivery va
 are distinct fields, each checked by its own rule. A valid delivery can be wrong and still
 be paid; an invalid one is refused by the simulator at submission and is never published;
 on chain, the customer re-runs the validator before accepting the hash (see
-[docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md)). A page update appends a version and never edits the
+"Customer verification before `accept`" below). A page update appends a version and never edits the
 original forecast.
 
 ## Try it in 30 seconds (Python 3.10+, standard library only)
@@ -112,7 +112,7 @@ From the repository root. No install, network, credentials or wallet needed.
    python3 -m unittest discover -s tests_encyclopedia -q
    ```
 
-   **See:** `Ran 79 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
+   **See:** `Ran 84 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
 
 The full scripted demo, with expected output and the optional fresh chain run, is in
 [DEMO.md](DEMO.md).
@@ -139,16 +139,38 @@ customer order ──► analyst ─► critic ─► verifier ──► deliver
 | Budget simulator | `forecast_swarm/payments.py` | Synchronous model of the escrow states (labelled SIMULATION) |
 | Knowledge gate | `forecast_swarm/knowledge_demo.py` | Strict receipt schema; publishes only paid, valid, consented deliveries; payment provenance sidecar |
 | Walkthrough | `forecast_swarm/walkthrough.py` | The end-to-end "do X, see Y" command with self-checks; `--roles scripted\|llm` |
+| Customer verifier | `forecast_swarm/verify.py` | Replays a delivered bundle, requires VALID and compares its SHA-256 with the on-chain digest before `accept` |
 | AI worker | `forecast_swarm/inference.py`, `llm_roles.py`, `llm_cli.py` | Provider-neutral adapter (OpenAI-compatible incl. NEAR AI Cloud, Anthropic Messages), per-order call/token/time/cost limits, committed call trace, record/replay cassettes, LLM analyst behind evidence and output gates |
 | Encyclopedia | `forecast_encyclopedia/` | Private-by-default claim pages, append-only hash-linked history, core report adapter |
 | NEAR contract | `contracts/forecast_jobs/` | `near-sdk` 5.17.2 escrow: bounded jobs, deadlines, hash-bound acceptance, disputes with a named resolver, timeouts, cancel, async payout/refund with fixed-beneficiary retry |
 | Sandbox harness | `sandbox/` | `near-workspaces` 0.24 integration tests against a local NEAR Sandbox in Docker |
 
+## Customer verification before `accept`
+
+The contract pays whoever delivered the digest the customer accepts; it never looks at
+the bytes. So the customer's own check is part of the protocol. Before calling
+`accept(job_id, artifact_sha256)`:
+
+1. Read the submitted digest from the contract: `get_job(job_id).artifact_sha256`.
+2. Replay the delivered bundle with the same deterministic validator the worker used and
+   compare the recomputed commitment with that digest:
+
+   ```sh
+   python3 -m forecast_swarm.verify --bundle artifacts/walkthrough --expect-sha256 ba7aa4bf1e5ae00ac6a1a124f042c9dab37ab0bae903671ad640451066db816d
+   ```
+
+   **See:** `replay: OK`, `hash: MATCH`, `delivery validity: VALID`, exit code 0. Any
+   tampering, a non-VALID delivery or a different digest prints `DO NOT ACCEPT` and exits 1.
+   `--bundle` takes a bundle JSON, a core `report.json` or a directory holding one.
+3. Only then call `accept` with exactly that digest. A match proves byte agreement with
+   the committed artifact and that the evidence gates passed; it does not prove the
+   forecast is right.
+
 ## Verification status
 
 | Claim | Evidence | How to reproduce |
 | --- | --- | --- |
-| Evidence gates, commitments, simulator, knowledge gate, walkthrough, AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 79 Python tests | `python3 -m unittest discover -s tests -q` |
+| Evidence gates, commitments, simulator, knowledge gate, walkthrough, customer verifier, AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 84 Python tests | `python3 -m unittest discover -s tests -q` |
 | Encyclopedia history, consent, adapter | 30 Python tests | `python3 -m unittest discover -s tests_encyclopedia -q` |
 | Contract state machine and transfer recovery | 8 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked` (first run downloads crates; add `--offline` once they are cached) |
 | Real local-chain payout, timeout refund, failed-transfer retry, dispute/resolve, cancel | 2 sandbox integration tests, checked by balances and liabilities | `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker, ~5–10 min) — see [docs/SANDBOX.md](docs/SANDBOX.md) |
