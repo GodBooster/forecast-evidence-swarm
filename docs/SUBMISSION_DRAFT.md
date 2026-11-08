@@ -67,7 +67,14 @@ live form. The submission form allows several tracks; select only those the proj
   `python3 -m forecast_swarm.walkthrough` output and the generated HTML pages; any images
   placed in the repository must be labelled synthetic.
 
-## License options (owner decides; no LICENSE file has been created)
+## License
+
+**Decided by the owner on 2026-11-08: `MIT OR Apache-2.0`.** `LICENSE-MIT`, `LICENSE-APACHE`
+and the Cargo `license` fields were added. The MIT copyright line reads "Forecast Evidence
+Swarm authors"; the owner may replace it with their own name. The options considered are
+kept below for the record.
+
+### Options considered
 
 Every Rust dependency checked (`near-sdk`, `near-workspaces`, `near-sandbox`, `serde_json`,
 `anyhow`, `sha2`) is `MIT OR Apache-2.0` and `tokio` is MIT, so all options below are
@@ -89,13 +96,12 @@ compatible with the dependencies.
      NEAR ecosystem projects may be lower; check whether the hackathon rules require an
      OSI-approved license (AGPL is OSI-approved) before choosing.
 
-Either way: add `LICENSE` (and `license` fields in `contracts/forecast_jobs/Cargo.toml` and
-`sandbox/Cargo.toml`) before the repository becomes public.
+Chosen: option 1.
 
 ## Pre-submission checklist (owner actions marked ★)
 
 - [ ] ★ Re-read the live HACKATHON.md (dates, tracks, form fields, description limits, rules on prior work and AI-written code).
-- [ ] ★ Choose the license; then add `LICENSE` and Cargo `license` fields.
+- [x] ★ License chosen: `MIT OR Apache-2.0`; files and Cargo fields added (optionally put the owner's name in `LICENSE-MIT`).
 - [ ] ★ Decide whether internal handoff files (`docs/HANDOFF.md`, `docs/CLAUDE_CODE_START.md`, `forecast_encyclopedia/CLAUDE_HANDOFF.md`, `CLAUDE.md`, `AGENTS.md`) stay public; three of them contain local absolute paths.
 - [ ] ★ Approve the push of local `main` to `GodBooster/forecast-evidence-swarm` and the change from private to public visibility.
 - [ ] ★ Provide the mainnet NEAR account for the prize payout (not created by any agent).

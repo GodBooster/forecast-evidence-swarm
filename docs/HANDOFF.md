@@ -190,7 +190,8 @@ The contract stores hashes and schedules, not source evidence or a proof of trut
 
 Historical deadline in local research: **2026-11-14 23:59 UTC / November 15 01:59 Kyiv**.
 It was not reverified on November 8. Rules reference: `https://nearhackathon.com/HACKATHON.md`.
-No license has been selected; no LICENSE file exists. Do not invent owner contact details.
+License chosen by the owner on 2026-11-08: `MIT OR Apache-2.0` (`LICENSE-MIT`,
+`LICENSE-APACHE`, Cargo `license` fields). Do not invent owner contact details.
 
 ## Git state and milestones
 
