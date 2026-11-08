@@ -115,14 +115,19 @@ class KnowledgeDemoTests(unittest.TestCase):
             claim_id = sidecar["receipts"][0]["claim_id"]
             pages = {p.name: p.read_text(encoding="utf-8") for p in (base / "sandbox" / "encyclopedia").glob("*.html")}
             for name in (f"{claim_id}.html", f"{claim_id}-v1.html"):
-                self.assertIn("Customer acceptance · local NEAR Sandbox receipt", pages[name])
+                self.assertIn("Customer acceptance · local NEAR Sandbox receipt<strong>PAID · job 0 · 1 tx</strong>", pages[name])
                 self.assertNotIn("Customer acceptance · simulation", pages[name])
+                self.assertNotIn("<strong>NOT_REQUESTED</strong>", pages[name])
+            # The stored record keeps the replayed simulator state; only the card changes.
+            claim_json = json.loads((base / "sandbox" / "encyclopedia" / f"{claim_id}.json").read_text(encoding="utf-8"))
+            self.assertEqual([v["snapshot"]["customer_acceptance"] for v in claim_json["versions"]],
+                             ["NOT_REQUESTED", "ACCEPTED"])
             others = [text for name, text in pages.items() if not name.startswith(claim_id) and name != "index.html"]
             self.assertTrue(others)
             self.assertTrue(all("Customer acceptance · simulation" in text for text in others))
             run(base / "simulated", consent=CONSENT_FIXTURE)
             simulated = (base / "simulated" / "encyclopedia" / f"{claim_id}.html").read_text(encoding="utf-8")
-            self.assertIn("Customer acceptance · simulation", simulated)
+            self.assertIn("Customer acceptance · simulation<strong>ACCEPTED</strong>", simulated)
             self.assertNotIn("Sandbox receipt", simulated)
 
     def test_export_files_are_deterministic_and_have_landing_links(self):

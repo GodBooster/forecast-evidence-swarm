@@ -175,12 +175,16 @@ def build_integration(report=None, receipts=None, consent=None):
 
 
 def acceptance_labels(sidecar):
-    """Page label for claims whose paid receipt came from a chain rather than the simulator.
-    The value shown is still the replayed simulator state; the label names the receipt source."""
+    """Acceptance card for claims whose receipt came from a chain rather than the simulator:
+    the label names the receipt source and the value summarises the receipt itself
+    (status, receipt job ID, transaction count). Pages without such a receipt keep the
+    replayed simulator state under the simulation label. Records are not modified."""
     label = RECEIPT_LABELS.get(sidecar["receipt_mode"])
     if label is None:
         return None
-    return {entry["claim_id"]: label for entry in sidecar["receipts"]}
+    return {entry["claim_id"]: {"label": label,
+                                "value": f"{entry['status']} · job {entry['job_id']} · {len(entry['transaction_ids'])} tx"}
+            for entry in sidecar["receipts"]}
 
 
 def _json(value):

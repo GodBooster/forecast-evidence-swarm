@@ -35,10 +35,13 @@ def citations(ids):
 ACCEPTANCE_LABEL = "simulation"
 
 
-def page(r, v, acceptance_label=ACCEPTANCE_LABEL):
+def page(r, v, acceptance_label=ACCEPTANCE_LABEL, acceptance_value=None):
     """acceptance_label names where the customer-acceptance value comes from: the core
-    simulator ledger by default, or a receipt source supplied by the knowledge demo."""
+    simulator ledger by default, or a receipt source supplied by the knowledge demo.
+    acceptance_value, when given, replaces the replayed simulator state on the card
+    (the stored snapshot and its hashes are untouched)."""
     i, s = r["identity"], v["snapshot"]
+    acceptance = s["customer_acceptance"] if acceptance_value is None else acceptance_value
     p = s["forecast"]["probability_bps"]
     forecast = "Abstained — insufficient or invalid evidence" if p is None else f"{p / 100:.2f}% YES"
     score = accuracy(s)
@@ -55,7 +58,7 @@ def page(r, v, acceptance_label=ACCEPTANCE_LABEL):
     previous = f'<p>Revised claim: <a href="{r["previous_claim"]}.html">Earlier question or rules</a>.</p>' if r.get("previous_claim") else ""
     score_detail = "" if score["brier_scaled_1e8"] is None else f'<p>Brier score: {score["brier_scaled_1e8"] / 100000000:.8f}. One example establishes no forecasting skill.</p>'
     body = f'''<nav><a href="index.html">All public claims</a></nav><header><h1>{txt(i['question'])}</h1><p>{txt(i['scope'])}</p><p class="meta">Version {v['number']} · as of {txt(s['as_of'])}. This page describes that historical instant.</p>{previous}</header>
-<section class="card"><h2>Forecast and result</h2><div class="grid"><div class="stat">Historical forecast<strong>{txt(forecast)}</strong>{citations(s['forecast']['evidence_ids'])}<br><small>Cutoff {txt(s['forecast']['cutoff'])}</small></div><div class="stat">Claim resolution<strong>{txt(outcome)}</strong>{citations(o['evidence_ids'])}</div><div class="stat">Delivery validity<strong>{txt(s['delivery_validity'])}</strong></div><div class="stat">Customer acceptance · {txt(acceptance_label)}<strong>{txt(s['customer_acceptance'])}</strong></div></div><h3>Later forecast accuracy: {txt(quality)}</h3>{score_detail}<p>A valid delivery can be wrong. Acceptance does not certify accuracy. Proposed or disputed results are never scored as final.</p><p>Method: {txt(s['forecast']['method'])}</p></section>
+<section class="card"><h2>Forecast and result</h2><div class="grid"><div class="stat">Historical forecast<strong>{txt(forecast)}</strong>{citations(s['forecast']['evidence_ids'])}<br><small>Cutoff {txt(s['forecast']['cutoff'])}</small></div><div class="stat">Claim resolution<strong>{txt(outcome)}</strong>{citations(o['evidence_ids'])}</div><div class="stat">Delivery validity<strong>{txt(s['delivery_validity'])}</strong></div><div class="stat">Customer acceptance · {txt(acceptance_label)}<strong>{txt(acceptance)}</strong></div></div><h3>Later forecast accuracy: {txt(quality)}</h3>{score_detail}<p>A valid delivery can be wrong. Acceptance does not certify accuracy. Proposed or disputed results are never scored as final.</p><p>Method: {txt(s['forecast']['method'])}</p></section>
 <section class="card"><h2>Resolution rules</h2><p>{txt(i['resolution_rule'])}</p><p>Specified source: {txt(i['resolution_source'])}<br>Resolution time: {txt(i['resolution_at'])}</p><p>A different question, scope, source, time or rule creates a new linked claim.</p></section>
 <section class="card"><h2>Evidence notes</h2>{''.join('<p>' + txt(x['text']) + ' ' + citations(x['evidence_ids']) + '</p>' for x in s['statements']) or '<p>No supported evidence note is supplied.</p>'}<h3>Criticism and uncertainty · supplied commentary</h3><ul>{''.join('<li>' + txt(x) + '</li>' for x in s['criticism'])}</ul><h3>Selected sources and excerpts</h3>{''.join(sources) or '<p>No usable evidence supplied. Unknown does not mean NO.</p>'}</section>
 <section class="card"><h2>Version history</h2><ol>{history}</ol><p>Change in this version: {txt(s['change_reason'])}</p><details><summary>Technical commitments and JSON</summary><p>Claim ID: <code>{r['id']}</code></p><p>Version SHA-256: <code>{v['sha256']}</code></p><p>Previous version: <code>{txt(v['previous_sha256'])}</code></p><p>Frozen forecast: <code>{v['forecast_sha256']}</code></p><a href="{r['id']}-v{v['number']}.json">This version JSON</a> · <a href="{r['id']}.json">Complete claim JSON</a></details></section>
@@ -89,25 +92,30 @@ def encode(v):
 
 
 def build_files(records, acceptance_labels=None):
-    """acceptance_labels: optional {claim_id: label} for pages whose acceptance is backed
-    by a payment receipt rather than the simulator (default label: simulation)."""
+    """acceptance_labels: optional {claim_id: {"label": str, "value": str}} for pages whose
+    acceptance is backed by a payment receipt rather than the simulator. The label names
+    the receipt source and the value is shown on the card (default: simulation, replayed
+    simulator state). Records, snapshots and hashes are never modified."""
     if acceptance_labels is not None and (type(acceptance_labels) is not dict or any(
-            type(k) is not str or type(v) is not str or not v.strip() for k, v in acceptance_labels.items())):
-        raise ValueError("acceptance_labels must map claim IDs to nonempty strings")
+            type(k) is not str or type(v) is not dict or set(v) != {"label", "value"}
+            or any(type(x) is not str or not x.strip() for x in v.values())
+            for k, v in acceptance_labels.items())):
+        raise ValueError("acceptance_labels must map claim IDs to {label, value} nonempty strings")
     labels = acceptance_labels or {}
     public = public_records(records)
     files, cards, entries = {}, [], []
     for r in public:
-        label = labels.get(r["id"], ACCEPTANCE_LABEL)
+        card = labels.get(r["id"], {"label": ACCEPTANCE_LABEL, "value": None})
+        label, value = card["label"], card["value"]
         latest = r["versions"][-1]
         s = latest["snapshot"]
         entries.append({"id": r["id"], "question": r["identity"]["question"], "latest_sha256": latest["sha256"], "as_of": s["as_of"]})
         cards.append(f'<article><p class="eyebrow">{txt(s["outcome"]["status"])} · {txt(s["delivery_validity"])}</p><h2><a href="{r["id"]}.html">{txt(r["identity"]["question"])}</a></h2><p>{txt(r["identity"]["scope"])}</p><small>{len(r["versions"])} version(s) · As of {txt(s["as_of"])}</small></article>')
         files[r["id"] + ".json"] = encode(r)
-        files[r["id"] + ".html"] = page(r, latest, label)
+        files[r["id"] + ".html"] = page(r, latest, label, value)
         for v in r["versions"]:
             name = r["id"] + "-v" + str(v["number"])
-            files[name + ".html"] = page(r, v, label)
+            files[name + ".html"] = page(r, v, label, value)
             files[name + ".json"] = encode({"schema": r["schema"], "claim_id": r["id"], "identity": r["identity"], "version": v})
     files["index.json"] = encode({"schema": "forecast-encyclopedia-index/v1", "claims": entries})
     files["index.html"] = shell("Public claims", '<h1>Questions, evidence,<br>and a history that stays visible.</h1><p>Explore forecasts as they were made, inspect disagreements, and see what eventually resolved.</p><p>Only explicitly permitted claims appear here. Dates are fixed synthetic examples, not a live clock.</p>' + ''.join(cards) + '<p><a href="index.json">Machine-readable index</a></p>', any(is_llm(r["versions"][-1]["snapshot"]) for r in public))

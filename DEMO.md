@@ -91,9 +91,9 @@ refunded it at the acceptance deadline; therefore only one claim is public here 
 simulator in Path A accepts both). The transaction IDs include the rejected wrong-caller
 and duplicate-acceptance calls. The receipt file is a copy of real runner output, but the
 chain was ephemeral: the IDs cannot be looked up anywhere. The paid claim's encyclopedia
-page is labelled "Customer acceptance · local NEAR Sandbox receipt"; the acceptance value
-itself is still replayed from the core report's simulated ledger, and the chain payment
-provenance is kept separately in
+page shows "Customer acceptance · local NEAR Sandbox receipt" with the receipt summary
+(`PAID · job 0 · 6 tx`); the stored claim JSON and its hashes still carry the core report's
+replayed simulator state, and the full chain payment provenance is in
 `artifacts/walkthrough-sandbox/knowledge/payment-provenance.json`. See
 [docs/evidence/sandbox-2026-11-08](docs/evidence/sandbox-2026-11-08/README.md).
 

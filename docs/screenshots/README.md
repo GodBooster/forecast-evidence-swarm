@@ -16,6 +16,7 @@ Roles are scripted functions; no LLM, live data source or public chain is involv
 
 The "Customer acceptance · simulation" label on encyclopedia pages comes from the core
 report's simulated ledger, which the page history is built from. Since these screenshots
-were taken, pages of claims paid through a local NEAR Sandbox receipt are labelled
-"Customer acceptance · local NEAR Sandbox receipt" instead; the value is still the replayed
-ledger state, and chain payment provenance stays in `payment-provenance.json`.
+were taken, pages of claims paid through a local NEAR Sandbox receipt show
+"Customer acceptance · local NEAR Sandbox receipt" with the receipt summary (for example
+`PAID · job 0 · 6 tx`) instead; the stored claim JSON keeps the replayed ledger state, and
+the full chain payment provenance stays in `payment-provenance.json`.

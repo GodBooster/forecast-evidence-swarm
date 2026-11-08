@@ -66,10 +66,12 @@ cryptographic verification of payment, transaction finality, or customer and
 worker identities. The file preserves the receipt fields and binds each published receipt
 to the exact core artifact hash, encyclopedia claim ID, and version-chain tip. The
 adapter independently replays the core report and retains the core delivery hash
-inside the historical forecast method. On the exported page, the "Customer acceptance"
-card is labelled `simulation` by default and `local NEAR Sandbox receipt` for a claim whose
-paid receipt has mode `LOCAL_NEAR_SANDBOX`; the acceptance value itself is always the
-replayed simulator state. Neither the receipt nor its hash changes
+inside the historical forecast method. On the exported HTML page, the "Customer
+acceptance" card shows the replayed simulator state under the label `simulation` by
+default; for a claim whose paid receipt has mode `LOCAL_NEAR_SANDBOX` it is labelled
+`local NEAR Sandbox receipt` and shows the receipt summary instead (status, receipt job
+ID, transaction count). The stored claim JSON, version hashes and history are not
+changed by this; the receipt fields live in `payment-provenance.json`. Neither the receipt nor its hash changes
 the core report, forecast commitment, or append-only history. Keep the original
 core report and the receipt input as local audit material.
 
