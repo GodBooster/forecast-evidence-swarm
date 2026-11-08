@@ -44,8 +44,8 @@ Generated output remains under Git-ignored `artifacts/` and is rebuilt by the co
 
 The report test parses HTML, checks five scenario sections, internal navigation,
 required status labels, absence of script/external assets, and escaped untrusted text.
-The initial browser check could not open `file://`. A subsequent owner-authorized
-HTTP preview on 2026-11-06 completed desktop visual QA in the embedded browser:
+The initial browser check could not open `file://`. A subsequent local HTTP preview
+on 2026-11-06 completed desktop visual QA in the embedded browser:
 the overview and scenario detail are readable at its default 1280×720 viewport;
 the overview link opens the expected scenario; role cards and the evidence table
 fit without overlap. The integrated encyclopedia's valid-but-wrong forecast page

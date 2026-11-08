@@ -63,11 +63,8 @@ The three encyclopedia-producing commands are intentionally different demonstrat
 Do not mistake the broad inspection gallery for a payment-gated publication policy.
 Without grants, imported core claims remain private in both import paths.
 
-The repository is now available privately at
-[GodBooster/forecast-evidence-swarm](https://github.com/GodBooster/forecast-evidence-swarm).
-The owner authorized repository creation and upload after the original offline
-milestone. Private repository hosting does not make this a deployed website or
-constitute a public hackathon submission. Generated artifacts remain excluded.
+Repository hosting does not make this a deployed website; the encyclopedia is a set of
+static files generated locally into the Git-ignored `artifacts/` directory.
 
 See [the demonstration script](../forecast_encyclopedia/DEMO.md) for a short guided
 walkthrough and a draft product description with explicit implementation limits.

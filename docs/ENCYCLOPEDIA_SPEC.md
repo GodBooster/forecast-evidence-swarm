@@ -1,20 +1,24 @@
-# Encyclopedia module: parallel implementation contract
+# Encyclopedia module specification
 
-Authorized by the owner on 2026-11-06. This is a module of Forecast Evidence Swarm: one product, one repository and one planned hackathon submission.
+Written 2026-11-06. The encyclopedia is a module of Forecast Evidence Swarm: one product
+in one repository. It publishes permitted research artifacts as claim pages and preserves
+their version history.
 
-## File ownership
+## Module boundary
 
-The encyclopedia implementation owns only:
+The module consists of:
 
-- `forecast_encyclopedia/`
-- `fixtures_encyclopedia/`
-- `tests_encyclopedia/`
-- `docs/ENCYCLOPEDIA_SPEC.md`
-- `docs/ENCYCLOPEDIA.md`
+- `forecast_encyclopedia/` — model, renderer, read-only core adapter, demo CLI
+- `fixtures_encyclopedia/` — synthetic claims and the core-demo consent grants
+- `tests_encyclopedia/` — its test suite
+- `docs/ENCYCLOPEDIA_SPEC.md` (this file) and `docs/ENCYCLOPEDIA.md`
 
-The core implementation in the other chat owns `forecast_swarm/`, `fixtures/`, `tests/`, root README and other existing files. Read these as needed; do not modify them. Do not modify the shared core schema for this module. Build a read-only adapter for the core report and version its supported input contract. If that contract is still changing, use a clearly labelled fixture snapshot until actual integration passes.
-
-Use explicit file paths when staging. Do not stage or commit another chat's changes. Before a commit check for an occupied shared index; defer the commit if another task has staged changes. Never reset someone else's index or checkout. Local commits are authorized; no push or publication is authorized.
+The core (`forecast_swarm/`, `fixtures/`, `tests/`, the contract and the sandbox harness)
+is read, never modified, by this module. The module does not change the core schema; it
+reads core reports through a read-only adapter with a versioned, explicitly supported
+input contract (`forecast-evidence-swarm/v1` and `forecast-evidence-swarm/llm-analyst/v1`).
+If that contract changes, the adapter is updated and re-tested against the actual
+generator rather than loosened to accept unknown shapes.
 
 ## First deliverable
 
@@ -44,11 +48,15 @@ Show market information only when actually supplied and validated: exact contrac
 
 Meaningful tests must cover prior-version preservation, revision of question/rules, later-data rejection, unresolved/disputed outcomes, private-by-default exports and revocation, wrong-but-valid forecasts, unsafe HTML/links/paths, tamper detection and reproducible outputs. Run the demo and inspect generated pages. Test the adapter against the actual core report when available; report integration as pending if only a snapshot was exercised.
 
-Write `docs/ENCYCLOPEDIA.md` with commands, actual test results, ownership, limitations and next integration step. Commit only owned files after checking the shared index. Do not modify root README during parallel work.
+`docs/ENCYCLOPEDIA.md` documents the commands, actual test results, limitations and the
+integration contract.
 
-## Local background
+## Division of responsibility
 
-The independent feasibility review is at `../near-hackathon/ENCYCLOPEDIA_PARALLEL_DECISION_2026-11-06_UK.md`. It is internal context; do not copy private research into the public module. NEAR contracts, payment handling and swarm execution remain the core chat's responsibility. This module publishes permitted research artifacts and preserves their history.
+NEAR contracts, payment handling, receipts and swarm execution belong to the core. This
+module publishes permitted research artifacts and preserves their history; chain payment
+provenance reaches its pages only through the separate sidecar built by
+`forecast_swarm.knowledge_demo`.
 
 ## Implemented v1 decisions (2026-11-06)
 
@@ -77,5 +85,3 @@ in one offline command. `update_core_history` preserves trusted prior versions w
 refreshing a report, retains provisional outcome evidence, rejects time regression,
 and requires current publication grants. Seven follow-up tests bring this module's
 verified suite to 30 tests. Initial stateless adapter output remains compatible.
-The owner subsequently authorized a private GitHub repository under GodBooster;
-this is separate from public hosting, mainnet and hackathon submission.
