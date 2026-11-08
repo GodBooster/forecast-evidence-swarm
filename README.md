@@ -150,10 +150,18 @@ customer order ──► analyst ─► critic ─► verifier ──► deliver
 | --- | --- | --- |
 | Evidence gates, commitments, simulator, knowledge gate, walkthrough, AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 79 Python tests | `python3 -m unittest discover -s tests -q` |
 | Encyclopedia history, consent, adapter | 30 Python tests | `python3 -m unittest discover -s tests_encyclopedia -q` |
-| Contract state machine and transfer recovery | 8 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline` |
+| Contract state machine and transfer recovery | 8 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked` (first run downloads crates; add `--offline` once they are cached) |
 | Real local-chain payout, timeout refund, failed-transfer retry, dispute/resolve, cancel | 2 sandbox integration tests, checked by balances and liabilities | `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker, ~5–10 min) — see [docs/SANDBOX.md](docs/SANDBOX.md) |
 
 Details and exact recorded values: [docs/VALIDATION.md](docs/VALIDATION.md).
+
+Rust prerequisites for the contract and sandbox rows (one-time):
+
+```sh
+rustup toolchain install 1.99.1
+rustup target add wasm32-unknown-unknown --toolchain 1.99.1
+cargo +1.99.1 fetch --manifest-path contracts/forecast_jobs/Cargo.toml
+```
 
 ## Limitations (read before judging)
 

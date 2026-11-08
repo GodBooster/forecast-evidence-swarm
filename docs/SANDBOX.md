@@ -16,7 +16,10 @@ bash sandbox/run.sh
 ```
 
 The wrapper regenerates the synthetic core report, builds `contracts/forecast_jobs` for
-`wasm32-unknown-unknown` on the host with the offline `1.99.1` toolchain, then starts one
+`wasm32-unknown-unknown` on the host with the `1.99.1` toolchain in `--offline` mode
+(one-time setup: `rustup toolchain install 1.99.1`, `rustup target add
+wasm32-unknown-unknown --toolchain 1.99.1`, `cargo +1.99.1 fetch --manifest-path
+contracts/forecast_jobs/Cargo.toml`), then starts one
 resource-limited Linux container. The runner image `forecast-near-runner:1.99` is built
 once from `sandbox/runner.Dockerfile`: the official `rust:1.99-slim-trixie` image plus
 `pkg-config` and `libssl-dev`, which `openssl-sys` in the dependency tree needs. The two

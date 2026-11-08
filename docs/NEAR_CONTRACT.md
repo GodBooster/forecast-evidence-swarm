@@ -6,12 +6,17 @@ This crate is an independent, local NEAR escrow prototype for forecast delivery 
 
 The contract source is in `contracts/forecast_jobs/`, uses `near-sdk = 5.17.2`, and pins the SDK version in `Cargo.toml`. The prototype is intended for native unit tests and local NEAR sandbox scenarios. It has not been deployed to testnet or mainnet.
 
-Use the cached Rust 1.99.1 toolchain and offline dependencies:
+Install the toolchain once (`rustup toolchain install 1.99.1`,
+`rustup target add wasm32-unknown-unknown --toolchain 1.99.1`), then:
 
 ```sh
-cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --offline
-cargo +1.99.1 build --manifest-path contracts/forecast_jobs/Cargo.toml --target wasm32-unknown-unknown --release --offline
+cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked
+cargo +1.99.1 build --manifest-path contracts/forecast_jobs/Cargo.toml --locked --target wasm32-unknown-unknown --release
 ```
+
+The first run downloads the crates pinned in `Cargo.lock`; after that `--offline` may be
+added (the sandbox wrapper builds the host wasm with `--offline` and therefore needs this
+one-time fetch).
 
 The wasm output is `contracts/forecast_jobs/target/wasm32-unknown-unknown/release/forecast_jobs.wasm`. The sandbox milestone is described separately in `docs/SANDBOX.md` when available. No account, wallet, endpoint, or transaction is part of these commands.
 

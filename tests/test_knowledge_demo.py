@@ -1,5 +1,6 @@
 import copy
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -100,8 +101,8 @@ class KnowledgeDemoTests(unittest.TestCase):
 
     def test_export_files_are_deterministic_and_have_landing_links(self):
         result, _ = self.scenario_and_receipt("valid_wrong")
-        with tempfile.TemporaryDirectory(dir="/private/tmp") as tmp:
-            base = Path(tmp)
+        with tempfile.TemporaryDirectory(dir=os.path.realpath(tempfile.gettempdir())) as tmp:
+            base = Path(tmp)  # exporters refuse symlinked paths (macOS /var)
             out_a, out_b = base / "demo-a", base / "demo-b"
             run(out_a, consent=CONSENT_FIXTURE)
             run(out_b, consent=CONSENT_FIXTURE)

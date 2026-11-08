@@ -98,8 +98,11 @@ simulated ledger; chain payment provenance is kept separately in
 
 ## Path C — fresh run on a local NEAR Sandbox (Docker, ≈5–10 min)
 
-Requires Docker running and the cached Rust 1.99.1 toolchain with the
-`wasm32-unknown-unknown` target. On hosts with less than ~6 GiB for Docker, limit memory:
+Requires Docker running and the Rust 1.99.1 toolchain with the `wasm32-unknown-unknown`
+target on the host (`rustup toolchain install 1.99.1 && rustup target add
+wasm32-unknown-unknown --toolchain 1.99.1`); the host build uses `--offline`, so fetch the
+contract's crates once with `cargo +1.99.1 fetch --manifest-path
+contracts/forecast_jobs/Cargo.toml`. On hosts with less than ~6 GiB for Docker, limit memory:
 
 ```sh
 FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh
@@ -189,7 +192,7 @@ owner's provider choice, key and spending limit; see [docs/AI_WORKER.md](docs/AI
 python3 -m forecast_swarm                       # core report only → artifacts/demo/
 python3 -m forecast_swarm.knowledge_demo --fixture-consent --out artifacts/knowledge-demo
 python3 -m forecast_encyclopedia --core-demo --core-consent fixtures_encyclopedia/core_demo_consent.json --out artifacts/product-demo
-cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline
+cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked   # first run without --offline (downloads crates)
 ```
 
 ## What this demo does not show
