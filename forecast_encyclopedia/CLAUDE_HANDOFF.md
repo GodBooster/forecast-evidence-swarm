@@ -13,6 +13,7 @@ not run live LLM inference. All 30 encyclopedia tests passed again on 2026-11-08
 The same verification session passed 41 core tests and 8 native Rust contract tests.
 Native unit tests and a compiled WASM are not evidence of actual chain payments.
 The NEAR sandbox harness is written but still uncompiled/unrun as of this handoff.
+(Update 2026-11-08: it was compiled and run successfully; see `docs/SANDBOX.md`.)
 
 The key commits for this module are:
 
@@ -105,7 +106,7 @@ sandbox receipt provenance is attached separately by the core knowledge demo.
 
 ## Next steps, in order
 
-1. Complete the core NEAR sandbox harness in an authorized execution environment.
+1. (Done 2026-11-08.) Complete the core NEAR sandbox harness in an authorized execution environment.
    Read `docs/SANDBOX.md` and `docs/NEAR_CONTRACT.md`. Verify actual payout, refund,
    failed-transfer retry, duplicate prevention and balance/liability conservation.
    The previous runner attempt hit an approval/account-usage restriction, not a

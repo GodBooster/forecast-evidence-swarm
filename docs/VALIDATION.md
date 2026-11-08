@@ -84,3 +84,25 @@ See [contract specification](NEAR_CONTRACT.md) for the actual API and transfer r
 limits. Sandbox tests remain uncompiled/unexecuted because dependency setup through
 Docker was blocked by an automatic approval account usage limit. No sandbox receipt
 or chain transfer is part of this validation. Rustfmt was unavailable locally.
+
+## Sandbox follow-up — 2026-11-08
+
+`FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` completed end to end on an Intel Mac
+with Docker Desktop 29.9.2. The runner image `forecast-near-runner:1.99` (Debian trixie,
+rustc 1.99.1) compiled `sandbox/` with the committed `Cargo.lock` (near-workspaces 0.24.0,
+near-sandbox 0.4.0 / node 2.14.0) and ran **1 integration test: passed in 95.05 s**.
+Native checks on the same code still pass: 41 + 30 Python tests, 8 Rust unit tests;
+the wasm hash is unchanged (`1ac693ee…0ea6c3c`).
+
+Verified on the ephemeral local chain with a 2 NEAR reward per job: exact worker payout
+after customer acceptance (wrong caller and duplicate rejected), exact customer refund of
+an unaccepted submission at the acceptance deadline, one failed payout receipt and one
+failed refund receipt (recipient accounts deleted) preserved as `PAYOUT_READY` /
+`REFUND_READY` and settled by permissionless `retry_transfer` with the original
+beneficiary, and `get_escrowed_rewards` = 0 after every settlement and at the end.
+The two exported receipts flowed through `forecast_swarm.knowledge_demo`; the paid
+`valid_wrong` claim was published with its transaction IDs, the refunded claim was not.
+Evidence: `artifacts/near-sandbox-run.nzgFCx/` (Git-ignored). Details and limits: `docs/SANDBOX.md`.
+
+Not covered: dispute/resolve/cancel on chain, callback out-of-gas recovery,
+initialization takeover, gas measurement, testnet/mainnet, rustfmt.

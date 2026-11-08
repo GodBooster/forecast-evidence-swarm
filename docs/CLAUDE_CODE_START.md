@@ -10,17 +10,18 @@ editing. Preserve existing work and keep this product independent of BUMM Guard.
 The encyclopedia is a module of Forecast Evidence Swarm, not a third project.
 
 The offline product is implemented. As of November 8, 2026, 41 swarm/integration,
-30 encyclopedia and 8 native contract tests pass. Wasm is built. The sandbox Rust
-harness is still uncompiled and unexecuted: the previous Codex environment blocked
-Docker dependency setup with an automatic approval account usage limit. Check
-current prerequisites and use normal permissions in this environment.
+30 encyclopedia and 8 native contract tests pass, wasm is built, and the sandbox Rust
+harness has been compiled and executed once in the Docker runner against an ephemeral
+local NEAR Sandbox (`bash sandbox/run.sh`, results in `docs/SANDBOX.md`). Re-run it
+before claiming the milestone again; its receipts are local runner evidence only.
 
-Start with `sandbox/run.sh` and `sandbox/tests/near_sandbox.rs`. Compile and correct
-the real integration harness, run it against an ephemeral local NEAR sandbox, and
-produce actual payout/refund/failure-recovery evidence. Required milestone: one
-customer-accepted job pays the worker; a different submitted job refunds at timeout;
-repeat payout/refund is rejected; known failed transfers retain the fixed beneficiary
-and can be retried safely; the paid, consented result opens in the encyclopedia.
+The sandbox milestone (payout, timeout refund, duplicate rejection, failed-transfer
+retry with fixed beneficiary, consented encyclopedia export) was met on 2026-11-08.
+Next, in order: review the real payment-to-knowledge adapter contract and history
+preservation; extend the chain harness to dispute/resolve/cancel paths if time allows;
+add a genuine bounded AI worker only once the owner supplies approved inference access
+(keep deterministic evidence gates, critic/verifier roles and customer acceptance);
+prepare the full demo, prior-work disclosure, license choice and submission checklist.
 Check balances, receipts and liabilities, not just state labels. Preserve forecast
 commitments and history. Keep real chain provenance separate from simulated credits.
 

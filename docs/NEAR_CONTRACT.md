@@ -20,7 +20,7 @@ The wasm output is `contracts/forecast_jobs/target/wasm32-unknown-unknown/releas
 - `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --offline` — passed, 8 unit tests; no doc tests.
 - `cargo +1.99.1 build --manifest-path contracts/forecast_jobs/Cargo.toml --target wasm32-unknown-unknown --release --offline` — passed.
 - Built wasm size: 230,688 bytes. SHA-256: `1ac693ee9f3a44b230cc6cfc076d90f557209938adc122e10b4de6bfd0ea6c3c`.
-- NEAR sandbox test source is being prepared separately, but its dependencies are not cached and the local runner could not be executed under the current approval limit. No sandbox receipts or transfer proofs have been generated; sandbox verification remains unrun.
+- `bash sandbox/run.sh` — passed on 2026-11-08 (1 integration test, 95 s) against an ephemeral local NEAR Sandbox in the Docker runner: exact payout, timeout refund, wrong-caller and duplicate rejection, failed payout/refund receipts recovered by retry, liability 0. Details in `docs/SANDBOX.md`.
 - `rustfmt`/`cargo-fmt` is not installed in the available toolchains, so formatting checks were not run. No install or network access was attempted.
 
 ## Roles and funding
@@ -72,10 +72,10 @@ The resolver is a trusted single party; this is not trustless arbitration. The w
 
 Before deployment on a shared network, deploy and initialize in one atomic batch.
 The prototype's initializer can be called by the first caller after deployment; the
-draft isolated sandbox harness uses separate deploy and initialization calls and
+isolated sandbox harness uses separate `dev_deploy` and initialization calls and
 does not test protection against initialization takeover. No public deployment is
 authorized by this milestone.
 
 ## Next verification
 
-Native tests exercise permissions, hash matching, deadline boundaries, duplicate state transitions, stale attempt rejection, failed payout/refund callbacks, and fixed-entitlement retries. Sandbox tests must then exercise real receipts and balances for each payout/refund path, plus transfer failures, callback authorization, deadline races, and contract balance versus outstanding liabilities. Until those runs complete, the contract remains a local prototype.
+Native tests exercise permissions, hash matching, deadline boundaries, duplicate state transitions, stale attempt rejection, failed payout/refund callbacks, and fixed-entitlement retries. The 2026-11-08 sandbox run exercised real receipts and balances for the accept-payout and timeout-refund paths, two real transfer failures with retries, wrong-caller and duplicate rejection, and outstanding liabilities. Still untested on chain: `dispute`/`resolve`, `cancel`, callback out-of-gas (unknown outcome), initialization takeover and gas measurements. The contract remains a local prototype.

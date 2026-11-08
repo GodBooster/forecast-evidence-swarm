@@ -94,6 +94,11 @@ were integrated successfully with explicit synthetic grants. The fixture-consent
 command produced 28 encyclopedia HTML/JSON files and two consented `SIMULATION`
 payment entries; refunded jobs were absent from public records and provenance.
 This did not exercise a NEAR Sandbox deployment or establish a payment proof.
+On 2026-11-08 `sandbox/run.sh` fed real `LOCAL_NEAR_SANDBOX` receipts (two jobs, one
+`PAID`, one `REFUNDED`) through this command: the paid `valid_wrong` delivery was
+published with its local transaction IDs in `payment-provenance.json`, the refunded
+`zero_successes` delivery stayed private. See `docs/SANDBOX.md`. Those IDs come from an
+ephemeral local chain and remain runner evidence, not a cryptographic payment proof.
 
 `tests/test_knowledge_demo.py` covers private-by-default imports, hash-matched
 consent, refund exclusion, invalid and mismatched receipts, local sandbox

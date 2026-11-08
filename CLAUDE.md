@@ -12,9 +12,12 @@ the source code and current command output are authoritative if an older note di
   real-money action, owner wallet creation or paid inference is authorized by this file.
 - The owner previously authorized supervised, cost-conscious subagents. Use distinct
   file ownership when delegating; keep shared Git-index operations under one writer.
-- The next engineering milestone is an actual sandbox payout/refund/recovery run.
-  The Rust sandbox harness is still uncompiled and unexecuted. Native unit tests
-  and the synchronous Python simulator do not establish onchain payment success.
+- The sandbox payout/refund/recovery milestone was executed on 2026-11-08 in the
+  Docker runner (`bash sandbox/run.sh`, see `docs/SANDBOX.md`). Native unit tests
+  and the synchronous Python simulator still do not establish onchain payment
+  success; only a fresh sandbox run does. This Intel Mac cannot run the node natively.
+- Next engineering milestones: real bounded AI worker (needs approved inference
+  access), full demo, prior-work disclosure, license choice and submission prep.
 - Historical Codex approval quota errors describe the previous environment. Recheck
   prerequisites under the current tool's normal permissions; never bypass a current
   refusal or security boundary.

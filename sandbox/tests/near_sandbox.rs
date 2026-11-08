@@ -26,7 +26,7 @@ struct JobReceipt {
 }
 
 fn tx_id(result: &near_workspaces::result::ExecutionFinalResult) -> String {
-    result.raw_outcome().transaction.hash.to_string()
+    result.outcome().transaction_hash.to_string()
 }
 
 fn hash_hex(bytes: &[u8]) -> String {
@@ -63,7 +63,7 @@ async fn account(root: &Account, name: &str) -> Result<Account> {
 
 async fn block_time_ms(worker: &Worker<Sandbox>) -> Result<u64> {
     let block = worker.view_block().await?;
-    Ok(block.header.timestamp_nanosec / 1_000_000)
+    Ok(block.timestamp() / 1_000_000)
 }
 
 async fn advance_until(worker: &Worker<Sandbox>, timestamp_ms: u64) -> Result<()> {
@@ -103,8 +103,9 @@ async fn create_job(
         .transact()
         .await?;
     anyhow::ensure!(result.is_success(), "create_job failed: {result:#?}");
+    let create_tx = tx_id(&result);
     let id = result.json::<u64>()?;
-    Ok((id, tx_id(&result)))
+    Ok((id, create_tx))
 }
 
 async fn assign_and_submit(
@@ -321,8 +322,8 @@ async fn real_local_chain_escrow_and_transfer_recovery() -> Result<()> {
         &artifact_sha256,
     )
     .await?;
-    worker
-        .delete_account(worker_retry.id(), worker_retry.signer(), root.id())
+    worker_retry
+        .delete_account(root.id())
         .await?
         .into_result()
         .context("delete ephemeral payout recipient")?;
@@ -370,8 +371,8 @@ async fn real_local_chain_escrow_and_transfer_recovery() -> Result<()> {
         &artifact_sha256,
     )
     .await?;
-    worker
-        .delete_account(customer_refund_retry.id(), customer_refund_retry.signer(), root.id())
+    customer_refund_retry
+        .delete_account(root.id())
         .await?
         .into_result()
         .context("delete ephemeral refund recipient")?;

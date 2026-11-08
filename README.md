@@ -2,7 +2,7 @@
 
 A NEAR hackathon prototype for commissioning forecasts with evidence, criticism and reproducible validation.
 
-**Status: runnable offline product and compiled NEAR contract prototype.** Five synthetic scenarios, three explicitly scripted roles, deterministic evidence commitments, HTML/JSON reports, consent-gated knowledge pages and a local budget simulator. The contract passes native unit tests and builds to wasm; actual NEAR sandbox transfers remain unverified. Forecast quality and trading profitability have not been established.
+**Status: runnable offline product and compiled NEAR contract prototype.** Five synthetic scenarios, three explicitly scripted roles, deterministic evidence commitments, HTML/JSON reports, consent-gated knowledge pages and a local budget simulator. The contract passes native unit tests, builds to wasm, and one local NEAR Sandbox run (2026-11-08) verified payout, timeout refund and failed-transfer recovery with real receipts and balances; no testnet or mainnet deployment exists. Forecast quality and trading profitability have not been established.
 
 A customer defines a question, resolution source, deadline and budget. Analyst, critic and verifier roles produce a forecast and evidence bundle. Deterministic checks evaluate data timing, completeness and acceptance rules. A planned NEAR contract records the job, budget and artifact commitment; the customer accepts delivery.
 
@@ -88,10 +88,13 @@ These commands use the installed toolchain/target and cached dependencies. See
 supports ten jobs and requires a separate initialization storage reserve; job rewards
 do not fund arbitrary worker spending.
 
-The [sandbox harness](docs/SANDBOX.md) is prepared but has **not been compiled or
-executed**: dependency setup through Docker was blocked by an automatic approval
-account usage limit. No actual sandbox payment, refund, receipt or onchain anchoring
-is claimed. A callback that fails to execute can leave an unknown pending transfer;
+The [sandbox harness](docs/SANDBOX.md) was compiled and executed on 2026-11-08 in a
+Docker runner against an ephemeral local NEAR Sandbox: one accepted job paid the worker
+exactly the reward, one submitted job refunded at the acceptance deadline, duplicate
+settlement and wrong callers were rejected, and two deliberately failed transfers were
+recovered by permissionless retries with the fixed beneficiary. Those hashes live on a
+local chain that no longer exists; they are runner evidence, not public anchoring.
+A callback that fails to execute can leave an unknown pending transfer;
 the contract does not permit unsafe retries from that state. Real LLM workers,
 inference budgets, live data adapters and marketplace integrations remain planned.
 

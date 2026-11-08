@@ -34,7 +34,7 @@ track names and eligibility before submission.
 | `forecast_encyclopedia/` | Consent-gated pages, append-only history, core adapter, one-command product demo | 30 Python tests pass |
 | `forecast_swarm/knowledge_demo.py` | Paid-receipt/hash/consent export gate, separate payment provenance | Two consented SIMULATION entries exported; refunded imports excluded |
 | `contracts/forecast_jobs/` | Independent NEAR escrow with async payout/refund and immutable entitlement on retry | Eight native Rust tests pass; release wasm built |
-| `sandbox/` | Draft local-chain harness and Docker wrapper | Shell syntax checked; Rust harness NOT compiled or run |
+| `sandbox/` | Local-chain harness, runner image and Docker wrapper | Executed 2026-11-08: 1 integration test passed on an ephemeral NEAR Sandbox (see `docs/SANDBOX.md`) |
 | UI | Standalone generated HTML | Desktop HTTP preview checked in embedded browser; mobile visual QA pending |
 | LLM agents / live sources | Planned | No inference, authenticated source or model API exercised |
 
@@ -45,8 +45,10 @@ passed**. Python 3.14.7, Rust 1.99.1. The previously built wasm is still present
 Its release build was verified on November 7; the handoff rechecked its bytes/hash.
 Rustfmt was unavailable in the previous environment.
 
-No actual sandbox receipt, chain payout/refund, testnet/mainnet deployment or
-authenticated publication consent has been established. Local JSON with a sandbox
+Update 2026-11-08 (Claude Code): the sandbox harness was compiled and run; local-chain
+payout, timeout refund and failed-transfer recovery receipts exist under
+`artifacts/near-sandbox-run.*`. No testnet/mainnet deployment or authenticated
+publication consent has been established. Local JSON with a sandbox
 mode label is a runner assertion, not a cryptographic payment proof.
 
 ## Read in this order
@@ -91,7 +93,14 @@ at that HTTP origin. Stop serving before rebuilding encyclopedia exports: its
 single-writer exporter is not an atomic web deployment. `file://` was blocked by the
 previous embedded browser; explicit local HTTP preview worked.
 
-## First priority: run the actual sandbox flow
+## First priority: run the actual sandbox flow (completed 2026-11-08)
+
+**Done.** Fixes needed: three `near-workspaces` 0.24 API mismatches in the test
+(`outcome().transaction_hash`, `Block::timestamp()`, `Account::delete_account`), a
+moved-value error, a runner image with `pkg-config`/`libssl-dev`, and a Debian trixie
+base because the `near-sandbox` 2.14.0 binary needs glibc 2.39. Results, versions and
+limits are in `docs/SANDBOX.md` and `docs/VALIDATION.md`. The text below is kept as the
+original specification of the milestone.
 
 Inspect `sandbox/run.sh` and `sandbox/tests/near_sandbox.rs`, then run:
 

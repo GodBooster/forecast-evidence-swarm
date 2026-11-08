@@ -15,3 +15,4 @@ credentials/
 .near-credentials/
 artifacts/
 local/
+.claude/
