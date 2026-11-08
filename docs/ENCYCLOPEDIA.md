@@ -52,6 +52,17 @@ private core report is written into the public export. Without `--core-consent`,
 core claims stay private and only the three permitted encyclopedia fixtures appear.
 `--core-demo` and `--core-report` are mutually exclusive.
 
+The three encyclopedia-producing commands are intentionally different demonstrations:
+
+| Command | Expected result | Publication policy |
+| --- | --- | --- |
+| `python3 -m forecast_encyclopedia` | 3 claims, 16 HTML/JSON files | Explicit encyclopedia fixture grants |
+| `python3 -m forecast_encyclopedia --core-demo --core-consent …` | 8 claims, 46 HTML/JSON files | All five exact synthetic core deliveries granted, including invalid/refunded examples for inspection |
+| `python3 -m forecast_swarm.knowledge_demo --fixture-consent` | 5 public claims, 28 encyclopedia HTML/JSON files plus landing/provenance files | Only the 2 paid, valid, consented core deliveries plus the 3 encyclopedia fixtures |
+
+Do not mistake the broad inspection gallery for a payment-gated publication policy.
+Without grants, imported core claims remain private in both import paths.
+
 The repository is now available privately at
 [GodBooster/forecast-evidence-swarm](https://github.com/GodBooster/forecast-evidence-swarm).
 The owner authorized repository creation and upload after the original offline
@@ -293,13 +304,44 @@ On 2026-11-06 with Python 3.14.7:
   workaround was attempted. Responsive CSS is present, but desktop/mobile visual
   layout still needs a permitted manual browser check.
 
+## Invariants to preserve
+
+1. Exact question, scope, resolution rule, source and resolution time form a claim's
+   identity. Changing them creates a distinct linked claim. New evidence creates a later
+   snapshot, not a silent rewrite. Each v1 claim has one frozen historical forecast.
+2. Every forecast evidence item must have been available by the fixed cutoff. Later
+   outcome data never enters the original forecast commitment.
+3. VALID delivery, customer ACCEPTED state, correct prediction and FINAL outcome are
+   different dimensions. Unknown is not NO; PROPOSED or DISPUTED is not FINAL.
+4. Prior evidence and versions cannot be rewritten or deleted through append/update.
+   Provisional-to-final outcomes retain both source records. A final declaration cannot
+   reverse in place in v1; use a linked correction claim.
+5. Publication defaults to private. Imports require explicit grants keyed by the exact
+   delivery hash. Private content, IDs and references to private claims stay out of the
+   public export. The exporter cannot detect secrets pasted into independently public prose.
+6. Revocation rebuilds the target export; it does not recall downloaded copies or erase a
+   separately retained private audit history.
+7. Hashes are unsigned commitments to bytes, not identity, truth or trusted timestamps.
+   History is append-only and hash-linked; tampering is detectable only against a retained
+   copy of a trusted prior history or tip, so keep one.
+8. Untrusted text is escaped, URLs and IDs validated, symlinked or foreign output paths
+   rejected. The exporter is single-writer, not a transactional multi-user web service.
+
+The supported import contract is `forecast-evidence-swarm/v1` (and its
+`llm-analyst/v1` variant). The adapter verifies the committed bundle, role replay,
+retrospective score and the complete simulated acceptance ledger; it does not replace
+that ledger with authenticated chain events. Chain receipt provenance is attached
+separately by `forecast_swarm.knowledge_demo` (see `KNOWLEDGE_DEMO.md`).
+
 ## Ownership and remaining scope
 
 This implementation owns only `forecast_encyclopedia/`, `fixtures_encyclopedia/`,
 `tests_encyclopedia/`, `docs/ENCYCLOPEDIA_SPEC.md` and this document. Core schemas,
 core code, root README and other projects are unchanged by this work.
 
-Own betting market, market data integration, real LLM workers, authenticated source
-adapters, production consent, live web hosting, NEAR contracts and real-money flows
-remain planned. No market odds are invented from a model probability. This milestone
+Own betting market, market data integration, authenticated source adapters,
+production consent, live web hosting and real-money flows remain planned. (Since this
+section was written, the core added a NEAR escrow contract with a local sandbox harness
+and a bounded LLM analyst; see `NEAR_CONTRACT.md` and `AI_WORKER.md`. This module itself
+still runs no inference and executes no payments.) No market odds are invented from a model probability. This milestone
 uses no paid APIs, accounts, keys, mainnet, external publication or submission.

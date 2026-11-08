@@ -164,6 +164,10 @@ Details and exact recorded values: [docs/VALIDATION.md](docs/VALIDATION.md).
 - [docs/ENCYCLOPEDIA.md](docs/ENCYCLOPEDIA.md), [docs/KNOWLEDGE_DEMO.md](docs/KNOWLEDGE_DEMO.md) — history, consent and receipt gate.
 - [docs/VALIDATION.md](docs/VALIDATION.md) — what was actually executed, when, with what result.
 - [docs/PRIOR_WORK.md](docs/PRIOR_WORK.md), [docs/NEAR_REUSE.md](docs/NEAR_REUSE.md) — prior work and relationship to BUMM Guard.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — scope, invariants to preserve, verification commands.
+
+The encyclopedia (`forecast_encyclopedia/`) is a module of this product, not a separate
+project or submission.
 
 ## Prior work and disclosure
 

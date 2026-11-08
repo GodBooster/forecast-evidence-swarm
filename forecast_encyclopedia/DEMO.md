@@ -46,10 +46,10 @@ accuracy, retaining earlier versions even when the prediction is wrong.
 The implemented offline prototype uses deterministic scripted roles and synthetic
 fixtures. Its encyclopedia supports explicit publication permission, revocation,
 source excerpts, immutable forecast commitments and read-only integration with the
-core report. NEAR job escrow is a separate implementation milestone: do not describe
-payments as demonstrated until actual local sandbox receipts and failure-path tests
-are available. Live inference, authenticated external evidence and a betting market
-are not implemented by this module.
+core report. NEAR job escrow is implemented in the core (`contracts/forecast_jobs/`) and
+was exercised on a local, ephemeral NEAR Sandbox; its receipts reach pages only through
+the separate payment-provenance sidecar (`docs/KNOWLEDGE_DEMO.md`). Live inference,
+authenticated external evidence and a betting market are not implemented by this module.
 
 ## Evidence required before extending the presentation
 
