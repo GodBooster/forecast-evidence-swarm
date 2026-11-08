@@ -173,8 +173,9 @@ research is background, not evidence of forecasting skill or profitability, and 
 its code, strategies or data is in this repository. All code here was written for this
 hackathon starting 2026-11-06 (see Git history).
 
-- **Other project by the same owner:** BUMM Guard — an independent NEAR HACKATHON entry
-  for NEAR contract-code security review, in its own repository. No BUMM source was copied; design lessons are documented in
+- **Other project by the same owner:** [BUMM Guard](https://github.com/GodBooster/bumm-guard)
+  — an independent NEAR HACKATHON entry for NEAR contract-code security review, in its own
+  repository. No BUMM source was copied; design lessons are documented in
   [docs/NEAR_REUSE.md](docs/NEAR_REUSE.md).
 - **AI-written code:** the code and documentation were written with AI coding agents —
   OpenAI Codex and Anthropic Claude Code — under the owner's direction (commit authors

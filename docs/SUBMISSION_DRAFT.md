@@ -65,7 +65,7 @@ Track ids verified on the live file. Select only tracks the project fits.
 
 ## Prior-work disclosure (proposed text)
 
-> This project was started for NEAR HACKATHON on 2026-11-06 (after the 2026-10-19 cutoff for allowed code); the Git history shows its progression. The ideas — timestamped forecast journals, outcome finality, deterministic replay and fixed evaluation rules — come from the author's earlier private prediction-market research (InvariFi). That research is background only: none of its code, strategies, parameters or data is included, and it is not evidence of forecasting accuracy or profitability. The author's second, independent hackathon project is BUMM Guard (security review of NEAR contract code), in its own repository; the two share no source code, and design lessons from reviewing BUMM Guard's escrow pattern are in docs/NEAR_REUSE.md. Code was written with AI coding agents (OpenAI Codex and Anthropic Claude Code) under the author's direction. Third-party libraries: near-sdk, near-workspaces, near-sandbox and other Rust crates (MIT or Apache-2.0); the Python code uses only the standard library; the optional live analyst calls an external model API. License: MIT OR Apache-2.0 (LICENSE-MIT, LICENSE-APACHE).
+> This project was started for NEAR HACKATHON on 2026-11-06 (after the 2026-10-19 cutoff for allowed code); the Git history shows its progression. The ideas — timestamped forecast journals, outcome finality, deterministic replay and fixed evaluation rules — come from the author's earlier private prediction-market research (InvariFi). That research is background only: none of its code, strategies, parameters or data is included, and it is not evidence of forecasting accuracy or profitability. The author's second, independent hackathon project is BUMM Guard (security review of NEAR contract code), in its own repository (https://github.com/GodBooster/bumm-guard); the two share no source code, and design lessons from reviewing BUMM Guard's escrow pattern are in docs/NEAR_REUSE.md. Code was written with AI coding agents (OpenAI Codex and Anthropic Claude Code) under the author's direction. Third-party libraries: near-sdk, near-workspaces, near-sandbox and other Rust crates (MIT or Apache-2.0); the Python code uses only the standard library; the optional live analyst calls an external model API. License: MIT OR Apache-2.0 (LICENSE-MIT, LICENSE-APACHE).
 
 ## Demo assets
 
@@ -107,8 +107,7 @@ Track ids verified on the live file. Select only tracks the project fits.
 
 The draft is longer than 280 characters: post it as a thread (paragraph 1–2 first, with
 the video) unless the account allows long posts. Attach the video. Optional tags:
-@NearLegion @NearBuilders. Add the BUMM Guard repository link to the README once its URL
-is final. Do not claim forecasting skill,
+@NearLegion @NearBuilders. Do not claim forecasting skill,
 mainnet deployment or TEE privacy.
 
 ## License
@@ -147,7 +146,8 @@ Chosen: option 1.
 - [x] Live HACKATHON.md read on 2026-11-08 (by the coordinating session); facts above. Recheck once just before sending.
 - [x] ★ License chosen: `MIT OR Apache-2.0`; LICENSE files present and named in the README (optionally put the owner's name in `LICENSE-MIT`).
 - [x] README discloses prior work, the other project (BUMM Guard), AI coding agents and libraries.
-- [ ] ★ In the **BUMM Guard** repository: make its README name Forecast Evidence Swarm as the owner's other project (Q-015). Not done; not in this repository's scope.
+- [x] This README links the other project: `https://github.com/GodBooster/bumm-guard` (Q-015).
+- [ ] ★ In the **BUMM Guard** repository: make its README name and link Forecast Evidence Swarm as the owner's other project (Q-015), and make that repository public before the deadline too (its visibility was not checked). Not in this repository's scope.
 - [ ] ★ Decide whether internal handoff files (`docs/HANDOFF.md`, `docs/CLAUDE_CODE_START.md`, `forecast_encyclopedia/CLAUDE_HANDOFF.md`, `CLAUDE.md`, `AGENTS.md`) stay public; three of them contain local absolute paths.
 - [ ] ★ Approve the push of local `main` to `GodBooster/forecast-evidence-swarm` and make it **public before 2026-11-14T23:59Z**.
 - [ ] ★ Provide the mainnet NEAR account for the prize payout (not created by any agent).
