@@ -16,9 +16,9 @@ the source code and current command output are authoritative if an older note di
   Docker runner (`bash sandbox/run.sh`, see `docs/SANDBOX.md`). Native unit tests
   and the synchronous Python simulator still do not establish onchain payment
   success; only a fresh sandbox run does. This Intel Mac cannot run the node natively.
-- Bounded AI worker (`--roles llm`) is implemented and verified offline only
-  (`docs/AI_WORKER.md`); a live run needs the owner's provider/model/limit approval and a
-  locally supplied key. Remaining: that live run, prior-work disclosure and submission prep.
+- Bounded AI worker (`--roles llm`) is implemented (`docs/AI_WORKER.md`); one owner-approved
+  live run happened on 2026-11-08 (`docs/VALIDATION.md`). Further paid runs need new explicit
+  approval. Remaining: prior-work disclosure and submission prep.
 - Historical Codex approval quota errors describe the previous environment. Recheck
   prerequisites under the current tool's normal permissions; never bypass a current
   refusal or security boundary.

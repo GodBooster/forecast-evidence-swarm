@@ -10,8 +10,9 @@ encyclopedia page whose forecast history can never be rewritten.
 > local, ephemeral NEAR Sandbox. By default analyst/critic/verifier are **scripted
 > functions**. `--roles llm` swaps the analyst for a **bounded LLM worker** inside the same
 > deterministic gates (provider-neutral adapter, per-order budget, committed call trace);
-> it is verified offline with a **hand-authored** replay cassette, and **no live model call
-> has been made yet**. No testnet/mainnet deployment, real funds or live data source is
+> it is verified offline with a **hand-authored** replay cassette and was exercised in **one
+> owner-approved live run** (OpenAI `gpt-6.1-terra`, 3 calls, ≈$0.005; all outputs passed the
+> gates — see [docs/VALIDATION.md](docs/VALIDATION.md)). No testnet/mainnet deployment, real funds or live data source is
 > used. Forecast accuracy and trading profitability are **not** established.
 
 ## The problem
@@ -138,8 +139,9 @@ Details and exact recorded values: [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ## Limitations (read before judging)
 
-- **No live AI inference yet.** The LLM analyst path is implemented and tested offline, but
-  the bundled cassette is hand-authored and no provider has been called. Critic and verifier
+- **Minimal live AI inference.** The LLM analyst path is tested offline with a hand-authored
+  cassette and was run live once (three calls on synthetic inputs); the recorded live cassette
+  is not published. Critic and verifier
   stay deterministic by design. A model's probability is a judgement, not a calibrated
   estimate; gates check structure and citations, not semantic truth. See
   [docs/AI_WORKER.md](docs/AI_WORKER.md).

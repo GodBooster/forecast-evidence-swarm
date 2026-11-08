@@ -1,10 +1,10 @@
 # Bounded AI worker (LLM analyst)
 
-Status on 2026-11-08: **implemented and verified offline; no live provider call has been
-made yet.** The live run needs the owner's choice of provider, model, spending limit and
-a key placed in a local environment file (never in Git or chat). Results of any live run
-are recorded in [VALIDATION.md](VALIDATION.md); until then nothing here claims that a real
-model produced a delivery.
+Status on 2026-11-08: **implemented, verified offline, and exercised in one owner-approved
+live run** (OpenAI API, `gpt-6.1-terra`, 3 calls, estimated $0.004656 against a $1 ceiling;
+all three outputs passed the gates). Details, tokens and hashes are in
+[VALIDATION.md](VALIDATION.md). One run on synthetic inputs says nothing about forecast
+quality.
 
 ## What changes and what does not
 
@@ -188,8 +188,9 @@ the hash bound at submission (and, in future, provider attestation or signed res
 ## Cassettes (`forecast-inference-cassette/v1`)
 
 A cassette stores, per request hash, the outcome and either the model text with usage or
-the error string, plus the provider kind, sanitized base URL, model and the limits used.
-Replay uses the cassette's limits so hashes reproduce. Two origins exist and are enforced:
+the error string, plus the provider kind, sanitized base URL, model, the limits and the
+request options/temperature used. Replay uses all of them so hashes reproduce (the
+2026-11-08 live run is replayed with identical delivery hashes). Two origins exist and are enforced:
 
 - `HAND_AUTHORED_SYNTHETIC` (provider must be `fixture`, prices zero):
   `fixtures/llm_cassettes/hand_authored_analyst.json`. **No model wrote these answers.**
@@ -237,8 +238,8 @@ in a subprocess with sockets disabled.
 
 ## Limitations
 
-- No live provider call has been made; model quality, latency, refusal rate and real
-  token usage are unknown.
+- Only one live run (three calls, one model) exists; model quality, latency and refusal
+  rate across inputs are unknown. Latency is not recorded.
 - The model sees synthetic fixtures only; no live data source is connected.
 - One sample per order: no ensembling, self-consistency or calibration. No accuracy claim.
 - Prices are operator-supplied; costs are estimates.

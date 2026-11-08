@@ -179,3 +179,56 @@ git diff --check
 Not done: **no live provider call**; therefore no real model output, token usage, latency,
 cost or attestation exists. The live run awaits the owner's provider/model/limit decision
 and a locally supplied key; its result will be appended here.
+
+## Bounded AI worker, one live run — 2026-11-08
+
+Approved by the owner in the Claude Code session on 2026-11-08: provider "other
+OpenAI-compatible" (OpenAI API), model `gpt-6.1-terra`, hard ceiling **$1 per run**,
+operator prices **$1 per million input tokens / $5 per million output tokens**. The owner
+placed the key in a Git-ignored local `.env.local` (mode 600); it was never printed,
+committed or written to any trace or cassette (a byte search of the cassette and all run
+outputs for the key found nothing).
+
+```sh
+python3 -m forecast_swarm.walkthrough --roles llm --live --env-file .env.local \
+  --max-cost-usd 0.30 --max-run-cost-usd 1 --max-output-tokens 4000 \
+  --input-price-nano-usd-per-token 1000 --output-price-nano-usd-per-token 5000 \
+  --record artifacts/live-cassette-2026-11-08.json --out artifacts/walkthrough-live
+# All walkthrough checks passed. (exit 0)
+```
+
+Configuration: `api_base` `https://api.openai.com/v1`, `max_completion_tokens` field,
+no reasoning effort and no temperature sent, one call per order, 60 s timeout.
+
+| Order | Evidence | Call | Tokens in/out (provider) | Cost estimate | Model output | Gate | Delivery |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `valid_wrong` | 15/20 YES | OK, `finish_reason=stop`, model reported `gpt-6.1-terra` | 512 / 230 | $0.001662 | 7273 bps, interval 5200–8800, cites `batch-01` | VALID | VALID, `68241e6609272610e3f4787de141160c3dd8a75805e47ecf734b1520ac40615b` |
+| `future_data` | published after cutoff | none (evidence gate) | — | $0 | — | NOT_RUN | INVALID |
+| `missing_data` | missing counts/source | none (evidence gate) | — | $0 | — | NOT_RUN | INSUFFICIENT_DATA |
+| `unresolved` | 15/20 YES | OK, `stop` | 512 / 190 | $0.001462 | 7273 bps, interval 5000–9000 | VALID | VALID |
+| `zero_successes` | 0/20 YES | OK, `stop` | 512 / 204 | $0.001532 | 455 bps, interval 10–1610 | VALID | VALID |
+
+- **Actual run cost estimate: $0.004656** for 3 calls, 1,536 input and 624 output tokens,
+  computed from the owner-supplied prices. This is not an invoice; the provider's billing
+  page is authoritative. Ceiling was $1; the worst case allowed by the limits was $0.066.
+- All three outputs were bare JSON objects (`output_format: json`) and passed every gate.
+  The model used a uniform-prior (Laplace) estimate, (yes+1)/(n+2), in each case.
+- Synthetic evaluation, for completeness only: `valid_wrong` incorrect direction
+  (Brier 0.5290), `zero_successes` correct direction (Brier 0.0207). Two synthetic
+  outcomes say nothing about forecasting skill.
+- No attestation was requested or received (`attestation: null`). Latency was not recorded.
+- Offline replay of the recorded cassette with sockets disabled reproduced **identical
+  deliveries and hashes** for all five scenarios, and every live bundle passes
+  `validate_bundle`.
+
+Defect found and fixed during this run: the first recorded cassette did not store the
+request options (`max_tokens_field`), so replay built a different request and failed with
+a cassette miss. Cassettes now carry `temperature_milli` and `options`, and replay uses
+them. The recorded file was migrated by adding exactly those two fields, copied from the
+committed trace (`{"max_tokens_field": "max_completion_tokens"}`, `null`); model text and
+usage were not touched, and the identical replay hashes above confirm the migration.
+Files (Git-ignored, not published): `artifacts/live-cassette-2026-11-08.json`
+(SHA-256 `97d563885960e44daf2ef922904eebe74a687732b5e2d0981ec5ed8b4ed59171`, migrated) and
+`artifacts/live-cassette-2026-11-08.original.json`
+(`2a0bf925a9647f59fdb20a1668b3e9a055f004899c173691bd110347da87bfda`, as recorded).
+Whether to commit the recorded cassette is the owner's decision.

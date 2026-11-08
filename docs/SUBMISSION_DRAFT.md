@@ -30,7 +30,7 @@ Forecast Evidence Swarm
 
 Commission a forecast, verify its evidence, pay via NEAR escrow on acceptance, publish it with immutable history.
 
-## Description (1,902 characters incl. paragraph breaks — within the assumed 20–2000 limit)
+## Description (1,892 characters incl. paragraph breaks — within the assumed 20–2000 limit)
 
 > Forecast Evidence Swarm is a marketplace workflow for paid forecasting research that keeps five things separate: whether the evidence was valid, whether the forecast turned out right, whether the customer accepted the work, whether payment happened, and whether the result may be published.
 >
@@ -42,7 +42,7 @@ Commission a forecast, verify its evidence, pay via NEAR escrow on acceptance, p
 >
 > Verified: 79 + 30 Python tests, 8 contract unit tests, and two integration tests on a local NEAR Sandbox that check exact balances for payout, timeout refund, failed-transfer retry, dispute resolution and cancellation. One command (python3 -m forecast_swarm.walkthrough) runs the whole flow offline.
 >
-> Honest limits: the LLM path is tested offline with hand-authored replay data (live run pending), data is synthetic, no testnet/mainnet deployment, and no forecasting skill or profitability is claimed.
+> Honest limits: the LLM worker has one live run so far (3 calls; all passed the gates), data is synthetic, no testnet/mainnet deployment, and no forecasting skill or profitability is claimed.
 
 ## Track candidates
 
@@ -51,7 +51,7 @@ live form. The submission form allows several tracks; select only those the proj
 
 | Track | Fit | Reasoning |
 | --- | --- | --- |
-| **Agent Economy** (`agents`) — recommended | Good, stronger with the AI worker | The track asks for agents that hire other agents, check work and pay out with a receipt for every task. We implement the hire → check → accept → pay/refund loop with exact-balance chain tests and receipts bound to the work hash. The worker can now be a real, budget-bounded LLM agent whose every call is traced inside the paid artifact, and whose bad output is refused before payment. Caveats: no live model run is recorded yet (offline replay uses hand-authored answers), the worker holds no wallet of its own, and the chain run used scripted deliveries. |
+| **Agent Economy** (`agents`) — recommended | Good, stronger with the AI worker | The track asks for agents that hire other agents, check work and pay out with a receipt for every task. We implement the hire → check → accept → pay/refund loop with exact-balance chain tests and receipts bound to the work hash. The worker can now be a real, budget-bounded LLM agent whose every call is traced inside the paid artifact, and whose bad output is refused before payment; one live run (3 calls) passed. Caveats: a single small live run, the worker holds no wallet of its own, and the chain run used scripted deliveries. |
 | **Open Innovation** (`open`) — recommended | Good | Explicitly combinable with any other track. Immutable, consent-gated forecast history tied to on-chain payment is not a standard category. |
 | AI Swarms (`swarms`) — optional, weaker | Still weak | The track is about many agents coordinating in a market (bidding, pooling, intent settlement). The AI worker adds one LLM role to a fixed three-role pipeline; critic and verifier stay deterministic on purpose. That is not a market of agents. Selecting it would likely read as overclaiming. |
 | Investment Thesis, AI Security & Defense, others | Not a fit | Thesis requires on-chain NEAR analytics; Security is the domain of the owner's separate BUMM Guard submission — keep the boundary. |
@@ -108,7 +108,7 @@ Chosen: option 1.
 - [ ] ★ Record and publish the X demo post (video or screenshots; says built at NEAR HACKATHON).
 - [ ] ★ Pick tracks and approve the final description and disclosure text.
 - [x] Bounded AI worker implemented and tested offline (`--roles llm`, docs/AI_WORKER.md).
-- [ ] ★ Choose provider (NEAR AI Cloud / Anthropic / other), model and a spending limit; put the key in a local `.env.local` yourself; approve one live run (results go to docs/VALIDATION.md).
+- [x] ★ Live run approved and done 2026-11-08: OpenAI `gpt-6.1-terra`, $1 ceiling, ≈$0.004656 estimated (docs/VALIDATION.md). Check the actual charge in the provider's billing page.
 - [ ] ★ Decide whether a recorded live cassette (model text over synthetic inputs) may be committed publicly.
 - [ ] Re-run all tests and `bash sandbox/run.sh` on the final commit.
 - [ ] ★ Review the full submission payload and send it personally (or approve an agent sending exactly that payload).
