@@ -40,7 +40,7 @@ Commission a forecast, verify its evidence, pay via NEAR escrow on acceptance, p
 >
 > Only a valid, paid delivery with hash-bound consent becomes a public encyclopedia page. Pages are append-only and hash-linked, so a 75% forecast that resolved NO stays visible as 75%.
 >
-> Verified: 78 + 30 Python tests, 8 contract unit tests, and two integration tests on a local NEAR Sandbox that check exact balances for payout, timeout refund, failed-transfer retry, dispute resolution and cancellation. One command (python3 -m forecast_swarm.walkthrough) runs the whole flow offline.
+> Verified: 79 + 30 Python tests, 8 contract unit tests, and two integration tests on a local NEAR Sandbox that check exact balances for payout, timeout refund, failed-transfer retry, dispute resolution and cancellation. One command (python3 -m forecast_swarm.walkthrough) runs the whole flow offline.
 >
 > Honest limits: the LLM path is tested offline with hand-authored replay data (live run pending), data is synthetic, no testnet/mainnet deployment, and no forecasting skill or profitability is claimed.
 

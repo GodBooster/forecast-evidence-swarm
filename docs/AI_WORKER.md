@@ -93,7 +93,7 @@ Standard library only (`urllib`). One interface, `complete(request, timeout_s)`:
 
 | Implementation | Endpoint | Notes |
 | --- | --- | --- |
-| `OpenAICompatibleProvider` | `POST {FORECAST_LLM_BASE_URL}/chat/completions`, bearer key | For NEAR AI Cloud or any compatible gateway. Base URL is required; use the provider's documented value. |
+| `OpenAICompatibleProvider` | `POST {FORECAST_LLM_BASE_URL}/chat/completions`, bearer key | For OpenAI, NEAR AI Cloud or any compatible gateway. Base URL is required; use the provider's documented value. Optional `FORECAST_LLM_OPENAI_MAX_TOKENS_FIELD=max_completion_tokens` (needed by newer OpenAI models; it also bounds hidden reasoning tokens) and `FORECAST_LLM_OPENAI_REASONING_EFFORT`. No other body fields are sent. |
 | `AnthropicProvider` | `POST {base or https://api.anthropic.com}/v1/messages`, `x-api-key`, `anthropic-version: 2026-10-21` | No sampling parameters (that API version rejects them). Optional `FORECAST_LLM_ANTHROPIC_EFFORT` → `output_config.effort`. Reads `text` blocks only; `stop_reason: refusal` → `REFUSAL`. |
 | `ReplayProvider` | none | Answers only exact recorded request hashes; a miss is a hard error. |
 | `RecordingProvider` | wraps a live provider | Keeps model text and token usage for a cassette; no headers or keys. |
@@ -224,7 +224,7 @@ hashes and consent never transfers between hashes. The recorded local-sandbox re
 
 ## Tests
 
-`tests/test_inference.py` (14) covers adapter request/response shapes, API version and
+`tests/test_inference.py` (15) covers adapter request/response shapes, OpenAI token-field and reasoning-effort options, API version and
 missing sampling parameters for Anthropic, refusal/HTTP/malformed failures with key
 redaction, base-URL and price parsing, environment handling, `.env.example` emptiness,
 budget refusal before sending, worst-case charging, record→replay equality and strict

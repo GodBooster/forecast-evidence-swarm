@@ -6,7 +6,7 @@ from pathlib import Path
 from forecast_swarm.inference import (
     AnthropicProvider, CassetteMiss, ConfigError, InferenceEngine, InferenceError, Limits,
     OpenAICompatibleProvider, RecordingProvider, ReplayProvider, load_cassette, make_request,
-    provider_from_env, read_env_file, request_sha256, sanitize_base_url, usd_to_nano, validate_cassette)
+    provider_from_env, provider_options_from_env, read_env_file, request_sha256, sanitize_base_url, usd_to_nano, validate_cassette)
 
 SECRET = "sk-test-NOT-A-REAL-KEY-0123456789abcdef"
 
@@ -55,6 +55,23 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual((response["text"], response["input_tokens"], response["output_tokens"]), ("hello", 40, 7))
         self.assertEqual(response["model_reported"], "test-model-reported")
         self.assertNotIn(SECRET, repr(provider))
+
+    def test_openai_options_select_token_field_and_reasoning_effort_only(self):
+        transport = FakeTransport(body=OPENAI_OK)
+        provider = OpenAICompatibleProvider("https://api.example/v1", SECRET, "m", transport)
+        options = {"max_tokens_field": "max_completion_tokens", "reasoning_effort": "low"}
+        provider.complete(make_request("m", "s", "u", 50, options=options), 5)
+        body = transport.requests[0]["body"]
+        self.assertEqual((body["max_completion_tokens"], body["reasoning_effort"]), (50, "low"))
+        self.assertNotIn("max_tokens", body)
+        self.assertNotIn("max_tokens_field", body)
+        self.assertNotIn("temperature", body)
+        for bad in ({"max_tokens_field": "tokens"}, {"logit_bias": "x"}):
+            with self.subTest(bad=bad), self.assertRaises(ConfigError):
+                provider.complete(make_request("m", "s", "u", 50, options=bad), 5)
+        self.assertEqual(provider_options_from_env({"FORECAST_LLM_OPENAI_MAX_TOKENS_FIELD": "max_completion_tokens",
+                                                    "FORECAST_LLM_OPENAI_REASONING_EFFORT": "low"}, "openai_compatible"),
+                         options)
 
     def test_anthropic_request_uses_current_api_version_and_reads_text_blocks_only(self):
         transport = FakeTransport(body=ANTHROPIC_OK)

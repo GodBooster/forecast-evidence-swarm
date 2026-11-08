@@ -230,17 +230,28 @@ def _usage_int(value):
 
 
 class OpenAICompatibleProvider(_HttpProvider):
-    """POST {base}/chat/completions with a bearer key."""
+    """POST {base}/chat/completions with a bearer key.
+
+    Options (committed in the request record): `max_tokens_field` chooses the
+    body field for the output limit (`max_tokens`, or `max_completion_tokens`
+    for newer OpenAI models, where it also bounds reasoning tokens);
+    `reasoning_effort` is forwarded as is. No other option is sent."""
 
     kind = "openai_compatible"
+    TOKEN_FIELDS = ("max_tokens", "max_completion_tokens")
 
     def complete(self, request, timeout_s):
-        payload = {"model": request["model"], "max_tokens": request["max_output_tokens"],
+        options = request["options"]
+        field = options.get("max_tokens_field", "max_tokens")
+        if field not in self.TOKEN_FIELDS or set(options) - {"max_tokens_field", "reasoning_effort"}:
+            raise ConfigError("Unsupported openai_compatible options")
+        payload = {"model": request["model"], field: request["max_output_tokens"],
                    "messages": [{"role": "system", "content": request["system"]},
                                 {"role": "user", "content": request["user"]}]}
         if request["temperature_milli"] is not None:
             payload["temperature"] = request["temperature_milli"] / 1000
-        payload.update(request["options"])
+        if "reasoning_effort" in options:
+            payload["reasoning_effort"] = options["reasoning_effort"]
         headers = {"Content-Type": "application/json", "Authorization": "Bearer " + self._api_key,
                    "User-Agent": "forecast-evidence-swarm/ai-worker"}
         data = self._post("/chat/completions", headers, payload, timeout_s)
@@ -543,7 +554,8 @@ def validate_trace_shape(trace):
 # ---------------------------------------------------------------- configuration
 
 ENV_KEYS = ("FORECAST_LLM_PROVIDER", "FORECAST_LLM_MODEL", "FORECAST_LLM_API_KEY", "FORECAST_LLM_BASE_URL",
-            "FORECAST_LLM_ANTHROPIC_EFFORT", "FORECAST_LLM_INPUT_NANO_USD_PER_TOKEN",
+            "FORECAST_LLM_ANTHROPIC_EFFORT", "FORECAST_LLM_OPENAI_MAX_TOKENS_FIELD",
+            "FORECAST_LLM_OPENAI_REASONING_EFFORT", "FORECAST_LLM_INPUT_NANO_USD_PER_TOKEN",
             "FORECAST_LLM_OUTPUT_NANO_USD_PER_TOKEN")
 
 
@@ -588,9 +600,22 @@ def provider_from_env(env, transport=None):
 
 
 def provider_options_from_env(env, kind):
-    effort = env.get("FORECAST_LLM_ANTHROPIC_EFFORT", "").strip()
-    if kind == "anthropic" and effort:
+    if kind == "anthropic":
+        effort = env.get("FORECAST_LLM_ANTHROPIC_EFFORT", "").strip()
+        if not effort:
+            return {}
         if effort not in ("low", "medium", "high", "xhigh", "max"):
             raise ConfigError("FORECAST_LLM_ANTHROPIC_EFFORT must be low, medium, high, xhigh or max")
         return {"effort": effort}
-    return {}
+    options = {}
+    field = env.get("FORECAST_LLM_OPENAI_MAX_TOKENS_FIELD", "").strip()
+    if field:
+        if field not in OpenAICompatibleProvider.TOKEN_FIELDS:
+            raise ConfigError("FORECAST_LLM_OPENAI_MAX_TOKENS_FIELD must be max_tokens or max_completion_tokens")
+        options["max_tokens_field"] = field
+    effort = env.get("FORECAST_LLM_OPENAI_REASONING_EFFORT", "").strip()
+    if effort:
+        if not re.fullmatch(r"[a-z]{1,16}", effort):
+            raise ConfigError("FORECAST_LLM_OPENAI_REASONING_EFFORT must be a short lowercase word")
+        options["reasoning_effort"] = effort
+    return options

@@ -93,7 +93,7 @@ From the repository root. No install, network, credentials or wallet needed.
    python3 -m unittest discover -s tests_encyclopedia -q
    ```
 
-   **See:** `Ran 78 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
+   **See:** `Ran 79 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
 
 The full scripted demo, with expected output and the optional fresh chain run, is in
 [DEMO.md](DEMO.md).
@@ -129,7 +129,7 @@ customer order ──► analyst ─► critic ─► verifier ──► deliver
 
 | Claim | Evidence | How to reproduce |
 | --- | --- | --- |
-| Evidence gates, commitments, simulator, knowledge gate, walkthrough, AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 78 Python tests | `python3 -m unittest discover -s tests -q` |
+| Evidence gates, commitments, simulator, knowledge gate, walkthrough, AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 79 Python tests | `python3 -m unittest discover -s tests -q` |
 | Encyclopedia history, consent, adapter | 30 Python tests | `python3 -m unittest discover -s tests_encyclopedia -q` |
 | Contract state machine and transfer recovery | 8 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline` |
 | Real local-chain payout, timeout refund, failed-transfer retry, dispute/resolve, cancel | 2 sandbox integration tests, checked by balances and liabilities | `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker, ~5–10 min) — see [docs/SANDBOX.md](docs/SANDBOX.md) |

@@ -37,7 +37,7 @@ track names and eligibility before submission.
 | `sandbox/` | Local-chain harness, runner image and Docker wrapper | Executed 2026-11-08: 2 integration tests (escrow/recovery; dispute/resolve/timeout/cancel) passed on ephemeral NEAR Sandbox nodes (see `docs/SANDBOX.md`) |
 | `forecast_swarm/walkthrough.py` | One-command end-to-end demo with self-checks | 3 tests; documented in `DEMO.md`; submission draft in `docs/SUBMISSION_DRAFT.md` |
 | UI | Standalone generated HTML | Desktop HTTP preview checked in embedded browser; mobile visual QA pending |
-| `forecast_swarm/inference.py`, `llm_roles.py`, `llm_cli.py` | Bounded LLM analyst (`--roles llm`): provider-neutral adapter, per-order limits, committed trace, record/replay cassettes, output gate; critic/verifier deterministic | Offline only (2026-11-08): 34 new tests, replay walkthrough with a hand-authored cassette; no live provider call yet. See `docs/AI_WORKER.md` |
+| `forecast_swarm/inference.py`, `llm_roles.py`, `llm_cli.py` | Bounded LLM analyst (`--roles llm`): provider-neutral adapter, per-order limits, committed trace, record/replay cassettes, output gate; critic/verifier deterministic | Offline only (2026-11-08): 35 new tests, replay walkthrough with a hand-authored cassette; no live provider call yet. See `docs/AI_WORKER.md` |
 | Live sources | Planned | No authenticated source exercised |
 
 Fresh handoff check on 2026-11-08: **41 + 30 Python tests and 8 native Rust tests

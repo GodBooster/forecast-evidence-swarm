@@ -147,7 +147,7 @@ testnet/mainnet, rustfmt, mobile visual QA, any LLM inference.
 Commands executed on the reference Intel Mac (Python 3.14.7), no network, no key:
 
 ```sh
-python3 -m unittest discover -s tests -q                 # Ran 78 tests ... OK (44 existing + 14 + 20 new)
+python3 -m unittest discover -s tests -q                 # Ran 79 tests ... OK (44 existing + 15 + 20 new)
 python3 -m unittest discover -s tests_encyclopedia -q    # Ran 30 tests ... OK
 python3 -m forecast_swarm.fixture_cassette --check       # Cassette matches the current prompt builder
 python3 -m forecast_swarm.walkthrough --roles llm --replay fixtures/llm_cassettes/hand_authored_analyst.json --out artifacts/walkthrough-llm
