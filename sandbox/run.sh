@@ -12,6 +12,10 @@ IMAGE="${FORECAST_RUNNER_IMAGE:-forecast-near-runner:1.99}"
 DOCKER_MEMORY="${FORECAST_DOCKER_MEMORY:-6g}"
 DOCKER_CPUS="${FORECAST_DOCKER_CPUS:-4}"
 CARGO_JOBS="${FORECAST_CARGO_JOBS:-3}"
+# near-sandbox waits this many seconds for the node RPC (library default 10). Under a
+# memory-limited Docker VM a second node start can exceed 10 s; near-sandbox 0.4 then
+# reports the misleading "Failed to bind to available ports after 5 retries".
+NEAR_RPC_TIMEOUT="${FORECAST_NEAR_RPC_TIMEOUT_SECS:-60}"
 
 cd "$ROOT"
 mkdir -p "$CACHE/cargo" "$CACHE/target" "$CACHE/home" artifacts/demo
@@ -26,6 +30,7 @@ trap cleanup EXIT
 RUN_REL="${RUN_DIR#"$ROOT/"}"
 RECEIPTS="$RUN_REL/near-receipts.pending.json"
 DIAGNOSTICS="$RUN_REL/near-diagnostics.pending.json"
+DISPUTE_DIAGNOSTICS="$RUN_REL/near-dispute-cancel-diagnostics.pending.json"
 INTEGRATION_OUT="$RUN_DIR/knowledge-demo"
 
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
@@ -51,13 +56,18 @@ docker run --rm --network=bridge --cpus="$DOCKER_CPUS" --memory="$DOCKER_MEMORY"
   -e CARGO_TARGET_DIR=/tmp/cargo-target \
   -e CARGO_BUILD_JOBS="$CARGO_JOBS" \
   -e HOME=/cargo-cache/home \
+  -e NEAR_RPC_TIMEOUT_SECS="$NEAR_RPC_TIMEOUT" \
   -e FORECAST_CONTRACT_WASM=/work/contracts/forecast_jobs/target/wasm32-unknown-unknown/release/forecast_jobs.wasm \
   -e FORECAST_CORE_REPORT=/work/artifacts/demo/report.json \
   -e FORECAST_SANDBOX_RECEIPTS="/work/$RECEIPTS" \
   -e FORECAST_SANDBOX_DIAGNOSTICS="/work/$DIAGNOSTICS" \
+  -e FORECAST_SANDBOX_DISPUTE_DIAGNOSTICS="/work/$DISPUTE_DIAGNOSTICS" \
   "$IMAGE" sh -ec '
     if [ ! -f Cargo.lock ]; then cargo generate-lockfile; fi
-    cargo test --locked -- --test-threads=1
+    # One process (and one local node) per chain test, so a node from the previous
+    # test is fully gone before the next starts.
+    cargo test --locked --test near_sandbox -- --exact --test-threads=1 real_local_chain_escrow_and_transfer_recovery
+    cargo test --locked --test near_sandbox -- --exact --test-threads=1 real_local_chain_dispute_resolve_timeout_and_cancel
   '
 
 python3 -m forecast_swarm.knowledge_demo \
@@ -68,6 +78,8 @@ python3 -m forecast_swarm.knowledge_demo \
 
 mv "$RECEIPTS" "$RUN_REL/near-receipts.json"
 mv "$DIAGNOSTICS" "$RUN_REL/near-diagnostics.json"
+mv "$DISPUTE_DIAGNOSTICS" "$RUN_REL/near-dispute-cancel-diagnostics.json"
 KEEP_RUN_DIR=true
 printf 'Local NEAR receipt: %s/near-receipts.json\n' "$RUN_DIR"
+printf 'Dispute/cancel diagnostics: %s/near-dispute-cancel-diagnostics.json\n' "$RUN_DIR"
 printf 'Integration report: %s/index.html\n' "$INTEGRATION_OUT"

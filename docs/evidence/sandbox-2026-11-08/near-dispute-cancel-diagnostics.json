@@ -1,0 +1,105 @@
+{
+  "artifact_sha256": "ba7aa4bf1e5ae00ac6a1a124f042c9dab37ab0bae903671ad640451066db816d",
+  "assertions": [
+    {
+      "accept_while_disputed_rejected": true,
+      "assertion": "customer dispute; resolver-only decision pays worker exactly once",
+      "customer_resolve_rejected": true,
+      "escrowed_rewards_after_job_yocto": "0",
+      "final_status": "ACCEPTED",
+      "job_id": 0,
+      "premature_resolve_rejected": true,
+      "second_resolve_rejected": true,
+      "stranger_dispute_rejected": true,
+      "stranger_resolve_rejected": true,
+      "timeout_after_settlement_rejected": true,
+      "transaction_ids": [
+        "3SBmJ62h74d1sdXVkk2EKaVHriKTkNHr2qd2BS6KZetT",
+        "Eq7ZV4HysXkp6PmR5Q1ugTwAdQWYJLpKTVCQxsJNb692",
+        "3D2Mwm8LP75HfMXbpMLrtXbRFUzyAqbDT2uqAnrdcEbQ",
+        "7hvMCytm3s84aVM1Ypnjm9ZKdEahesXPeV3uC62zcGeA",
+        "D9ugzZ3yLYuEuaTmNnDmDAzakb9cBX53319kcuVkSvVE",
+        "6qE4hqUWAEMKRyxJxaSqNaobMHBo2FEADzmQzkrFToH4",
+        "2UaiUJWHKPFCSJ8Mdak1n4mfkQwaQoUhFM748Je7L8NJ",
+        "3Nypuk2FUAj9EE5vxJTwJAz4LuTBr61f4kgzgNX75Ery",
+        "Ft21kkWNzTqNsrpJoR2F9fLW2gdHqjbspj82tW1Bz5yo",
+        "8Zh9eBevnyeoHh3YWCkjbX3wux6rjNwkZ65QXTTW1dbW",
+        "8EHCt47f47AHVoJBaErF2DTb73c2C3foSNmfEwa6WJNj",
+        "GQ79PtGyfXSACDfUUJy4LX6JxHX8YCSmAPDm6v6Gv6sJ"
+      ],
+      "worker_balance_increase_yocto": "2000000000000000000000000"
+    },
+    {
+      "assertion": "worker dispute; resolver refund returns exactly the reward to the customer",
+      "customer_balance_increase_yocto": "2000000000000000000000000",
+      "escrowed_rewards_after_job_yocto": "0",
+      "final_status": "REFUNDED",
+      "job_id": 1,
+      "transaction_ids": [
+        "DiJUaKwYhfLdsxSxQLbbLQYk1QfrzyoEboDkNB9o8PTB",
+        "Hvz7qYfUjizN1y6R5CPnQpUxPgfJxTEcke7yuUFbMXdi",
+        "9fPsteaFkLwjd9tGTZJEveAKPAtoCue31jhoRcepLXjL",
+        "FqB4BAKyCsrGT8Je9H2TTSTQo6jtGVgkjNRFy5youece",
+        "6BcfKbPM1b5eRibSsiwFtZGikP1TJpTaxQZWP2S3iuvS"
+      ]
+    },
+    {
+      "assertion": "silent resolver: refund only after dispute deadline; late resolution rejected",
+      "customer_balance_increase_yocto": "2000000000000000000000000",
+      "early_timeout_rejected": true,
+      "escrowed_rewards_after_job_yocto": "0",
+      "final_status": "REFUNDED",
+      "job_id": 2,
+      "late_resolve_rejected": true,
+      "transaction_ids": [
+        "66Vyp8nHEcvJ4mghpWY1DS6n2qDAaPmMBEeJtb93YFAz",
+        "HBUoXodnvGWawp3XtX1AvSwLibFN2pzyPJfgz91urgs8",
+        "J3Vr5VmPj1GV1okLx3P5tBseAWYMJcr69xEdM5dLRRmc",
+        "J8PW67Q5i5SSmWA3QQvnqLS4XQrNNEtEriowDmNwA2QM",
+        "QCs753uFikQT5taQAPTXayjto5txkxpdVofeea1QqL4",
+        "41JdGyjaPx7fGXJpK9iWLzhhWUiEMF3VWrtYHV696Kxi",
+        "Bt3RktccdScjY79YNFuWzd7QHrEVJdZJs82bMAnWoSdS"
+      ]
+    },
+    {
+      "assertion": "customer-only cancel of an open job refunds once; contract liability drops by exactly the reward",
+      "assign_after_cancel_rejected": true,
+      "customer_balance_delta_including_own_gas_yocto": "1999576724983275300000000",
+      "escrowed_rewards_after_job_yocto": "0",
+      "escrowed_rewards_while_open_yocto": "2000000000000000000000000",
+      "final_status": "REFUNDED",
+      "gas_tolerance_yocto": "50000000000000000000000",
+      "job_id": 3,
+      "second_cancel_rejected": true,
+      "stranger_cancel_rejected": true,
+      "transaction_ids": [
+        "GCLEtJ3Dih6sEotVwHvK4s51SUWj5NpRfGQ66me3sfLP",
+        "Ec5WAhCti79bdHxE1Z3r85jyqg34JXZ9Wn16nkbhEv1A",
+        "djJy7iRq9NT3GcnhSkCE8ytP76rp59wxgG8rFYZb1EZ",
+        "9T9chv5397jT6fuYvrUFsPuvvJfaR4DUyEHg1BXHHcsG",
+        "HUAHsCtqqKwpCd685QMVZpXie5a4SUt2imUBssjeBxs1"
+      ]
+    },
+    {
+      "assertion": "assigned job cannot be cancelled; undelivered work refunds exactly at the delivery deadline",
+      "cancel_after_assign_rejected": true,
+      "customer_balance_increase_yocto": "2000000000000000000000000",
+      "final_status": "REFUNDED",
+      "job_id": 4,
+      "transaction_ids": [
+        "5xSZoReXCLapgDkf64TWKjQtKhPZ3o8iikAjr186DRxt",
+        "4jhAxb8FSgeSNPkBVUBKSFAwPtC29Pv2uL1AjQ9zcfoc",
+        "859oQGiSZtwjkzbu7oxpfFEUKnRCEwDbia8QyNENyPLC",
+        "3FxyThYui2czKbdCsfjT7X1xGkyRBXykJC83CYDg5dtN"
+      ]
+    }
+  ],
+  "contract_account": "dev-20261108123536-14330370930581.test.near",
+  "contract_wasm_sha256": "1ac693ee9f3a44b230cc6cfc076d90f557209938adc122e10b4de6bfd0ea6c3c",
+  "final_escrowed_rewards_yocto": "0",
+  "job_count": 5,
+  "mode": "LOCAL_NEAR_SANDBOX",
+  "network_mode": "local ephemeral NEAR sandbox",
+  "note": "Dispute/resolve/timeout/cancel paths on a local ephemeral chain; no receipts are exported for publication. No Testnet or Mainnet was contacted.",
+  "runtime": "near-workspaces-rs 0.24.0 / near-sandbox"
+}

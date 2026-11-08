@@ -1,0 +1,34 @@
+{
+  "schema_version": "forecast-near-receipts/v1",
+  "mode": "LOCAL_NEAR_SANDBOX",
+  "jobs": [
+    {
+      "job_id": "0",
+      "artifact_sha256": "ba7aa4bf1e5ae00ac6a1a124f042c9dab37ab0bae903671ad640451066db816d",
+      "customer": "customer-paid.test.near",
+      "worker": "worker-paid.test.near",
+      "status": "PAID",
+      "transaction_ids": [
+        "C6w6XgdSFJtAUD7EZPaW7QbjrAo7Ya9tYjjVkQxQxzYB",
+        "7gPWbNWTf3WZLzKQPat37VvEBx5K5n3PUJ4zukRaxSo8",
+        "4rhHug9zgraveDsUMe3JBijSemRYcVyHZxX1evSvTJg9",
+        "HP9j1XTUKqxuAAtGcddwvN4NjPeSN3EnAuc1WtmPbM7B",
+        "7wbuohS1X6RaccAeoHpeQXBKUYsHovWABGn7gps21xgU",
+        "ALUJe5MppMsHf37qxoURnoEPdmaCJtqazKxfwYUhsWLk"
+      ]
+    },
+    {
+      "job_id": "1",
+      "artifact_sha256": "05c826d4f5aa43404a884150fe0b488a06c85b3af6436edf02fe4ced277cd54a",
+      "customer": "customer-timeout.test.near",
+      "worker": "worker-timeout.test.near",
+      "status": "REFUNDED",
+      "transaction_ids": [
+        "J6jfwyQ788cje8HsNbouaauc8Fk2Jk7q7MLuQCV1kE7u",
+        "D9ya7SuAyad35WrQhhZHYSsfKeNsXjRk9RibaD2KVbEg",
+        "BvnbCKJgypm3DTCGnMj86G1srT7huYes48F48rFyggGi",
+        "DbZYhhiYmUQn5csV46syYygpmkFLDGftjLpH3oehDQWG"
+      ]
+    }
+  ]
+}
