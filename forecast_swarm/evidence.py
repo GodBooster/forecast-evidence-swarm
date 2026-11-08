@@ -28,8 +28,8 @@ def canonical_bytes(value):
                       ensure_ascii=False, allow_nan=False).encode("utf-8")
 
 
-def commitment(domain, value):
-    return hashlib.sha256((SCHEMA_VERSION + ":" + domain + "\n").encode("ascii")
+def commitment(domain, value, schema=SCHEMA_VERSION):
+    return hashlib.sha256((schema + ":" + domain + "\n").encode("ascii")
                           + canonical_bytes(value)).hexdigest()
 
 
@@ -211,6 +211,11 @@ def build_bundle(case):
 
 def validate_bundle(bundle):
     fields(bundle, "content sha256", "bundle")
+    if type(bundle["content"]) is dict and bundle["content"].get("schema_version") != SCHEMA_VERSION:
+        # LLM-analyst bundles carry their own schema and replay their trace.
+        from .llm_roles import LLM_SCHEMA_VERSION, validate_llm_bundle
+        if bundle["content"].get("schema_version") == LLM_SCHEMA_VERSION:
+            return validate_llm_bundle(bundle)
     try:
         inputs = bundle["content"]["inputs"]
         expected = build_bundle({**inputs, "outcome": None,

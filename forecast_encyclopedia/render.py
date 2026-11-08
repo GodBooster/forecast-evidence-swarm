@@ -15,10 +15,17 @@ def txt(v):
     return escape(str(v), quote=True)
 
 
-def shell(title, body):
+LLM_NOTICE = "Scripted examples and supplied excerpts; forecasts whose method names an LLM analyst are model output produced inside deterministic evidence and output gates, a judgement rather than verified fact."
+
+
+def is_llm(snapshot):
+    return snapshot["forecast"]["method"].startswith("LLM analyst (")
+
+
+def shell(title, body, llm=False):
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>{txt(title)} · Forecast Encyclopedia</title><style>
 :root{{color-scheme:light}}*{{box-sizing:border-box}}body{{margin:0;background:#f3f5f0;color:#20372e;font:16px/1.65 system-ui,sans-serif}}main{{max-width:1040px;margin:auto;padding:36px 24px}}a{{color:#146354;text-underline-offset:3px}}h1{{font-size:clamp(29px,4vw,44px);line-height:1.16;max-width:900px}}h2{{font-size:23px}}h3{{font-size:17px}}.eyebrow{{letter-spacing:.1em;font-size:12px;font-weight:700}}.notice{{padding:16px 20px;background:#e2ebda;border-left:4px solid #698447}}article,section.card{{background:white;border:1px solid #d4dfd5;border-radius:12px;padding:24px;margin:22px 0}}.grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}}.stat{{background:#eef3f0;border-radius:8px;padding:15px;overflow-wrap:anywhere}}.stat strong{{display:block;font-size:20px}}small,.meta{{color:#53665c}}code,pre{{font-size:12px;overflow-wrap:anywhere;white-space:pre-wrap}}details{{border-top:1px solid #d4dfd5;margin-top:16px;padding:14px 0}}summary{{cursor:pointer;font-weight:600}}li{{margin:8px 0}}.source{{border-top:1px solid #d4dfd5;padding:14px 0;overflow-wrap:anywhere}}blockquote{{border-left:3px solid #a7b79f;padding-left:16px;margin-left:0}}footer{{font-size:14px;margin:32px 0}}@media(max-width:600px){{main{{padding:20px 14px}}article,section.card{{padding:17px}}.grid{{grid-template-columns:1fr}}}}
-</style></head><body><main><p class="eyebrow">FORECAST EVIDENCE SWARM / ENCYCLOPEDIA</p><div class="notice"><strong>{NOTICE}</strong><br>Scripted examples and supplied excerpts. No live AI inference. Citation checks do not prove source truth or semantic support.</div>{body}<footer>Own betting market and market feeds: planned. No market price is inferred from a model forecast. No wallets, bets or payment execution.<br>Hashes commit to bytes, not truth, authorship or publication time.</footer></main></body></html>'''
+</style></head><body><main><p class="eyebrow">FORECAST EVIDENCE SWARM / ENCYCLOPEDIA</p><div class="notice"><strong>{NOTICE}</strong><br>{(LLM_NOTICE + " ") if llm else "Scripted examples and supplied excerpts. No live AI inference. "}Citation checks do not prove source truth or semantic support.</div>{body}<footer>Own betting market and market feeds: planned. No market price is inferred from a model forecast. No wallets, bets or payment execution.<br>Hashes commit to bytes, not truth, authorship or publication time.</footer></main></body></html>'''
 
 
 def citations(ids):
@@ -48,7 +55,7 @@ def page(r, v):
 <section class="card"><h2>Evidence notes</h2>{''.join('<p>' + txt(x['text']) + ' ' + citations(x['evidence_ids']) + '</p>' for x in s['statements']) or '<p>No supported evidence note is supplied.</p>'}<h3>Criticism and uncertainty · supplied commentary</h3><ul>{''.join('<li>' + txt(x) + '</li>' for x in s['criticism'])}</ul><h3>Selected sources and excerpts</h3>{''.join(sources) or '<p>No usable evidence supplied. Unknown does not mean NO.</p>'}</section>
 <section class="card"><h2>Version history</h2><ol>{history}</ol><p>Change in this version: {txt(s['change_reason'])}</p><details><summary>Technical commitments and JSON</summary><p>Claim ID: <code>{r['id']}</code></p><p>Version SHA-256: <code>{v['sha256']}</code></p><p>Previous version: <code>{txt(v['previous_sha256'])}</code></p><p>Frozen forecast: <code>{v['forecast_sha256']}</code></p><a href="{r['id']}-v{v['number']}.json">This version JSON</a> · <a href="{r['id']}.json">Complete claim JSON</a></details></section>
 <p class="meta">Publication explicitly permitted for the complete history. Revocation removes the current export; previously downloaded copies cannot be recalled.</p>'''
-    return shell(i["question"], body)
+    return shell(i["question"], body, is_llm(s))
 
 
 def public_records(records):
@@ -91,7 +98,7 @@ def build_files(records):
             files[name + ".html"] = page(r, v)
             files[name + ".json"] = encode({"schema": r["schema"], "claim_id": r["id"], "identity": r["identity"], "version": v})
     files["index.json"] = encode({"schema": "forecast-encyclopedia-index/v1", "claims": entries})
-    files["index.html"] = shell("Public claims", '<h1>Questions, evidence,<br>and a history that stays visible.</h1><p>Explore forecasts as they were made, inspect disagreements, and see what eventually resolved.</p><p>Only explicitly permitted claims appear here. Dates are fixed synthetic examples, not a live clock.</p>' + ''.join(cards) + '<p><a href="index.json">Machine-readable index</a></p>')
+    files["index.html"] = shell("Public claims", '<h1>Questions, evidence,<br>and a history that stays visible.</h1><p>Explore forecasts as they were made, inspect disagreements, and see what eventually resolved.</p><p>Only explicitly permitted claims appear here. Dates are fixed synthetic examples, not a live clock.</p>' + ''.join(cards) + '<p><a href="index.json">Machine-readable index</a></p>', any(is_llm(r["versions"][-1]["snapshot"]) for r in public))
     return files
 
 

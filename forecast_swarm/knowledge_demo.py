@@ -3,6 +3,7 @@
 import argparse
 import json
 import re
+from html import escape
 from pathlib import Path
 
 from forecast_encyclopedia.adapter import adapt_report
@@ -176,7 +177,7 @@ def _json(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
 
 
-def _write_output(out, records, sidecar):
+def _write_output(out, records, sidecar, role_mode=None):
     out = Path(out).absolute()
     for path in (out, *out.parents):
         if path.is_symlink():
@@ -202,8 +203,12 @@ def _write_output(out, records, sidecar):
         "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\">"
         "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Forecast knowledge demo</title>"
         "<body><main><h1>Forecast knowledge demo</h1>"
-        "<p>Offline, synthetic, scripted, and private by default. Public imported claims require a matching paid receipt and explicit hash-keyed consent.</p>"
-        "<p>Payment provenance is a local runner assertion. A SHA-256 digest binds bytes, not their truth, transaction finality, or identity.</p>"
+        + ("<p>Offline, synthetic, scripted, and private by default. Public imported claims require a matching paid receipt and explicit hash-keyed consent.</p>"
+           if role_mode is None else
+           "<p>Synthetic and private by default. Imported claims use an LLM analyst (" + escape(role_mode["provider"]) + "/"
+           + escape(role_mode["model"]) + ", " + escape(role_mode["inference_source"]) + ") inside deterministic gates; critic and verifier are scripted. "
+           "Public imported claims require a matching paid receipt and explicit hash-keyed consent.</p>")
+        + "<p>Payment provenance is a local runner assertion. A SHA-256 digest binds bytes, not their truth, transaction finality, or identity.</p>"
         "<ul><li><a href=\"encyclopedia/index.html\">Open the encyclopedia</a></li>"
         "<li><a href=\"payment-provenance.json\">Inspect payment provenance JSON</a></li></ul>"
         "</main></body></html>\n"
@@ -218,7 +223,7 @@ def run(out="artifacts/knowledge-demo", core_report=None, receipts=None,
     receipt_doc = load_json(Path(receipts).read_text(encoding="utf-8")) if receipts else None
     consent_doc = load_json(Path(consent).read_text(encoding="utf-8")) if consent else None
     records, sidecar = build_integration(report, receipt_doc, consent_doc)
-    _write_output(out, records, sidecar)
+    _write_output(out, records, sidecar, report.get("role_mode"))
     return sidecar
 
 

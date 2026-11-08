@@ -7,13 +7,18 @@ import copy
 from .model import fields, canonical, new_claim, append_version, timestamp, validate_record, verify_extension, digest
 
 CONTRACT = "forecast-evidence-swarm/v1"
+LLM_CONTRACT = "forecast-evidence-swarm/llm-analyst/v1"
+LLM_MODE = "SYNTHETIC_SIMULATION_LLM_ANALYST"
+LLM_METHOD_PREFIX = "LLM analyst ("
 
 
 def adapt_report(report, grants=None):
     from forecast_swarm.evidence import validate_bundle, validate_case, quality
     from forecast_swarm.demo import simulate
-    fields(report, "schema_version mode notice commitment_notice scenarios")
-    if report["schema_version"] != CONTRACT or report["mode"] != "OFFLINE_SYNTHETIC_SIMULATION":
+    fields(report, "schema_version mode notice commitment_notice scenarios", "role_mode")
+    scripted = report["schema_version"] == CONTRACT and report["mode"] == "OFFLINE_SYNTHETIC_SIMULATION" and "role_mode" not in report
+    llm = report["schema_version"] == LLM_CONTRACT and report["mode"] == LLM_MODE and type(report.get("role_mode")) is dict
+    if not (scripted or llm):
         raise ValueError("Unsupported core report contract")
     if type(report["scenarios"]) is not list or (grants is not None and type(grants) is not dict):
         raise ValueError("Invalid scenarios or grants")
@@ -23,6 +28,8 @@ def adapt_report(report, grants=None):
         fields(result, "scenario title delivery evaluation customer_acceptance")
         bundle = validate_bundle(result["delivery"])
         content = bundle["content"]
+        if content["schema_version"] != report["schema_version"]:
+            raise ValueError("Delivery schema does not match the report contract")
         inputs = content["inputs"]
         if bundle["sha256"] in seen:
             raise ValueError("Duplicate core delivery")
@@ -42,19 +49,31 @@ def adapt_report(report, grants=None):
         identity = {"question": t["question"], "scope": "Synthetic core job " + t["job_id"] + ". " + inputs["title"],
                     "resolution_rule": "Use the final binary outcome from the specified core registry for this exact job, at or after its resolution time. Provisional outcomes remain unresolved.",
                     "resolution_source": t["source"], "resolution_at": t["resolution_at"]}
-        evidence, rejected = [], []
+        evidence, rejected, local_ids = [], [], {}
         for n, e in enumerate(inputs["evidence"], 1):
             if any(e[k] is None for k in ("source", "observed_at", "available_at", "yes_count", "sample_count")) or not e["observed_at"] <= e["available_at"] <= t["decision_at"]:
                 rejected.append(e["id"])
                 continue
+            local_ids[e["id"]] = f"core-e{n}"
             evidence.append({"id": f"core-e{n}", "source": e["source"], "excerpt": f"Supplied synthetic batch {e['id']}: {e['yes_count']} YES in {e['sample_count']} observations.",
                              "observed_at": e["observed_at"], "available_at": e["available_at"], "synthetic": True, "url": None})
         p = roles["analyst"]["probability_bps"]
+        statements = [{"text": e["excerpt"], "evidence_ids": [e["id"]]} for e in evidence]
+        forecast_ids = [e["id"] for e in evidence] if p is not None else []
+        model_notes = []
+        if roles["analyst"]["mode"] == "llm":
+            analyst = roles["analyst"]
+            if p is not None:
+                forecast_ids = [local_ids[x] for x in analyst["evidence_ids"]]
+                statements.append({"text": "Analyst rationale (LLM model output, not verified fact): " + analyst["rationale"],
+                                   "evidence_ids": forecast_ids})
+                model_notes = ["Model-stated uncertainty driver: " + d for d in analyst["uncertainty"]["drivers"]]
+            model_notes.append("LLM output gate: " + analyst["gate"]["status"] + (" (" + "; ".join(analyst["gate"]["reasons"]) + ")" if analyst["gate"]["reasons"] else ""))
         s = {"as_of": t["decision_at"], "change_reason": "Imported and replay-validated actual core report; historical forecast snapshot.",
-             "evidence": evidence, "statements": [{"text": e["excerpt"], "evidence_ids": [e["id"]]} for e in evidence],
-             "criticism": roles["critic"]["findings"] + roles["verifier"]["reasons"] + (["Unusable or post-cutoff batches were excluded from encyclopedia forecast citations; original delivery validity is retained. Batch IDs: " + ", ".join(rejected)] if rejected else []),
+             "evidence": evidence, "statements": statements,
+             "criticism": roles["critic"]["findings"] + model_notes + roles["verifier"]["reasons"] + (["Unusable or post-cutoff batches were excluded from encyclopedia forecast citations; original delivery validity is retained. Batch IDs: " + ", ".join(rejected)] if rejected else []),
              "forecast": {"cutoff": t["decision_at"], "probability_bps": p,
-                          "evidence_ids": [e["id"] for e in evidence] if p is not None else [],
+                          "evidence_ids": forecast_ids,
                           "method": roles["analyst"]["method"] + " Read-only core v1 delivery commitment: " + bundle["sha256"]},
              "delivery_validity": content["delivery_validity"], "customer_acceptance": "NOT_REQUESTED",
              "outcome": {"status": "UNRESOLVED", "value": None, "resolved_at": None, "evidence_ids": []}}

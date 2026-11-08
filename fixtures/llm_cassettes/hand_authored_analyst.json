@@ -1,0 +1,58 @@
+{
+  "api_base": null,
+  "interactions": [
+    {
+      "error": null,
+      "outcome": "OK",
+      "request_sha256": "44828f82e25e9f94b5db72db4a89dfb6f70aafa860768d83715666831d4cc732",
+      "response": {
+        "finish_reason": "fixture",
+        "input_tokens": null,
+        "model_reported": null,
+        "output_tokens": null,
+        "provider_response_id": null,
+        "text": "{\"probability_bps\": 7200, \"evidence_ids\": [\"batch-01\"], \"rationale\": \"batch-01 reports 15 YES in 20 synthetic observations (75%). With a single small batch the estimate is pulled slightly toward 50%.\", \"uncertainty\": {\"low_bps\": 5200, \"high_bps\": 8700, \"drivers\": [\"Only one batch of 20 observations.\", \"Comparability of past observations with the next event is unproven.\"]}}"
+      }
+    },
+    {
+      "error": null,
+      "outcome": "OK",
+      "request_sha256": "bd30693304deb1e82e38c6de359bcfd07dabda824b800ce991e222ec33e8152e",
+      "response": {
+        "finish_reason": "fixture",
+        "input_tokens": null,
+        "model_reported": null,
+        "output_tokens": null,
+        "provider_response_id": null,
+        "text": "{\"probability_bps\": 600, \"evidence_ids\": [\"batch-01\"], \"rationale\": \"batch-01 reports 0 YES in 20 synthetic observations. Zero observed successes is a known count, not missing data, but it does not make YES impossible.\", \"uncertainty\": {\"low_bps\": 0, \"high_bps\": 2000, \"drivers\": [\"Only one batch of 20 observations.\", \"A zero count gives weak information about rare outcomes.\"]}}"
+      }
+    },
+    {
+      "error": null,
+      "outcome": "OK",
+      "request_sha256": "d134a106dac19d6d9bbccbdc1319129afd0553125b60c9702541d99ad562566f",
+      "response": {
+        "finish_reason": "fixture",
+        "input_tokens": null,
+        "model_reported": null,
+        "output_tokens": null,
+        "provider_response_id": null,
+        "text": "{\"probability_bps\": 7200, \"evidence_ids\": [\"batch-01\"], \"rationale\": \"batch-01 reports 15 YES in 20 synthetic observations (75%). With a single small batch the estimate is pulled slightly toward 50%.\", \"uncertainty\": {\"low_bps\": 5200, \"high_bps\": 8700, \"drivers\": [\"Only one batch of 20 observations.\", \"Comparability of past observations with the next event is unproven.\"]}}"
+      }
+    }
+  ],
+  "limits": {
+    "input_price_nano_usd_per_token": 0,
+    "max_calls": 1,
+    "max_cost_nano_usd": 10000000,
+    "max_output_tokens": 1200,
+    "output_price_nano_usd_per_token": 0,
+    "timeout_s": 60
+  },
+  "model": "hand-authored-synthetic-analyst",
+  "notice": "Hand-authored synthetic analyst outputs for offline demos and tests. No model or provider was called; prices are zero. Replaying exercises the real prompt, gates, trace and hashes.",
+  "origin": "HAND_AUTHORED_SYNTHETIC",
+  "provider": "fixture",
+  "schema_version": "forecast-inference-cassette/v1",
+  "synthetic_inputs": true
+}
