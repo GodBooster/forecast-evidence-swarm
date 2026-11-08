@@ -141,3 +141,41 @@ git diff --check
 
 Still not covered: callback out-of-gas recovery, initialization takeover, gas measurement,
 testnet/mainnet, rustfmt, mobile visual QA, any LLM inference.
+
+## Bounded AI worker, offline verification — 2026-11-08
+
+Commands executed on the reference Intel Mac (Python 3.14.7), no network, no key:
+
+```sh
+python3 -m unittest discover -s tests -q                 # Ran 78 tests ... OK (44 existing + 14 + 20 new)
+python3 -m unittest discover -s tests_encyclopedia -q    # Ran 30 tests ... OK
+python3 -m forecast_swarm.fixture_cassette --check       # Cassette matches the current prompt builder
+python3 -m forecast_swarm.walkthrough --roles llm --replay fixtures/llm_cassettes/hand_authored_analyst.json --out artifacts/walkthrough-llm
+                                                         # All walkthrough checks passed.
+git diff --check
+```
+
+- `--roles scripted` (default) outputs were compared byte for byte with outputs generated
+  from commit `59975b9` before the change: `python3 -m forecast_swarm`,
+  `python3 -m forecast_swarm.walkthrough` (files and console text),
+  `python3 -m forecast_swarm.knowledge_demo --fixture-consent` and
+  `python3 -m forecast_encyclopedia --core-demo …` were all identical. Scripted delivery
+  hashes are unchanged (focus `ba7aa4bf…816d`).
+- `--roles llm --replay` runs the real prompt builder, output gate, budget checks, trace
+  and commitments against **hand-authored** cassette answers (provider `fixture`, prices
+  zero). Focus delivery `956437d3b9ec35c0495b64edaf34263f32f07ad370117483e945ea8edb309b3a`;
+  three analyst calls answered from the cassette; `future_data` and `missing_data` made no
+  call. The test suite also runs this walkthrough in subprocesses with sockets disabled and
+  two hash seeds, with identical `report.json` bytes.
+- New tests cover adapter request/response shapes (OpenAI-compatible, Anthropic API
+  version `2026-10-21` without sampling parameters), refusal/HTTP/malformed/timeout
+  failures with key redaction, budget refusal before sending, worst-case charging,
+  record→replay equality, each output-gate rule, tampering detection, and CLI misuse.
+- Contract, sandbox harness and wasm were not changed; Rust tests and the sandbox run were
+  not repeated for this change.
+- A pattern scan of the working tree for API-key and bearer-token shapes found only the
+  explicit fake test key (pattern scan, not a guarantee).
+
+Not done: **no live provider call**; therefore no real model output, token usage, latency,
+cost or attestation exists. The live run awaits the owner's provider/model/limit decision
+and a locally supplied key; its result will be appended here.

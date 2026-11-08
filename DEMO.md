@@ -2,7 +2,8 @@
 
 One scenario, followed end to end. Every command below was run on the reference machine
 (Intel macOS, Python 3.14.7, Rust 1.99.1, Docker Desktop 29.9.2) on 2026-11-08; outputs
-are quoted from those runs. All data is **synthetic**; all roles are **scripted**.
+are quoted from those runs. All data is **synthetic**. Paths A–C use **scripted** roles;
+path D swaps the analyst for the bounded **LLM worker** replayed from a hand-authored cassette.
 
 The focus case is job `synthetic-01`: *"Will the next synthetic registry event be YES?"*.
 The analyst forecasts 75% YES from 15 YES in 20 synthetic observations; the event later
@@ -139,6 +140,49 @@ the delivery deadline. Details: [docs/SANDBOX.md](docs/SANDBOX.md).
 If the first node start is slow on a small Docker VM, raise
 `FORECAST_NEAR_RPC_TIMEOUT_SECS` (default 60).
 
+## Path D — LLM analyst inside the same gates, offline replay (≈1 s)
+
+```sh
+python3 -m forecast_swarm.walkthrough --roles llm --replay fixtures/llm_cassettes/hand_authored_analyst.json --out artifacts/walkthrough-llm
+```
+
+Expected difference in steps 2–3 (hashes are deterministic):
+
+```text
+2. RESEARCH  LLM analyst inside deterministic gates; critic and verifier stay scripted.
+   analyst=llm fixture/hand-authored-synthetic-analyst  source=REPLAY of hand_authored_analyst.json (HAND_AUTHORED_SYNTHETIC)
+   forecast=72.00% YES  cited=batch-01  uncertainty=52.00%-87.00%
+   rationale: batch-01 reports 15 YES in 20 synthetic observations (75%). With a single small batch ...
+   output gate=VALID  critic=CAUTION (6 findings)  verifier=VALID
+   trace: call 0 OK  tokens in/out=None/None (worst_case_estimate)  cost estimate=$0.000000
+   request sha256=d134a106dac19d6d9bbccbdc1319129afd0553125b60c9702541d99ad562566f
+   response sha256=c9b5d054de6d3fe321c61a813cfde09495f8132505f705453b7dbdeb0919f580
+   run: 3 analyst call(s) answered from the cassette; no provider contacted
+
+3. EVIDENCE CHECKS  ...
+   The model is called only when the evidence gate passes; failed gates make no call.
+   Focus delivery is VALID; later outcome NO, direction incorrect, Brier=0.5184. ...
+   delivery sha256=956437d3b9ec35c0495b64edaf34263f32f07ad370117483e945ea8edb309b3a  (commits to the full inference trace)
+```
+
+**The cassette answers were written by hand, not by a model.** The path exists so that
+anyone can exercise the real prompt builder, output gate, budget checks, call trace and
+commitments offline and for free. What to inspect:
+
+| Do | See | Rule being shown |
+| --- | --- | --- |
+| open `artifacts/walkthrough-llm/core/report.html`, first card | analyst card labelled `llm · fixture/…`, rationale, cited evidence, uncertainty interval, output gate VALID; critic and verifier labelled *scripted* | role mode and model are disclosed |
+| same page, "Inference trace" | limits (1 call, 1200 output tokens, 60 s, $0.01 ceiling), request/response SHA-256, usage source, cost estimate, the recorded model text | every call is committed as provenance |
+| scenarios 2 and 3 | "No call: the evidence gate did not pass." | the model never sees invalid evidence |
+| `artifacts/walkthrough-llm/knowledge/encyclopedia/claim-43c6dc2d….html` | method `LLM analyst (fixture/hand-authored-synthetic-analyst)…`, rationale marked "LLM model output, not verified fact", model-stated uncertainty drivers | publication carries the mode |
+| `artifacts/walkthrough-llm/demo-consent.json` | synthetic consent keyed by this run's delivery hashes | consent never transfers to a new hash |
+
+Invalid model output (unknown or post-cutoff citations, non-numeric probability, missing
+uncertainty, truncated output, later dates) makes the delivery INVALID; provider failures
+and budget refusals make it INSUFFICIENT_DATA; both are refunded, never repaired. These
+cases are covered by `tests/test_llm_worker.py`. A live run (`--live`, paid) requires the
+owner's provider choice, key and spending limit; see [docs/AI_WORKER.md](docs/AI_WORKER.md).
+
 ## Other commands
 
 ```sh
@@ -150,6 +194,7 @@ cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked -
 
 ## What this demo does not show
 
-No LLM inference, live data source, authenticated customer identity, testnet/mainnet
-transaction, real funds, or evidence of forecasting skill. The consent grants in
+No live LLM inference (path D replays hand-authored answers), live data source,
+authenticated customer identity, testnet/mainnet transaction, real funds, or evidence of
+forecasting skill. The consent grants in
 `fixtures_encyclopedia/core_demo_consent.json` are synthetic fixtures.

@@ -100,3 +100,15 @@ These are unsigned local artifacts. A hash proves byte agreement, not truth,
 authorship, source authenticity, publication time, or onchain timestamping. Future
 NEAR submission can anchor a commitment; independent source authentication remains
 a separate requirement. No signatures or onchain anchoring are implemented here.
+
+## LLM-analyst deliveries (`forecast-evidence-swarm/llm-analyst/v1`)
+
+`--roles llm` produces a separate delivery schema; scripted v1 deliveries and hashes are
+unchanged. Inputs are the same v1 case fields. Content adds `inference_trace`
+(`forecast-inference-trace/v1`), the analyst role has `mode: llm` with provider, model,
+prompt version, cited evidence IDs, rationale, uncertainty interval and the output-gate
+verdict; critic and verifier remain `mode: scripted`. Commitments use the same canonical
+JSON rules with the domain prefix `forecast-evidence-swarm/llm-analyst/v1:` (`evidence`,
+`bundle`). `validate_bundle` replays the gates against the recorded model text rather
+than calling a model. Reports in this mode use mode `SYNTHETIC_SIMULATION_LLM_ANALYST`
+and an unhashed `role_mode` wrapper. Full description: [AI_WORKER.md](AI_WORKER.md).

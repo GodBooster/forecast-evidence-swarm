@@ -30,19 +30,19 @@ Forecast Evidence Swarm
 
 Commission a forecast, verify its evidence, pay via NEAR escrow on acceptance, publish it with immutable history.
 
-## Description (1,623 characters incl. paragraph breaks — within the assumed 20–2000 limit)
+## Description (1,902 characters incl. paragraph breaks — within the assumed 20–2000 limit)
 
 > Forecast Evidence Swarm is a marketplace workflow for paid forecasting research that keeps five things separate: whether the evidence was valid, whether the forecast turned out right, whether the customer accepted the work, whether payment happened, and whether the result may be published.
 >
-> A customer orders a binary forecast with a question, resolution source, decision cutoff, deadlines and budget. Analyst, critic and verifier roles produce a delivery bundle; deterministic gates reject evidence published after the cutoff, missing observations and provisional outcomes. The bundle is committed as canonical JSON with a SHA-256 hash.
+> A customer orders a binary forecast with a question, resolution source, decision cutoff, deadlines and budget. Analyst, critic and verifier roles produce a delivery bundle; deterministic gates reject evidence published after the cutoff, missing observations and provisional outcomes. The analyst can be a bounded LLM worker (OpenAI-compatible incl. NEAR AI Cloud, or Anthropic) with one call, a cost ceiling and an output gate: unknown citations or non-numeric output make the delivery invalid. Every call is traced and committed with the bundle as canonical JSON and SHA-256.
 >
 > A NEAR escrow contract (near-sdk 5.17) holds the reward. The worker submits the hash; the customer accepts that exact hash, or disputes it to a named resolver; deadlines refund silent or abandoned jobs. Payouts and refunds are asynchronous transfers with callbacks; a failed transfer keeps its original beneficiary and can be retried by anyone.
 >
 > Only a valid, paid delivery with hash-bound consent becomes a public encyclopedia page. Pages are append-only and hash-linked, so a 75% forecast that resolved NO stays visible as 75%.
 >
-> Verified: 44 + 30 Python tests, 8 contract unit tests, and two integration tests on a local NEAR Sandbox that check exact balances for payout, timeout refund, failed-transfer retry, dispute resolution and cancellation. One command (python3 -m forecast_swarm.walkthrough) runs the whole flow offline.
+> Verified: 78 + 30 Python tests, 8 contract unit tests, and two integration tests on a local NEAR Sandbox that check exact balances for payout, timeout refund, failed-transfer retry, dispute resolution and cancellation. One command (python3 -m forecast_swarm.walkthrough) runs the whole flow offline.
 >
-> Honest limits: roles are scripted (no LLM yet), data is synthetic, no testnet/mainnet deployment, and no forecasting skill or profitability is claimed.
+> Honest limits: the LLM path is tested offline with hand-authored replay data (live run pending), data is synthetic, no testnet/mainnet deployment, and no forecasting skill or profitability is claimed.
 
 ## Track candidates
 
@@ -51,9 +51,9 @@ live form. The submission form allows several tracks; select only those the proj
 
 | Track | Fit | Reasoning |
 | --- | --- | --- |
-| **Agent Economy** (`agents`) — recommended | Good, with a caveat | The track asks for agents that hire other agents, check work and pay out with a receipt for every task. We implement the hire → check → accept → pay/refund loop with exact-balance chain tests and receipts bound to the work hash. Caveat: the worker is scripted and holds no wallet of its own yet. |
+| **Agent Economy** (`agents`) — recommended | Good, stronger with the AI worker | The track asks for agents that hire other agents, check work and pay out with a receipt for every task. We implement the hire → check → accept → pay/refund loop with exact-balance chain tests and receipts bound to the work hash. The worker can now be a real, budget-bounded LLM agent whose every call is traced inside the paid artifact, and whose bad output is refused before payment. Caveats: no live model run is recorded yet (offline replay uses hand-authored answers), the worker holds no wallet of its own, and the chain run used scripted deliveries. |
 | **Open Innovation** (`open`) — recommended | Good | Explicitly combinable with any other track. Immutable, consent-gated forecast history tied to on-chain payment is not a standard category. |
-| AI Swarms (`swarms`) — optional, weaker | Weak today | The track is about many agents coordinating in a market (bidding, pooling, intent settlement). We have a fixed three-role pipeline, not a market of agents. Only select it if a real multi-agent worker is added; otherwise it may read as overclaiming. |
+| AI Swarms (`swarms`) — optional, weaker | Still weak | The track is about many agents coordinating in a market (bidding, pooling, intent settlement). The AI worker adds one LLM role to a fixed three-role pipeline; critic and verifier stay deterministic on purpose. That is not a market of agents. Selecting it would likely read as overclaiming. |
 | Investment Thesis, AI Security & Defense, others | Not a fit | Thesis requires on-chain NEAR analytics; Security is the domain of the owner's separate BUMM Guard submission — keep the boundary. |
 
 ## Prior-work disclosure (proposed text)
@@ -107,6 +107,8 @@ Chosen: option 1.
 - [ ] ★ Provide the mainnet NEAR account for the prize payout (not created by any agent).
 - [ ] ★ Record and publish the X demo post (video or screenshots; says built at NEAR HACKATHON).
 - [ ] ★ Pick tracks and approve the final description and disclosure text.
-- [ ] ★ Decide on inference access for a real bounded AI worker (optional; affects track fit).
+- [x] Bounded AI worker implemented and tested offline (`--roles llm`, docs/AI_WORKER.md).
+- [ ] ★ Choose provider (NEAR AI Cloud / Anthropic / other), model and a spending limit; put the key in a local `.env.local` yourself; approve one live run (results go to docs/VALIDATION.md).
+- [ ] ★ Decide whether a recorded live cassette (model text over synthetic inputs) may be committed publicly.
 - [ ] Re-run all tests and `bash sandbox/run.sh` on the final commit.
 - [ ] ★ Review the full submission payload and send it personally (or approve an agent sending exactly that payload).

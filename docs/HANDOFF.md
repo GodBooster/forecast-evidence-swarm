@@ -37,7 +37,8 @@ track names and eligibility before submission.
 | `sandbox/` | Local-chain harness, runner image and Docker wrapper | Executed 2026-11-08: 2 integration tests (escrow/recovery; dispute/resolve/timeout/cancel) passed on ephemeral NEAR Sandbox nodes (see `docs/SANDBOX.md`) |
 | `forecast_swarm/walkthrough.py` | One-command end-to-end demo with self-checks | 3 tests; documented in `DEMO.md`; submission draft in `docs/SUBMISSION_DRAFT.md` |
 | UI | Standalone generated HTML | Desktop HTTP preview checked in embedded browser; mobile visual QA pending |
-| LLM agents / live sources | Planned | No inference, authenticated source or model API exercised |
+| `forecast_swarm/inference.py`, `llm_roles.py`, `llm_cli.py` | Bounded LLM analyst (`--roles llm`): provider-neutral adapter, per-order limits, committed trace, record/replay cassettes, output gate; critic/verifier deterministic | Offline only (2026-11-08): 34 new tests, replay walkthrough with a hand-authored cassette; no live provider call yet. See `docs/AI_WORKER.md` |
+| Live sources | Planned | No authenticated source exercised |
 
 Fresh handoff check on 2026-11-08: **41 + 30 Python tests and 8 native Rust tests
 passed**. Python 3.14.7, Rust 1.99.1. The previously built wasm is still present,
@@ -181,9 +182,9 @@ The contract stores hashes and schedules, not source evidence or a proof of trut
 1. Record actual commands, SDK/runtime versions, receipt hashes, wasm hash, balance
    assertions and failure/retry results. Replace pending labels only for verified work.
 2. Verify/review the real payment-to-knowledge adapter contract and history preservation.
-3. Add a genuine bounded AI worker when the owner supplies approved inference access.
-   Retain deterministic evidence gates, explicit uncertainty, critic/verifier roles and
-   customer acceptance. Scripted functions are not autonomous inference agents.
+3. Bounded AI worker: implemented and verified offline on 2026-11-08 (`docs/AI_WORKER.md`).
+   Remaining: one live run within an owner-approved provider, model and spending limit,
+   recorded in `docs/VALIDATION.md`. Never claim a live model result before that run.
 4. Prepare the complete demo: order → research → verification → acceptance/payment →
    permitted knowledge page. Confirm official tracks/rules/deadline, choose a license,
    disclose prior work/BUMM relationship and obtain explicit publication/submission approval.

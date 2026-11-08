@@ -7,9 +7,12 @@ encyclopedia page whose forecast history can never be rewritten.
 
 > **Status (2026-11-08): working prototype, synthetic data only.** The Python product
 > runs offline; the NEAR contract is unit-tested and was exercised end to end on a
-> local, ephemeral NEAR Sandbox. Analyst/critic/verifier are **scripted functions, not
-> LLM agents**. No testnet/mainnet deployment, real funds, live data source or model API
-> is used. Forecast accuracy and trading profitability are **not** established.
+> local, ephemeral NEAR Sandbox. By default analyst/critic/verifier are **scripted
+> functions**. `--roles llm` swaps the analyst for a **bounded LLM worker** inside the same
+> deterministic gates (provider-neutral adapter, per-order budget, committed call trace);
+> it is verified offline with a **hand-authored** replay cassette, and **no live model call
+> has been made yet**. No testnet/mainnet deployment, real funds or live data source is
+> used. Forecast accuracy and trading profitability are **not** established.
 
 ## The problem
 
@@ -57,7 +60,21 @@ From the repository root. No install, network, credentials or wallet needed.
    recorded in [docs/evidence](docs/evidence/sandbox-2026-11-08/README.md); that chain no
    longer exists, so the IDs cannot be checked on an explorer.
 
-3. **Look at the pages.**
+3. **Run the same flow with the LLM analyst, offline.**
+
+   ```sh
+   python3 -m forecast_swarm.walkthrough --roles llm --replay fixtures/llm_cassettes/hand_authored_analyst.json --out artifacts/walkthrough-llm
+   ```
+
+   **See:** step 2 names `analyst=llm fixture/hand-authored-synthetic-analyst`, the cited
+   evidence, the model's uncertainty interval, `output gate=VALID` and the call trace
+   (request/response SHA-256, tokens, cost estimate); step 3 notes that the model is not
+   called when the evidence gate fails. The cassette answers were **written by hand**, not
+   by a model — the label appears in the output, report and encyclopedia page. With a key
+   and the owner's approval the same command runs `--live` against Anthropic or any
+   OpenAI-compatible endpoint (e.g. NEAR AI Cloud); see [docs/AI_WORKER.md](docs/AI_WORKER.md).
+
+4. **Look at the pages.**
 
    ```sh
    python3 -m http.server 8873 --bind 127.0.0.1 --directory artifacts
@@ -69,14 +86,14 @@ From the repository root. No install, network, credentials or wallet needed.
    open the "next synthetic registry event" claim and its v1 link). Pre-captured synthetic
    screenshots are in [docs/screenshots](docs/screenshots/README.md).
 
-4. **Run the tests.**
+5. **Run the tests.**
 
    ```sh
    python3 -m unittest discover -s tests -q
    python3 -m unittest discover -s tests_encyclopedia -q
    ```
 
-   **See:** `Ran 44 tests … OK` and `Ran 30 tests … OK`.
+   **See:** `Ran 78 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
 
 The full scripted demo, with expected output and the optional fresh chain run, is in
 [DEMO.md](DEMO.md).
@@ -84,16 +101,17 @@ The full scripted demo, with expected output and the optional fresh chain run, i
 ## How it works
 
 ```
-customer order ──► analyst ─► critic ─► verifier ──► delivery bundle (canonical JSON, SHA-256)
- (question, source,     scripted roles, deterministic         │
-  cutoff, deadlines,    evidence gates                        ▼
-  budget)                                         NEAR escrow: create_job → assign → submit(hash)
-                                                   → accept(hash) | dispute → resolve | timeout
-                                                   → async transfer + callback (retry on failure)
-                                                              │ receipt bound to the same hash
-                                                              ▼
-                               encyclopedia: published only if VALID + PAID + hash-bound consent;
-                               append-only, hash-linked versions (forecast never rewritten)
+customer order ──► analyst ─► critic ─► verifier ──► delivery bundle (canonical JSON, SHA-256;
+ (question, source,  scripted, or a bounded LLM         │   includes the LLM call trace in llm mode)
+  cutoff, deadlines, analyst (one call) inside the      │
+  budget)            deterministic evidence and         ▼
+                     output gates               NEAR escrow: create_job → assign → submit(hash)
+                                                 → accept(hash) | dispute → resolve | timeout
+                                                 → async transfer + callback (retry on failure)
+                                                            │ receipt bound to the same hash
+                                                            ▼
+                             encyclopedia: published only if VALID + PAID + hash-bound consent;
+                             append-only, hash-linked versions (forecast never rewritten)
 ```
 
 | Component | Path | What it does |
@@ -101,7 +119,8 @@ customer order ──► analyst ─► critic ─► verifier ──► deliver
 | Evidence pipeline | `forecast_swarm/evidence.py`, `demo.py` | Five synthetic scenarios; cutoff, completeness and finality gates; canonical integer-only JSON; domain-separated SHA-256 commitments; HTML/JSON report |
 | Budget simulator | `forecast_swarm/payments.py` | Synchronous model of the escrow states (labelled SIMULATION) |
 | Knowledge gate | `forecast_swarm/knowledge_demo.py` | Strict receipt schema; publishes only paid, valid, consented deliveries; payment provenance sidecar |
-| Walkthrough | `forecast_swarm/walkthrough.py` | The end-to-end "do X, see Y" command with self-checks |
+| Walkthrough | `forecast_swarm/walkthrough.py` | The end-to-end "do X, see Y" command with self-checks; `--roles scripted\|llm` |
+| AI worker | `forecast_swarm/inference.py`, `llm_roles.py`, `llm_cli.py` | Provider-neutral adapter (OpenAI-compatible incl. NEAR AI Cloud, Anthropic Messages), per-order call/token/time/cost limits, committed call trace, record/replay cassettes, LLM analyst behind evidence and output gates |
 | Encyclopedia | `forecast_encyclopedia/` | Private-by-default claim pages, append-only hash-linked history, core report adapter |
 | NEAR contract | `contracts/forecast_jobs/` | `near-sdk` 5.17.2 escrow: bounded jobs, deadlines, hash-bound acceptance, disputes with a named resolver, timeouts, cancel, async payout/refund with fixed-beneficiary retry |
 | Sandbox harness | `sandbox/` | `near-workspaces` 0.24 integration tests against a local NEAR Sandbox in Docker |
@@ -110,7 +129,7 @@ customer order ──► analyst ─► critic ─► verifier ──► deliver
 
 | Claim | Evidence | How to reproduce |
 | --- | --- | --- |
-| Evidence gates, commitments, simulator, knowledge gate, walkthrough | 44 Python tests | `python3 -m unittest discover -s tests -q` |
+| Evidence gates, commitments, simulator, knowledge gate, walkthrough, AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 78 Python tests | `python3 -m unittest discover -s tests -q` |
 | Encyclopedia history, consent, adapter | 30 Python tests | `python3 -m unittest discover -s tests_encyclopedia -q` |
 | Contract state machine and transfer recovery | 8 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline` |
 | Real local-chain payout, timeout refund, failed-transfer retry, dispute/resolve, cancel | 2 sandbox integration tests, checked by balances and liabilities | `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker, ~5–10 min) — see [docs/SANDBOX.md](docs/SANDBOX.md) |
@@ -119,8 +138,11 @@ Details and exact recorded values: [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ## Limitations (read before judging)
 
-- **No AI inference yet.** The three roles are deterministic scripted functions. A bounded
-  LLM worker is planned behind the same evidence gates; it needs approved inference access.
+- **No live AI inference yet.** The LLM analyst path is implemented and tested offline, but
+  the bundled cassette is hand-authored and no provider has been called. Critic and verifier
+  stay deterministic by design. A model's probability is a judgement, not a calibrated
+  estimate; gates check structure and citations, not semantic truth. See
+  [docs/AI_WORKER.md](docs/AI_WORKER.md).
 - **Synthetic data only.** Sources such as `synthetic://event-registry/v1` are fixture labels,
   not authenticated feeds. A SHA-256 commitment proves byte agreement, not truth.
 - **Local chain only.** No testnet or mainnet deployment. Sandbox transaction IDs come from
@@ -134,6 +156,7 @@ Details and exact recorded values: [docs/VALIDATION.md](docs/VALIDATION.md).
 ## Documentation map
 
 - [DEMO.md](DEMO.md) — scripted demo with expected output.
+- [docs/AI_WORKER.md](docs/AI_WORKER.md) — LLM analyst: architecture, gates, trace format, costs, limits.
 - [docs/BUILD_SPEC.md](docs/BUILD_SPEC.md), [docs/SCHEMA.md](docs/SCHEMA.md), [docs/PAYMENT_STATE_MACHINE.md](docs/PAYMENT_STATE_MACHINE.md) — product, commitments, simulator.
 - [docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md), [docs/SANDBOX.md](docs/SANDBOX.md) — contract API and chain harness.
 - [docs/ENCYCLOPEDIA.md](docs/ENCYCLOPEDIA.md), [docs/KNOWLEDGE_DEMO.md](docs/KNOWLEDGE_DEMO.md) — history, consent and receipt gate.
