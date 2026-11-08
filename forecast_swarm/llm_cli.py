@@ -55,10 +55,11 @@ def _eligible_orders(cases):
 
 
 class LlmSetup:
-    def __init__(self, engine_factory, role_info, recorder=None, limits=None, record_path=None):
+    def __init__(self, engine_factory, role_info, recorder=None, limits=None, record_path=None, options=None):
         self.engine_factory = engine_factory
         self.role_info = role_info
         self._recorder, self._limits, self._record_path = recorder, limits, record_path
+        self._options = dict(options or {})
 
     def finish(self):
         """Write the recorded cassette (live runs with --record). Returns its path or None."""
@@ -66,7 +67,7 @@ class LlmSetup:
             return None
         cassette = self._recorder.cassette(
             self._limits, "Recorded from a live provider over synthetic fixture inputs. Contains model text and "
-                          "token usage only; no headers, keys or account data.")
+                          "token usage only; no headers, keys or account data.", None, self._options)
         path = Path(self._record_path)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(cassette, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
@@ -91,7 +92,7 @@ def setup_from_args(parser, args, cases, environ=None):
             provider = ReplayProvider(cassette)
 
             def factory():
-                return InferenceEngine(provider, limits)
+                return InferenceEngine(provider, limits, cassette["temperature_milli"], cassette["options"])
 
             info = {"analyst": "llm", "critic": "scripted", "verifier": "scripted",
                     "provider": cassette["provider"], "model": cassette["model"], "inference_source": "REPLAY",
@@ -133,6 +134,6 @@ def setup_from_args(parser, args, cases, environ=None):
         info = {"analyst": "llm", "critic": "scripted", "verifier": "scripted",
                 "provider": live.kind, "model": live.model, "inference_source": "LIVE", "cassette": None,
                 "run_cost_cap_nano_usd": run_cap}
-        return LlmSetup(factory, info, recorder, limits, args.record)
+        return LlmSetup(factory, info, recorder, limits, args.record, options)
     except (ConfigError, ValueError, OSError) as error:
         parser.error(str(error))

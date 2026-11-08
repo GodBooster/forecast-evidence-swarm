@@ -46,7 +46,7 @@ def cassette_for(c, outcome="OK", text=None, error=None, finish_reason="end_turn
                     "provider_response_id": "resp-1", "input_tokens": usage[0], "output_tokens": usage[1]}
     return {"schema_version": CASSETTE_SCHEMA, "origin": "RECORDED_LIVE", "synthetic_inputs": True,
             "notice": "test", "provider": "openai_compatible", "api_base": "https://gateway.example/v1",
-            "model": "test-model", "limits": limits.record(),
+            "model": "test-model", "limits": limits.record(), "temperature_milli": None, "options": {},
             "interactions": [{"request_sha256": request["sha256"], "outcome": outcome,
                               "error": error, "response": response}]}
 

@@ -51,8 +51,10 @@
   },
   "model": "hand-authored-synthetic-analyst",
   "notice": "Hand-authored synthetic analyst outputs for offline demos and tests. No model or provider was called; prices are zero. Replaying exercises the real prompt, gates, trace and hashes.",
+  "options": {},
   "origin": "HAND_AUTHORED_SYNTHETIC",
   "provider": "fixture",
   "schema_version": "forecast-inference-cassette/v1",
-  "synthetic_inputs": true
+  "synthetic_inputs": true,
+  "temperature_milli": null
 }

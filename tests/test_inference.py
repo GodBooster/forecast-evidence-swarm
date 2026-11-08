@@ -212,13 +212,16 @@ class CassetteTests(unittest.TestCase):
         transport = FakeTransport(body=OPENAI_OK)
         live = OpenAICompatibleProvider("https://gateway.example/v1", SECRET, "test-model", transport)
         recorder = RecordingProvider(live)
-        live_trace_engine = InferenceEngine(recorder, limits())
+        options = {"max_tokens_field": "max_completion_tokens"}
+        live_trace_engine = InferenceEngine(recorder, limits(), None, options)
         live_trace_engine.complete("analyst", "sys", "user")
-        cassette = recorder.cassette(limits(), "test cassette")
+        cassette = recorder.cassette(limits(), "test cassette", None, options)
+        self.assertEqual(cassette["options"], options)
         serialized = json.dumps(cassette) + json.dumps(live_trace_engine.trace())
         self.assertNotIn(SECRET, serialized)
         self.assertNotIn("Authorization", serialized)
-        replay_engine = InferenceEngine(ReplayProvider(cassette), limits())
+        replay_engine = InferenceEngine(ReplayProvider(cassette), limits(), cassette["temperature_milli"],
+                                        cassette["options"])
         replay_engine.complete("analyst", "sys", "user")
         self.assertEqual(replay_engine.trace(), live_trace_engine.trace())
         with self.assertRaises(CassetteMiss):
@@ -227,11 +230,11 @@ class CassetteTests(unittest.TestCase):
     def test_cassette_validation_is_strict(self):
         base = {"schema_version": "forecast-inference-cassette/v1", "origin": "HAND_AUTHORED_SYNTHETIC",
                 "synthetic_inputs": True, "notice": "n", "provider": "fixture", "api_base": None, "model": "m",
-                "limits": limits().record(), "interactions": []}
+                "limits": limits().record(), "temperature_milli": None, "options": {}, "interactions": []}
         validate_cassette(base)
         for change in ({"provider": "anthropic"}, {"origin": "RECORDED_LIVE"}, {"synthetic_inputs": False},
                        {"interactions": [{"request_sha256": "0" * 64, "outcome": "WEIRD", "error": None, "response": None}]},
-                       {"extra": 1}):
+                       {"extra": 1}, {"options": {"max_tokens_field": 1}}):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 validate_cassette({**base, **change})
         with tempfile.TemporaryDirectory() as tmp:
@@ -244,7 +247,7 @@ class CassetteTests(unittest.TestCase):
         request = make_request("m", "s", "u", 100)
         cassette = {"schema_version": "forecast-inference-cassette/v1", "origin": "HAND_AUTHORED_SYNTHETIC",
                     "synthetic_inputs": True, "notice": "n", "provider": "fixture", "api_base": None, "model": "m",
-                    "limits": limits().record(),
+                    "limits": limits().record(), "temperature_milli": None, "options": {},
                     "interactions": [{"request_sha256": request["sha256"], "outcome": "HTTP_ERROR",
                                       "error": "HTTP 503: overloaded", "response": None}]}
         with self.assertRaises(InferenceError) as caught:

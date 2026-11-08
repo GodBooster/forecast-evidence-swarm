@@ -344,7 +344,7 @@ def load_cassette(path):
 
 def validate_cassette(cassette):
     required = {"schema_version", "origin", "synthetic_inputs", "notice", "provider", "api_base",
-                "model", "limits", "interactions"}
+                "model", "limits", "temperature_milli", "options", "interactions"}
     if type(cassette) is not dict or set(cassette) != required:
         raise ValueError("Cassette has unexpected or missing fields")
     if cassette["schema_version"] != CASSETTE_SCHEMA or cassette["origin"] not in ORIGINS:
@@ -365,6 +365,11 @@ def validate_cassette(cassette):
         if type(cassette[key]) is not str or not cassette[key].strip():
             raise ValueError(f"Cassette {key} must be nonempty")
     Limits.from_record(cassette["limits"])
+    if cassette["temperature_milli"] is not None:
+        _int(cassette["temperature_milli"], "temperature_milli")
+    options = cassette["options"]
+    if type(options) is not dict or any(type(k) is not str or type(v) is not str for k, v in options.items()):
+        raise ValueError("Cassette options must map strings to strings")
     if type(cassette["interactions"]) is not list:
         raise ValueError("Cassette interactions must be a list")
     seen = set()
@@ -429,10 +434,10 @@ class RecordingProvider:
         self.interactions = [x for x in self.interactions if x["request_sha256"] != item["request_sha256"]]
         self.interactions.append(item)
 
-    def cassette(self, limits, notice):
+    def cassette(self, limits, notice, temperature_milli=None, options=None):
         cassette = {"schema_version": CASSETTE_SCHEMA, "origin": "RECORDED_LIVE", "synthetic_inputs": True,
                     "notice": notice, "provider": self.kind, "api_base": self.api_base, "model": self.model,
-                    "limits": limits.record(),
+                    "limits": limits.record(), "temperature_milli": temperature_milli, "options": dict(options or {}),
                     "interactions": sorted(self.interactions, key=lambda x: x["request_sha256"])}
         return validate_cassette(cassette)
 

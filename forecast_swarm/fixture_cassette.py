@@ -71,6 +71,7 @@ def build_cassette():
         "notice": ("Hand-authored synthetic analyst outputs for offline demos and tests. No model or provider "
                    "was called; prices are zero. Replaying exercises the real prompt, gates, trace and hashes."),
         "provider": "fixture", "api_base": None, "model": MODEL, "limits": LIMITS.record(),
+        "temperature_milli": None, "options": {},
         "interactions": [interactions[k] for k in sorted(interactions)]}
     return validate_cassette(cassette)
 
