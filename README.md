@@ -167,10 +167,22 @@ Details and exact recorded values: [docs/VALIDATION.md](docs/VALIDATION.md).
   not authenticated feeds. A SHA-256 commitment proves byte agreement, not truth.
 - **Local chain only.** No testnet or mainnet deployment. Sandbox transaction IDs come from
   an ephemeral chain and are runner evidence, not public anchoring.
-- **Contract prototype limits.** Ten jobs per deployment; single trusted resolver; a callback
-  that fails to execute (e.g. out of gas) can leave a pending transfer with unknown outcome,
-  which is deliberately not retryable; deploy and `new` must be one atomic batch on a public
-  network (the local harness separates them). See [docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md).
+- **Contract prototype limits.** Single trusted resolver; a callback that fails to execute
+  (e.g. out of gas) can leave a pending transfer with unknown outcome, which is deliberately
+  not retryable, and the 10 TGas callback allowance has not been measured; deploy and `new`
+  must be one atomic batch on a public network (the local harness separates them). The
+  ten-job limit is a **lifetime** cap per deployment: any account can exhaust it with ten
+  1-yoctoNEAR jobs, after which the contract accepts no more work. `retry_transfer` always
+  pays the originally fixed beneficiary, so if a named beneficiary account is deleted the
+  funds stay locked in the contract. See [docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md).
+- **Customer free-ride risk.** If the customer stays silent after a valid submission, the
+  acceptance deadline refunds the customer; the worker's only recourse is `dispute`, which
+  depends on the single named resolver acting before the dispute deadline. The contract
+  does not inspect the delivery, so the customer's validation before `accept` is the only
+  check that an accepted hash is a VALID bundle.
+- **LLM gate limits.** The post-cutoff date gate recognises only ISO `YYYY-MM-DD` dates in
+  the model text; other date formats pass. The HTTP timeout applies per socket operation,
+  not to the whole call, and the response size is not bounded before it is read.
 - **No claims of forecasting skill or profitability.** One synthetic Brier score proves nothing.
 
 ## Documentation map

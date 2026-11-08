@@ -244,7 +244,11 @@ in a subprocess with sockets disabled.
 - One sample per order: no ensembling, self-consistency or calibration. No accuracy claim.
 - Prices are operator-supplied; costs are estimates.
 - Gates prove structure, citation existence and the absence of obvious post-cutoff dates,
-  not semantic support or truthfulness.
+  not semantic support or truthfulness. The date gate matches only ISO `YYYY-MM-DD`
+  strings; "November 3, 2026" or `03.11.2026` after the cutoff would pass it.
+- The `timeout_s` limit is applied by `urllib` per socket operation (connect, each read),
+  not to the whole request, so a slow-dripping provider can exceed it in total. The
+  response body is read without a size bound before it is parsed.
 - TEE attestation is not fetched or verified.
 - The escrow contract is unchanged: it binds a hash and does not know which role mode
   produced it.
