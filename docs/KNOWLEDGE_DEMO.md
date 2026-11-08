@@ -66,7 +66,10 @@ cryptographic verification of payment, transaction finality, or customer and
 worker identities. The file preserves the receipt fields and binds each published receipt
 to the exact core artifact hash, encyclopedia claim ID, and version-chain tip. The
 adapter independently replays the core report and retains the core delivery hash
-inside the historical forecast method. Neither the receipt nor its hash changes
+inside the historical forecast method. On the exported page, the "Customer acceptance"
+card is labelled `simulation` by default and `local NEAR Sandbox receipt` for a claim whose
+paid receipt has mode `LOCAL_NEAR_SANDBOX`; the acceptance value itself is always the
+replayed simulator state. Neither the receipt nor its hash changes
 the core report, forecast commitment, or append-only history. Keep the original
 core report and the receipt input as local audit material.
 

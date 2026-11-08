@@ -15,5 +15,7 @@ Roles are scripted functions; no LLM, live data source or public chain is involv
 | `synthetic-04-encyclopedia-v2-final.jpg` | `walkthrough-sandbox/knowledge/encyclopedia/claim-43c6dc2d….html` | Version 2: same 75% YES forecast, outcome FINAL · NO, incorrect direction retained |
 
 The "Customer acceptance · simulation" label on encyclopedia pages comes from the core
-report's simulated ledger, which the page history is built from. Chain payment provenance
-for the sandbox variant is kept separately in `payment-provenance.json`.
+report's simulated ledger, which the page history is built from. Since these screenshots
+were taken, pages of claims paid through a local NEAR Sandbox receipt are labelled
+"Customer acceptance · local NEAR Sandbox receipt" instead; the value is still the replayed
+ledger state, and chain payment provenance stays in `payment-provenance.json`.

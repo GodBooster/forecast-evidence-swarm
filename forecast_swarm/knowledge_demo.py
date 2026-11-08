@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CONSENT_FIXTURE = ROOT / "fixtures_encyclopedia" / "core_demo_consent.json"
 RECEIPT_SCHEMA = "forecast-near-receipts/v1"
 MANIFEST = ".knowledge-demo-manifest.json"
+RECEIPT_LABELS = {"LOCAL_NEAR_SANDBOX": "local NEAR Sandbox receipt"}
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 
 
@@ -173,6 +174,15 @@ def build_integration(report=None, receipts=None, consent=None):
     return load_demo() + core_records, sidecar
 
 
+def acceptance_labels(sidecar):
+    """Page label for claims whose paid receipt came from a chain rather than the simulator.
+    The value shown is still the replayed simulator state; the label names the receipt source."""
+    label = RECEIPT_LABELS.get(sidecar["receipt_mode"])
+    if label is None:
+        return None
+    return {entry["claim_id"]: label for entry in sidecar["receipts"]}
+
+
 def _json(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
 
@@ -197,7 +207,7 @@ def _write_output(out, records, sidecar, role_mode=None):
             if not (out / "encyclopedia").is_dir() or (out / "encyclopedia").is_symlink():
                 raise ValueError("Encyclopedia export must be a regular directory")
     out.mkdir(parents=True, exist_ok=True)
-    export(records, out / "encyclopedia")
+    export(records, out / "encyclopedia", acceptance_labels(sidecar))
     (out / "payment-provenance.json").write_text(_json(sidecar), encoding="utf-8")
     page = (
         "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\">"

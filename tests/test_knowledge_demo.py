@@ -99,6 +99,32 @@ class KnowledgeDemoTests(unittest.TestCase):
         self.assertEqual(sidecar["receipt_mode"], "LOCAL_NEAR_SANDBOX")
         self.assertEqual(sidecar["receipts"][0]["transaction_ids"], ["sandbox-tx-valid"])
 
+    def test_sandbox_receipts_label_the_paid_page_and_leave_others_simulated(self):
+        result, _ = self.scenario_and_receipt("valid_wrong")
+        digest = result["delivery"]["sha256"]
+        sandbox = {"schema_version": RECEIPT_SCHEMA, "mode": "LOCAL_NEAR_SANDBOX",
+                   "jobs": [{"job_id": "0", "artifact_sha256": digest, "customer": "c.test.near",
+                             "worker": "w.test.near", "status": "PAID", "transaction_ids": ["test-only-tx"]}]}
+        with tempfile.TemporaryDirectory(dir=os.path.realpath(tempfile.gettempdir())) as tmp:
+            base = Path(tmp)
+            receipts_path = base / "receipts.json"
+            receipts_path.write_text(json.dumps(sandbox), encoding="utf-8")
+            consent_path = base / "consent.json"
+            consent_path.write_text(json.dumps(grant_for(digest)), encoding="utf-8")
+            sidecar = run(base / "sandbox", receipts=receipts_path, consent=consent_path)
+            claim_id = sidecar["receipts"][0]["claim_id"]
+            pages = {p.name: p.read_text(encoding="utf-8") for p in (base / "sandbox" / "encyclopedia").glob("*.html")}
+            for name in (f"{claim_id}.html", f"{claim_id}-v1.html"):
+                self.assertIn("Customer acceptance · local NEAR Sandbox receipt", pages[name])
+                self.assertNotIn("Customer acceptance · simulation", pages[name])
+            others = [text for name, text in pages.items() if not name.startswith(claim_id) and name != "index.html"]
+            self.assertTrue(others)
+            self.assertTrue(all("Customer acceptance · simulation" in text for text in others))
+            run(base / "simulated", consent=CONSENT_FIXTURE)
+            simulated = (base / "simulated" / "encyclopedia" / f"{claim_id}.html").read_text(encoding="utf-8")
+            self.assertIn("Customer acceptance · simulation", simulated)
+            self.assertNotIn("Sandbox receipt", simulated)
+
     def test_export_files_are_deterministic_and_have_landing_links(self):
         result, _ = self.scenario_and_receipt("valid_wrong")
         with tempfile.TemporaryDirectory(dir=os.path.realpath(tempfile.gettempdir())) as tmp:
