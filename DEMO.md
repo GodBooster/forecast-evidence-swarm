@@ -27,7 +27,7 @@ Expected output (abridged; hashes are deterministic and identical on every run):
 2. RESEARCH  Analyst, critic and verifier roles (scripted functions, labelled as such).
    analyst=75.00% YES  critic=CAUTION (3 findings)  verifier=VALID
 
-3. EVIDENCE CHECKS  Deterministic gates decide delivery validity before anyone is paid.
+3. EVIDENCE CHECKS  Deterministic gates decide delivery validity; the customer's acceptance of the exact hash decides payment.
    valid_wrong     VALID
    future_data     INVALID
    missing_data    INSUFFICIENT_DATA
@@ -194,7 +194,8 @@ cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked -
 
 ## What this demo does not show
 
-No live LLM inference (path D replays hand-authored answers), live data source,
+No live LLM inference in this demo (path D replays hand-authored answers; one separate
+live run is recorded in [docs/VALIDATION.md](docs/VALIDATION.md)), no live data source,
 authenticated customer identity, testnet/mainnet transaction, real funds, or evidence of
 forecasting skill. The consent grants in
 `fixtures_encyclopedia/core_demo_consent.json` are synthetic fixtures.

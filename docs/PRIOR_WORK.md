@@ -4,7 +4,7 @@ This prototype builds on ideas developed in the owner's private InvariFi predict
 
 The private research infrastructure is baseline. Its existence is not evidence of profitable live trading. The new public prototype should use a minimal independent implementation with synthetic fixtures, without private trading logic or production data.
 
-Repository creation date: 2026-11-06. Initial commit contains project documentation only. Implementation commits will identify the new features. Do not backdate commits or present imported work as newly written.
+Repository creation date: 2026-11-06. The initial commit contained project documentation only; the implementation commits that followed identify each new feature. No commit was backdated and no imported work is presented as newly written.
 
 Offline milestone, implemented in this repository: independent Python scripted roles,
 synthetic fixtures, strict timestamp/finality checks, canonical delivery commitments,

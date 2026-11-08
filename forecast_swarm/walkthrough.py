@@ -223,7 +223,7 @@ def describe(summary, out):
             f"({len(research['critic_findings'])} findings)  verifier={research['verifier_status']}",
             "",
         ]
-    lines += ["3. EVIDENCE CHECKS  Deterministic gates decide delivery validity before anyone is paid."]
+    lines += ["3. EVIDENCE CHECKS  Deterministic gates decide delivery validity; the customer's acceptance of the exact hash decides payment."]
     lines += [f"   {name:<15} {status}" for name, status in summary["evidence_checks"].items()]
     quality = summary["forecast_quality"]
     if llm:

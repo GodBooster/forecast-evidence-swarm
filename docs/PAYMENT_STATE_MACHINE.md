@@ -1,9 +1,13 @@
 # Job and budget state machine
 
-**Implemented: local synchronous simulation only.** `forecast_swarm/payments.py`
-has no wallets, token calls, gas, networking, persistent storage or concurrency.
-The planned NEAR contract is not implemented. All balances are integer synthetic
-credits. The simulator is a reviewable specification, not deployable escrow.
+**This document describes the Python simulator** (`forecast_swarm/payments.py`), which
+serves as the readable specification of the job and budget state machine. It has no
+wallets, token calls, gas, networking, persistent storage or concurrency; all balances
+are integer synthetic credits. The NEAR contract that implements this machine on chain is
+in `contracts/forecast_jobs/` and documented in [NEAR_CONTRACT.md](NEAR_CONTRACT.md).
+One deliberate difference: the simulator replays `validate_bundle` and rejects a
+non-VALID delivery at `submit`; the contract checks only digest syntax and leaves
+validity to the customer's own check before `accept`.
 
 ## Terms, authority and conservation
 
@@ -73,9 +77,12 @@ policy should bind the submitted commitment to explicit customer acceptance, wit
 any reviewer adapter clearly named and trusted. Adapting BUMM's trusted security
 reviewer does not make forecast truth or customer acceptance automatic.
 
-## NEAR implementation requirements — planned
+## NEAR implementation requirements
 
-The following are requirements for the next milestone, not current capabilities:
+These requirements guided the contract in `contracts/forecast_jobs/`. Its API, state
+diagram, recovery limits and the local-sandbox evidence for each point are in
+[NEAR_CONTRACT.md](NEAR_CONTRACT.md) and [SANDBOX.md](SANDBOX.md); callback out-of-gas
+recovery and gas measurement remain open.
 
 - Use predecessor identity, authenticated ownership and block timestamp. Reserve
   storage/gas independently of job rewards; specify units and storage deposits.
@@ -93,7 +100,8 @@ The following are requirements for the next milestone, not current capabilities:
   unspecified acceptance/dispute timeout.
 - Sandbox tests must exercise actual successful/failed transfer receipts, permission
   failures, duplicate callbacks/claims, timeout races and conservation including
-  outstanding liabilities and fees. Python simulation is not a replacement.
+  outstanding liabilities and fees. Python simulation is not a replacement. (Two such
+  tests ran on a local NEAR Sandbox on 2026-11-08; see SANDBOX.md.)
 
 See [NEAR reuse assessment](NEAR_REUSE.md) for adjacent BUMM work and the product
 boundary. No existing NEAR code or external dependencies were copied in this milestone.

@@ -1,4 +1,12 @@
-# Offline milestone validation
+# Validation log
+
+> **This is a chronological log.** Each section records what was executed on that date,
+> with the test counts of that moment; earlier counts (35, 41, 44) are historical.
+> **Current totals: 79 Python tests (`tests/`), 30 encyclopedia tests
+> (`tests_encyclopedia/`), 8 native Rust contract tests and 2 sandbox integration tests.**
+> Re-verify with the commands in [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Offline milestone validation — 2026-11-06
 
 Local run: 2026-11-06, Python 3.14.7. Only synthetic fixtures were used.
 
@@ -11,7 +19,7 @@ python3 -m forecast_swarm --out artifacts/replay
 git diff --check
 ```
 
-All **35 tests passed**: 16 evidence/schema/quality tests, 16 budget and transition
+All **35 tests passed** (the count at that time): 16 evidence/schema/quality tests, 16 budget and transition
 tests, and 3 end-to-end/report tests. The CLI test runs in fresh subprocesses with
 different hash seeds, a credential-free environment and Python socket networking
 disabled. It verifies that both output files are byte-identical. This checks the
@@ -66,7 +74,7 @@ review; its tests and CI success were not independently rerun in this milestone.
 
 ## Knowledge integration follow-up — 2026-11-07
 
-`python3 -m unittest discover -s tests -v` passed **41 tests**, including six new
+`python3 -m unittest discover -s tests -v` passed **41 tests** (then), including six new
 consent/receipt/export tests. `python3 -m unittest discover -s tests_encyclopedia -v`
 passed **30 tests** against the current independently developed encyclopedia module.
 `python3 -m forecast_swarm.knowledge_demo --fixture-consent --out artifacts/knowledge-demo`
@@ -91,7 +99,7 @@ or chain transfer is part of this validation. Rustfmt was unavailable locally.
 with Docker Desktop 29.9.2. The runner image `forecast-near-runner:1.99` (Debian trixie,
 rustc 1.99.1) compiled `sandbox/` with the committed `Cargo.lock` (near-workspaces 0.24.0,
 near-sandbox 0.4.0 / node 2.14.0) and ran **1 integration test: passed in 95.05 s**.
-Native checks on the same code still pass: 41 + 30 Python tests, 8 Rust unit tests;
+Native checks on the same code still passed at that time: 41 + 30 Python tests, 8 Rust unit tests;
 the wasm hash is unchanged (`1ac693ee…0ea6c3c`).
 
 Verified on the ephemeral local chain with a 2 NEAR reward per job: exact worker payout
@@ -112,7 +120,7 @@ out-of-gas recovery, initialization takeover, gas measurement, testnet/mainnet, 
 Commands executed on the reference Intel Mac (Python 3.14.7, Rust 1.99.1, Docker 29.9.2):
 
 ```sh
-python3 -m unittest discover -s tests -q            # Ran 44 tests ... OK
+python3 -m unittest discover -s tests -q            # Ran 44 tests ... OK (count at that time; now 79)
 python3 -m unittest discover -s tests_encyclopedia -q   # Ran 30 tests ... OK
 cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline   # 8 passed
 python3 -m forecast_swarm.walkthrough               # All walkthrough checks passed.
@@ -176,9 +184,9 @@ git diff --check
 - A pattern scan of the working tree for API-key and bearer-token shapes found only the
   explicit fake test key (pattern scan, not a guarantee).
 
-Not done: **no live provider call**; therefore no real model output, token usage, latency,
-cost or attestation exists. The live run awaits the owner's provider/model/limit decision
-and a locally supplied key; its result will be appended here.
+At that point **no live provider call had been made**, so no real model output, token
+usage, latency, cost or attestation existed yet. The owner-approved live run that followed
+the same day is recorded in the next section.
 
 ## Bounded AI worker, one live run — 2026-11-08
 

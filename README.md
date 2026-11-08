@@ -2,8 +2,11 @@
 
 Commission a binary forecast, get an evidence bundle checked by analyst, critic and
 verifier roles, pay the worker through a NEAR escrow contract only when the customer
-accepts the exact delivered artifact, and publish the permitted result as an
-encyclopedia page whose forecast history can never be rewritten.
+accepts the exact delivered artifact hash, and publish the permitted result as an
+encyclopedia page with an append-only, hash-linked forecast history (tampering is
+detectable against a retained copy). Deterministic gates decide whether a delivery is
+valid; the customer's acceptance of the exact hash decides payment; the contract itself
+binds hashes and deadlines and does not inspect validity.
 
 > **Status (2026-11-08): working prototype, synthetic data only.** The Python product
 > runs offline; the NEAR contract is unit-tested and was exercised end to end on a
@@ -14,6 +17,19 @@ encyclopedia page whose forecast history can never be rewritten.
 > owner-approved live run** (OpenAI `gpt-6.1-terra`, 3 calls, ≈$0.005; all outputs passed the
 > gates — see [docs/VALIDATION.md](docs/VALIDATION.md)). No testnet/mainnet deployment, real funds or live data source is
 > used. Forecast accuracy and trading profitability are **not** established.
+
+**Who it is for.** A customer who wants to commission research from a worker they do not
+know (a person or an AI agent) and pay only for the exact artifact they inspected; a worker
+who wants a payment promise that does not depend on the customer's goodwill after delivery.
+
+**Why NEAR.** The escrow contract gives trustless custody between the customer and an
+anonymous worker, hash-bound acceptance anyone can verify against the delivered bytes,
+permissionless timeout refund and transfer retry driven by block time, and a public
+liability counter (`get_escrowed_rewards`) that must return to zero. The optional LLM
+analyst can run on NEAR AI Cloud through the same OpenAI-compatible adapter.
+
+"Swarm" names the analyst, critic and verifier **roles in a fixed pipeline**, not a market
+of many autonomous agents.
 
 ## The problem
 
@@ -29,8 +45,10 @@ together:
 Forecast Evidence Swarm keeps these as separate, inspectable facts: *delivery validity*,
 *forecast quality*, *customer acceptance*, *payment provenance* and *publication consent*
 are distinct fields, each checked by its own rule. A valid delivery can be wrong and still
-be paid; an invalid one is never paid or published; a page update appends a version and
-never edits the original forecast.
+be paid; an invalid one is refused by the simulator at submission and is never published;
+on chain, the customer re-runs the validator before accepting the hash (see
+[docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md)). A page update appends a version and never edits the
+original forecast.
 
 ## Try it in 30 seconds (Python 3.10+, standard library only)
 
@@ -112,7 +130,7 @@ customer order ──► analyst ─► critic ─► verifier ──► deliver
                                                             │ receipt bound to the same hash
                                                             ▼
                              encyclopedia: published only if VALID + PAID + hash-bound consent;
-                             append-only, hash-linked versions (forecast never rewritten)
+                             append-only, hash-linked versions (forecast never edited in place)
 ```
 
 | Component | Path | What it does |
