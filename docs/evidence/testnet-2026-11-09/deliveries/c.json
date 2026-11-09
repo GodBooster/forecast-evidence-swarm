@@ -1,0 +1,60 @@
+{
+  "content": {
+    "delivery_validity": "VALID",
+    "evidence_sha256": "bca91385c46a4d8ac5e611f9f2dd8a44939f6ff37b89ef89ceb569e6f84d45ed",
+    "inputs": {
+      "evidence": [
+        {
+          "available_at": "2026-11-09T20:50:30Z",
+          "id": "batch-01",
+          "observed_at": "2026-11-09T19:50:30Z",
+          "sample_count": 20,
+          "source": "synthetic://event-registry/v1",
+          "yes_count": 15
+        }
+      ],
+      "scenario": "testnet_valid_wrong",
+      "schema_version": "forecast-evidence-swarm/v1",
+      "synthetic": true,
+      "terms": {
+        "acceptance_deadline": "2026-11-09T22:01:30Z",
+        "budget_credits": 100,
+        "decision_at": "2026-11-09T21:50:30Z",
+        "delivery_deadline": "2026-11-09T21:56:30Z",
+        "dispute_deadline": "2026-11-09T22:11:30Z",
+        "job_id": "fes-testnet-c",
+        "question": "Will the next synthetic registry event be YES?",
+        "resolution_at": "2026-11-10T21:50:30Z",
+        "source": "synthetic://event-registry/v1"
+      },
+      "title": "Synthetic testnet order fes-testnet-c"
+    },
+    "roles": {
+      "analyst": {
+        "method": "Synthetic historical frequency; half-up rounding to basis points.",
+        "mode": "scripted",
+        "probability_bps": 7500,
+        "role": "analyst",
+        "status": "FORECAST"
+      },
+      "critic": {
+        "findings": [
+          "Synthetic observations do not establish predictive skill.",
+          "Historical frequency assumes comparable, independent observations; this is unproven.",
+          "A valid delivery may still contain an incorrect forecast."
+        ],
+        "mode": "scripted",
+        "role": "critic",
+        "status": "CAUTION"
+      },
+      "verifier": {
+        "mode": "scripted",
+        "reasons": [],
+        "role": "verifier",
+        "status": "VALID"
+      }
+    },
+    "schema_version": "forecast-evidence-swarm/v1"
+  },
+  "sha256": "0093ea834ffc18b4a2ab7a45c0a5adc84126286d2b63d26238d05077798b6148"
+}

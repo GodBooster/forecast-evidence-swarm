@@ -1,0 +1,55 @@
+{
+  "contract_id": "escrow.forecast-evidence-swarm.testnet",
+  "jobs": [
+    {
+      "artifact_sha256": "ebb69f520eba9d71005afb006b731b251f41e4511fe10657263b96ef39509319",
+      "chain_job_id": 0,
+      "customer": "customer.forecast-evidence-swarm.testnet",
+      "job_id": "fes-testnet-a",
+      "order_sha256": "2aae165ffe5b7ecc39bbe17626c392618a469e606b7a1ca238df4c95880ad521",
+      "status": "PAID",
+      "transaction_ids": [
+        "7jjLvwAm89NTdityVb7jz5aX3G4ybGV3Dui6o3ZMwhHm",
+        "FPRFaPphM4asb9zvFcwPkLWtkCAnEGJKiunk51s221Jc",
+        "EhvjhqQmUVf8a1ry4YoQ6CJHUPWAAFsfU6J4A8PVktYL",
+        "GdeKj3Ws5UsrsHbm3jeJJcprysRCrSmWYaNJyyhpuYXA",
+        "AX1b2bWTAbBHJFsRZXWeXqmAxXeJvDEvZpSKc3iAeY9c"
+      ],
+      "worker": "worker.forecast-evidence-swarm.testnet"
+    },
+    {
+      "artifact_sha256": "c0ccdd3cc20a0ae3456a5d1c8e6b16185f9496d3d922ad528a6de619d20ad6a9",
+      "chain_job_id": 1,
+      "customer": "customer.forecast-evidence-swarm.testnet",
+      "job_id": "fes-testnet-b",
+      "order_sha256": "e1b192b17a5ac0139411028a8bc03a57de328481cf909c831b5361caab69bd43",
+      "status": "REFUNDED",
+      "transaction_ids": [
+        "5zBwcn245iNUfRAmfipi1KB5AsnQyZ2zJb5gwFPuFGwb",
+        "8pMEkgaUXja3VyV8uFQb5qzhmBctvVFQMbGr4icA5NNe",
+        "EgnqWMu5wC6kAcP11NDnbK1X3VsrJTifCFEamCxH7WyX",
+        "6Fv9BwbSM1JNrA9kMiK5UowZQ8Rp9hv4HNAk2ZtAovH9"
+      ],
+      "worker": "worker.forecast-evidence-swarm.testnet"
+    },
+    {
+      "artifact_sha256": "0093ea834ffc18b4a2ab7a45c0a5adc84126286d2b63d26238d05077798b6148",
+      "chain_job_id": 2,
+      "customer": "customer.forecast-evidence-swarm.testnet",
+      "job_id": "fes-testnet-c",
+      "order_sha256": "c0eab317e65ca4528bddaac1f9ba31fa5d6ef2773616e27c16ffa100af245a2f",
+      "status": "PAID",
+      "transaction_ids": [
+        "Hny8NXDgqPBcqoAVPN7kyLrBDy6Dg63J5rfYqbYmZP8o",
+        "4vkVBvJxykXHNd1bDxF2ZABSY2NerkFBUW5trZjSRqVG",
+        "5wNgGQM4hKEnWfszwUMn5pd2tVNWVwLSUfAzG4iuxw2T",
+        "FzbkCZi8RQ7TaCmr3hGUHBvS9mRSL4etAyZ8tsD62Pcr",
+        "4TqVs7GHMbzja66FRQU8p4thj1EjLUYbhK1GoGBs73U4"
+      ],
+      "worker": "worker.forecast-evidence-swarm.testnet"
+    }
+  ],
+  "mode": "NEAR_TESTNET",
+  "network": "testnet",
+  "schema_version": "forecast-near-receipts/v2"
+}

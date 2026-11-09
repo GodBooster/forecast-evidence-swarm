@@ -1,0 +1,365 @@
+{
+  "commitment_notice": "Delivery commitments exclude later outcomes, evaluation and payment history. A hash commits to bytes, not their truth.",
+  "mode": "OFFLINE_SYNTHETIC_SIMULATION",
+  "notice": "All three roles are scripted. Credits are simulated. No network, LLM, wallet or NEAR contract is used. Forecast skill is not established.",
+  "scenarios": [
+    {
+      "customer_acceptance": {
+        "ledger": {
+          "artifact_sha256": "ebb69f520eba9d71005afb006b731b251f41e4511fe10657263b96ef39509319",
+          "budget": 100,
+          "customer": "customer",
+          "escrow": 0,
+          "events": [
+            {
+              "action": "create",
+              "actor": "customer",
+              "at": "2026-11-09T21:50:18Z",
+              "state": "OPEN"
+            },
+            {
+              "action": "assign",
+              "actor": "customer",
+              "at": "2026-11-09T21:50:18Z",
+              "state": "ASSIGNED"
+            },
+            {
+              "action": "submit",
+              "actor": "worker",
+              "at": "2026-11-09T21:50:18Z",
+              "state": "SUBMITTED"
+            },
+            {
+              "action": "customer_accept",
+              "actor": "customer",
+              "at": "2026-11-09T21:50:18Z",
+              "state": "ACCEPTED"
+            }
+          ],
+          "mode": "SIMULATION",
+          "paid_to_worker": 100,
+          "refunded_to_customer": 0,
+          "resolver": "resolver",
+          "state": "ACCEPTED",
+          "unit": "synthetic_credits",
+          "worker": "worker"
+        },
+        "status": "ACCEPTED",
+        "submission_rejection": null
+      },
+      "delivery": {
+        "content": {
+          "delivery_validity": "VALID",
+          "evidence_sha256": "0ad0dc8b28092f5344696644f10066928f91ffcc7baaede1e1f4be6ebc5a12fb",
+          "inputs": {
+            "evidence": [
+              {
+                "available_at": "2026-11-09T20:50:18Z",
+                "id": "batch-01",
+                "observed_at": "2026-11-09T19:50:18Z",
+                "sample_count": 20,
+                "source": "synthetic://event-registry/v1",
+                "yes_count": 15
+              }
+            ],
+            "scenario": "testnet_valid_wrong",
+            "schema_version": "forecast-evidence-swarm/v1",
+            "synthetic": true,
+            "terms": {
+              "acceptance_deadline": "2026-11-09T22:01:18Z",
+              "budget_credits": 100,
+              "decision_at": "2026-11-09T21:50:18Z",
+              "delivery_deadline": "2026-11-09T21:56:18Z",
+              "dispute_deadline": "2026-11-09T22:11:18Z",
+              "job_id": "fes-testnet-a",
+              "question": "Will the next synthetic registry event be YES?",
+              "resolution_at": "2026-11-10T21:50:18Z",
+              "source": "synthetic://event-registry/v1"
+            },
+            "title": "Synthetic testnet order fes-testnet-a"
+          },
+          "roles": {
+            "analyst": {
+              "method": "Synthetic historical frequency; half-up rounding to basis points.",
+              "mode": "scripted",
+              "probability_bps": 7500,
+              "role": "analyst",
+              "status": "FORECAST"
+            },
+            "critic": {
+              "findings": [
+                "Synthetic observations do not establish predictive skill.",
+                "Historical frequency assumes comparable, independent observations; this is unproven.",
+                "A valid delivery may still contain an incorrect forecast."
+              ],
+              "mode": "scripted",
+              "role": "critic",
+              "status": "CAUTION"
+            },
+            "verifier": {
+              "mode": "scripted",
+              "reasons": [],
+              "role": "verifier",
+              "status": "VALID"
+            }
+          },
+          "schema_version": "forecast-evidence-swarm/v1"
+        },
+        "sha256": "ebb69f520eba9d71005afb006b731b251f41e4511fe10657263b96ef39509319"
+      },
+      "evaluation": {
+        "as_of": "2026-11-09T21:50:18Z",
+        "forecast_quality": {
+          "brier_score_scaled_1e8": null,
+          "direction_correct": null,
+          "reasons": [
+            "MISSING_OUTCOME"
+          ],
+          "status": "INSUFFICIENT_DATA"
+        },
+        "outcome": null
+      },
+      "scenario": "testnet_valid_wrong",
+      "title": "Synthetic testnet order fes-testnet-a"
+    },
+    {
+      "customer_acceptance": {
+        "ledger": {
+          "artifact_sha256": "c0ccdd3cc20a0ae3456a5d1c8e6b16185f9496d3d922ad528a6de619d20ad6a9",
+          "budget": 100,
+          "customer": "customer",
+          "escrow": 0,
+          "events": [
+            {
+              "action": "create",
+              "actor": "customer",
+              "at": "2026-11-09T21:50:24Z",
+              "state": "OPEN"
+            },
+            {
+              "action": "assign",
+              "actor": "customer",
+              "at": "2026-11-09T21:50:24Z",
+              "state": "ASSIGNED"
+            },
+            {
+              "action": "submit",
+              "actor": "worker",
+              "at": "2026-11-09T21:50:24Z",
+              "state": "SUBMITTED"
+            },
+            {
+              "action": "customer_accept",
+              "actor": "customer",
+              "at": "2026-11-09T21:50:24Z",
+              "state": "ACCEPTED"
+            }
+          ],
+          "mode": "SIMULATION",
+          "paid_to_worker": 100,
+          "refunded_to_customer": 0,
+          "resolver": "resolver",
+          "state": "ACCEPTED",
+          "unit": "synthetic_credits",
+          "worker": "worker"
+        },
+        "status": "ACCEPTED",
+        "submission_rejection": null
+      },
+      "delivery": {
+        "content": {
+          "delivery_validity": "VALID",
+          "evidence_sha256": "d2b03869cbc455fbd75fb48b9d7417af950fd11d21a7624322fdffd5040c37ea",
+          "inputs": {
+            "evidence": [
+              {
+                "available_at": "2026-11-09T20:50:24Z",
+                "id": "batch-01",
+                "observed_at": "2026-11-09T19:50:24Z",
+                "sample_count": 20,
+                "source": "synthetic://event-registry/v1",
+                "yes_count": 15
+              }
+            ],
+            "scenario": "testnet_valid_wrong",
+            "schema_version": "forecast-evidence-swarm/v1",
+            "synthetic": true,
+            "terms": {
+              "acceptance_deadline": "2026-11-09T22:01:24Z",
+              "budget_credits": 100,
+              "decision_at": "2026-11-09T21:50:24Z",
+              "delivery_deadline": "2026-11-09T21:56:24Z",
+              "dispute_deadline": "2026-11-09T22:11:24Z",
+              "job_id": "fes-testnet-b",
+              "question": "Will the next synthetic registry event be YES?",
+              "resolution_at": "2026-11-10T21:50:24Z",
+              "source": "synthetic://event-registry/v1"
+            },
+            "title": "Synthetic testnet order fes-testnet-b"
+          },
+          "roles": {
+            "analyst": {
+              "method": "Synthetic historical frequency; half-up rounding to basis points.",
+              "mode": "scripted",
+              "probability_bps": 7500,
+              "role": "analyst",
+              "status": "FORECAST"
+            },
+            "critic": {
+              "findings": [
+                "Synthetic observations do not establish predictive skill.",
+                "Historical frequency assumes comparable, independent observations; this is unproven.",
+                "A valid delivery may still contain an incorrect forecast."
+              ],
+              "mode": "scripted",
+              "role": "critic",
+              "status": "CAUTION"
+            },
+            "verifier": {
+              "mode": "scripted",
+              "reasons": [],
+              "role": "verifier",
+              "status": "VALID"
+            }
+          },
+          "schema_version": "forecast-evidence-swarm/v1"
+        },
+        "sha256": "c0ccdd3cc20a0ae3456a5d1c8e6b16185f9496d3d922ad528a6de619d20ad6a9"
+      },
+      "evaluation": {
+        "as_of": "2026-11-09T21:50:24Z",
+        "forecast_quality": {
+          "brier_score_scaled_1e8": null,
+          "direction_correct": null,
+          "reasons": [
+            "MISSING_OUTCOME"
+          ],
+          "status": "INSUFFICIENT_DATA"
+        },
+        "outcome": null
+      },
+      "scenario": "testnet_valid_wrong",
+      "title": "Synthetic testnet order fes-testnet-b"
+    },
+    {
+      "customer_acceptance": {
+        "ledger": {
+          "artifact_sha256": "0093ea834ffc18b4a2ab7a45c0a5adc84126286d2b63d26238d05077798b6148",
+          "budget": 100,
+          "customer": "customer",
+          "escrow": 0,
+          "events": [
+            {
+              "action": "create",
+              "actor": "customer",
+              "at": "2026-11-09T21:50:30Z",
+              "state": "OPEN"
+            },
+            {
+              "action": "assign",
+              "actor": "customer",
+              "at": "2026-11-09T21:50:30Z",
+              "state": "ASSIGNED"
+            },
+            {
+              "action": "submit",
+              "actor": "worker",
+              "at": "2026-11-09T21:50:30Z",
+              "state": "SUBMITTED"
+            },
+            {
+              "action": "customer_accept",
+              "actor": "customer",
+              "at": "2026-11-09T21:50:30Z",
+              "state": "ACCEPTED"
+            }
+          ],
+          "mode": "SIMULATION",
+          "paid_to_worker": 100,
+          "refunded_to_customer": 0,
+          "resolver": "resolver",
+          "state": "ACCEPTED",
+          "unit": "synthetic_credits",
+          "worker": "worker"
+        },
+        "status": "ACCEPTED",
+        "submission_rejection": null
+      },
+      "delivery": {
+        "content": {
+          "delivery_validity": "VALID",
+          "evidence_sha256": "bca91385c46a4d8ac5e611f9f2dd8a44939f6ff37b89ef89ceb569e6f84d45ed",
+          "inputs": {
+            "evidence": [
+              {
+                "available_at": "2026-11-09T20:50:30Z",
+                "id": "batch-01",
+                "observed_at": "2026-11-09T19:50:30Z",
+                "sample_count": 20,
+                "source": "synthetic://event-registry/v1",
+                "yes_count": 15
+              }
+            ],
+            "scenario": "testnet_valid_wrong",
+            "schema_version": "forecast-evidence-swarm/v1",
+            "synthetic": true,
+            "terms": {
+              "acceptance_deadline": "2026-11-09T22:01:30Z",
+              "budget_credits": 100,
+              "decision_at": "2026-11-09T21:50:30Z",
+              "delivery_deadline": "2026-11-09T21:56:30Z",
+              "dispute_deadline": "2026-11-09T22:11:30Z",
+              "job_id": "fes-testnet-c",
+              "question": "Will the next synthetic registry event be YES?",
+              "resolution_at": "2026-11-10T21:50:30Z",
+              "source": "synthetic://event-registry/v1"
+            },
+            "title": "Synthetic testnet order fes-testnet-c"
+          },
+          "roles": {
+            "analyst": {
+              "method": "Synthetic historical frequency; half-up rounding to basis points.",
+              "mode": "scripted",
+              "probability_bps": 7500,
+              "role": "analyst",
+              "status": "FORECAST"
+            },
+            "critic": {
+              "findings": [
+                "Synthetic observations do not establish predictive skill.",
+                "Historical frequency assumes comparable, independent observations; this is unproven.",
+                "A valid delivery may still contain an incorrect forecast."
+              ],
+              "mode": "scripted",
+              "role": "critic",
+              "status": "CAUTION"
+            },
+            "verifier": {
+              "mode": "scripted",
+              "reasons": [],
+              "role": "verifier",
+              "status": "VALID"
+            }
+          },
+          "schema_version": "forecast-evidence-swarm/v1"
+        },
+        "sha256": "0093ea834ffc18b4a2ab7a45c0a5adc84126286d2b63d26238d05077798b6148"
+      },
+      "evaluation": {
+        "as_of": "2026-11-09T21:50:30Z",
+        "forecast_quality": {
+          "brier_score_scaled_1e8": null,
+          "direction_correct": null,
+          "reasons": [
+            "MISSING_OUTCOME"
+          ],
+          "status": "INSUFFICIENT_DATA"
+        },
+        "outcome": null
+      },
+      "scenario": "testnet_valid_wrong",
+      "title": "Synthetic testnet order fes-testnet-c"
+    }
+  ],
+  "schema_version": "forecast-evidence-swarm/v1"
+}

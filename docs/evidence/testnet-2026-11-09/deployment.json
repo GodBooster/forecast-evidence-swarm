@@ -1,0 +1,10 @@
+{
+  "block_height": 276977469,
+  "code_hash_on_chain": "EymcyzFbW1UKzjmeNzrtKfhTMmbENzXgDt17a91Gx73v",
+  "contract_id": "escrow.forecast-evidence-swarm.testnet",
+  "local_wasm_code_hash": "EymcyzFbW1UKzjmeNzrtKfhTMmbENzXgDt17a91Gx73v",
+  "local_wasm_sha256": "cfb2e8649877b6d1c9424a46231c815c31f5487e4b0393633725a30a9f52a089",
+  "matches": true,
+  "network": "testnet",
+  "storage_usage_bytes": 301541
+}

@@ -1,0 +1,67 @@
+{
+  "block_hash": "C5qsXBqzEs9SmxBoyeZePGhHewPkyjmW7YABKs7cTH2n",
+  "block_height": 276978852,
+  "captured_at": "2026-11-09T22:01:32Z",
+  "config": {
+    "callback_gas": "10000000000000",
+    "escrowed_rewards": "0",
+    "event_standard": "forecast_jobs",
+    "event_version": "1.0.0",
+    "job_count": 3,
+    "job_storage_deposit": "10000000000000000000000",
+    "resolver": "resolver.forecast-evidence-swarm.testnet",
+    "storage_deposits": "30000000000000000000000",
+    "storage_reserve": "1000000000000000000000000"
+  },
+  "contract_id": "escrow.forecast-evidence-swarm.testnet",
+  "jobs": {
+    "0": {
+      "acceptance_deadline_ms": 1794261678000,
+      "artifact_sha256": "ebb69f520eba9d71005afb006b731b251f41e4511fe10657263b96ef39509319",
+      "customer": "customer.forecast-evidence-swarm.testnet",
+      "decision_deadline_ms": 1794261018000,
+      "delivery_deadline_ms": 1794261378000,
+      "dispute_deadline_ms": 1794262278000,
+      "id": 0,
+      "order_sha256": "2aae165ffe5b7ecc39bbe17626c392618a469e606b7a1ca238df4c95880ad521",
+      "pending_attempt_id": null,
+      "publication_consent": true,
+      "reward": "100000000000000000000000",
+      "status": "ACCEPTED",
+      "worker": "worker.forecast-evidence-swarm.testnet"
+    },
+    "1": {
+      "acceptance_deadline_ms": 1794261684000,
+      "artifact_sha256": "c0ccdd3cc20a0ae3456a5d1c8e6b16185f9496d3d922ad528a6de619d20ad6a9",
+      "customer": "customer.forecast-evidence-swarm.testnet",
+      "decision_deadline_ms": 1794261024000,
+      "delivery_deadline_ms": 1794261384000,
+      "dispute_deadline_ms": 1794262284000,
+      "id": 1,
+      "order_sha256": "e1b192b17a5ac0139411028a8bc03a57de328481cf909c831b5361caab69bd43",
+      "pending_attempt_id": null,
+      "publication_consent": false,
+      "reward": "100000000000000000000000",
+      "status": "REFUNDED",
+      "worker": "worker.forecast-evidence-swarm.testnet"
+    },
+    "2": {
+      "acceptance_deadline_ms": 1794261690000,
+      "artifact_sha256": "0093ea834ffc18b4a2ab7a45c0a5adc84126286d2b63d26238d05077798b6148",
+      "customer": "customer.forecast-evidence-swarm.testnet",
+      "decision_deadline_ms": 1794261030000,
+      "delivery_deadline_ms": 1794261390000,
+      "dispute_deadline_ms": 1794262290000,
+      "id": 2,
+      "order_sha256": "c0eab317e65ca4528bddaac1f9ba31fa5d6ef2773616e27c16ffa100af245a2f",
+      "pending_attempt_id": null,
+      "publication_consent": false,
+      "reward": "100000000000000000000000",
+      "status": "ACCEPTED",
+      "worker": "worker.forecast-evidence-swarm.testnet"
+    }
+  },
+  "network": "testnet",
+  "rpc_url": "https://rpc.testnet.fastnear.com",
+  "schema_version": "forecast-near-chain-snapshot/v1"
+}
