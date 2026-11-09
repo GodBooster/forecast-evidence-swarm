@@ -53,12 +53,12 @@ def llm_notice(role_info):
     return text
 
 
-def run_demo(engine_factory=None, role_info=None):
+def run_demo(engine_factory=None, role_info=None, cases=None):
     """Scripted by default. With an engine factory, the analyst is an LLM role
     (one fresh, per-order budgeted engine per case) inside the same gates."""
     if (engine_factory is None) != (role_info is None):
         raise ValueError("LLM mode needs both an engine factory and role information")
-    cases = load_cases()
+    cases = load_cases() if cases is None else cases
     results = []
     for case in cases:
         bundle = build_bundle(case) if engine_factory is None else build_llm_bundle(case, engine_factory())

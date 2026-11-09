@@ -1,5 +1,6 @@
 """Versioned inputs, deterministic scripted roles, and byte commitments."""
 
+import calendar
 import hashlib
 import json
 import re
@@ -65,6 +66,33 @@ def validate_terms(terms):
     if not (times["delivery_deadline"] < times["acceptance_deadline"] < times["dispute_deadline"]):
         raise ValueError("Require delivery_deadline < acceptance_deadline < dispute_deadline")
     integer(terms["budget_credits"], "budget_credits", 1)
+
+
+ORDER_DOMAIN = "terms"
+# Order terms -> the four on-chain deadlines, in contract argument order.
+CHAIN_DEADLINES = (("decision_deadline_ms", "decision_at"), ("delivery_deadline_ms", "delivery_deadline"),
+                   ("acceptance_deadline_ms", "acceptance_deadline"), ("dispute_deadline_ms", "dispute_deadline"))
+
+
+def order_commitment(terms):
+    """The order hash a customer stores on chain with ``create_job(order_sha256, …)``.
+
+    Always uses the v1 schema prefix (``forecast-evidence-swarm/v1:terms``), whatever the
+    delivery schema, so scripted and LLM deliveries of the same order share one order hash.
+    Every delivery bundle already contains its terms, so the hash can be recomputed from
+    the delivered bytes and compared with the chain."""
+    validate_terms(terms)
+    return commitment(ORDER_DOMAIN, terms)
+
+
+def epoch_ms(value):
+    return calendar.timegm(timestamp(value).timetuple()) * 1000
+
+
+def chain_deadlines(terms):
+    """``{decision_deadline_ms: …, …}`` exactly as ``create_job`` expects them."""
+    validate_terms(terms)
+    return {chain: epoch_ms(terms[key]) for chain, key in CHAIN_DEADLINES}
 
 
 def validate_case(case):

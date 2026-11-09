@@ -86,5 +86,96 @@ class VerifyTests(unittest.TestCase):
             self.assertIn("VERIFY FAILED", err)
 
 
+class FakeRpc:
+    """Stands in for near_rpc.NearRpc; returns one recorded get_job view."""
+    rpc_url = "https://rpc.example.invalid"
+
+    def __init__(self, job, error=None):
+        self.job, self.error, self.calls = job, error, []
+
+    def __call__(self, network="testnet", rpc_url=None):
+        return self
+
+    def view(self, contract_id, method, args=None):
+        self.calls.append((contract_id, method, args))
+        if self.error:
+            raise RuntimeError(self.error)
+        return {"value": self.job, "block_height": 7, "block_hash": "blockhash", "logs": []}
+
+
+class ChainModeTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from forecast_swarm.evidence import chain_deadlines, order_commitment
+        cls.bundle = _scenario(run_demo(), "valid_wrong")["delivery"]
+        terms = cls.bundle["content"]["inputs"]["terms"]
+        cls.order = order_commitment(terms)
+        cls.job = {"id": 3, "customer": "customer.testnet", "worker": "worker.testnet", "reward": "1",
+                   "order_sha256": cls.order, **chain_deadlines(terms),
+                   "artifact_sha256": cls.bundle["sha256"], "status": "SUBMITTED",
+                   "pending_attempt_id": None, "publication_consent": False}
+
+    def run_chain(self, job, *extra, error=None, bundle=None):
+        rpc = FakeRpc(job, error)
+        out, err = io.StringIO(), io.StringIO()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "bundle.json"
+            path.write_text(json.dumps(self.bundle if bundle is None else bundle), encoding="utf-8")
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = verify.main(["--bundle", str(path), "--near-contract", "escrow.testnet",
+                                    "--job-id", "3", *extra], rpc_factory=rpc)
+        return code, out.getvalue(), err.getvalue(), rpc
+
+    def test_chain_mode_reads_the_job_and_accepts_only_the_ordered_delivery(self):
+        code, out, _, rpc = self.run_chain(self.job)
+        self.assertEqual(code, 0)
+        self.assertEqual(rpc.calls, [("escrow.testnet", "get_job", {"id": 3})])
+        for text in ("chain status: SUBMITTED", "hash: MATCH", "order vs chain: MATCH",
+                     "deadlines vs chain: MATCH", "SAFE TO ACCEPT (bytes match the committed hash and the order"):
+            self.assertIn(text, out)
+
+    def test_a_valid_delivery_for_a_different_order_is_rejected(self):
+        code, out, _, _ = self.run_chain({**self.job, "order_sha256": "0" * 64})
+        self.assertEqual(code, 1)
+        self.assertIn("order vs chain: MISMATCH", out)
+        self.assertIn("DO NOT ACCEPT", out)
+        code, out, _, _ = self.run_chain({**self.job, "delivery_deadline_ms": self.job["delivery_deadline_ms"] + 1})
+        self.assertEqual(code, 1)
+        self.assertIn("deadlines vs chain: MISMATCH (delivery_deadline_ms)", out)
+
+    def test_chain_hash_mismatch_missing_job_and_rpc_failure_fail_closed(self):
+        code, _, err, _ = self.run_chain({**self.job, "artifact_sha256": "1" * 64})
+        self.assertEqual(code, 1)
+        code, _, err, _ = self.run_chain({**self.job, "artifact_sha256": None})
+        self.assertEqual(code, 1)
+        self.assertIn("no submitted artifact hash", err)
+        code, _, err, _ = self.run_chain(None)
+        self.assertEqual(code, 1)
+        self.assertIn("does not exist", err)
+        code, _, err, _ = self.run_chain(self.job, error="node unreachable")
+        self.assertEqual(code, 1)
+        self.assertIn("Cannot read job 3", err)
+        code, _, err, _ = self.run_chain(self.job, "--expect-sha256", "2" * 64)
+        self.assertEqual(code, 1)
+        self.assertIn("differs from the artifact hash stored on chain", err)
+
+    def test_expected_order_hash_works_offline_and_flags_are_validated(self):
+        out = io.StringIO()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "bundle.json"
+            path.write_text(json.dumps(self.bundle), encoding="utf-8")
+            base = ["--bundle", str(path), "--expect-sha256", self.bundle["sha256"]]
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(verify.main(base + ["--expect-order-sha256", self.order]), 0)
+                self.assertEqual(verify.main(base + ["--expect-order-sha256", "f" * 64]), 1)
+            self.assertIn("order: MATCH", out.getvalue())
+            self.assertIn("order: MISMATCH", out.getvalue())
+            with contextlib.redirect_stderr(io.StringIO()):
+                for bad in (["--bundle", str(path)], ["--bundle", str(path), "--job-id", "1"],
+                            ["--bundle", str(path), "--near-contract", "escrow.testnet"]):
+                    with self.assertRaises(SystemExit):
+                        verify.main(bad)
+
+
 if __name__ == "__main__":
     unittest.main()
