@@ -14,6 +14,7 @@ with what the product claims and does not claim.
   implemented, simulated or planned. Do not claim forecasting skill or profitability.
 - Nothing in this repository authorizes a public deployment, a paid inference run or a
   real-money transaction; those are decisions for the operator who runs the commands.
+  `chain.py` and `scripts/testnet_demo.sh` are testnet-only and never read key material.
 
 ## Invariants to preserve
 
@@ -32,7 +33,10 @@ with what the product claims and does not claim.
   `REFUND_READY`; a retry cannot change the beneficiary; a pending attempt whose outcome
   is unknown is not retryable (`docs/NEAR_CONTRACT.md`).
 - Native Rust tests and the Python simulator do not establish on-chain payment success;
-  only a fresh sandbox run does (`docs/SANDBOX.md`).
+  only a fresh sandbox run (`docs/SANDBOX.md`) or the testnet run (`docs/TESTNET.md`) does.
+- The order hash and the four deadlines stored on chain must equal the order's terms
+  (`order_commitment`, `chain_deadlines`); the customer verifier and the resolver apply the
+  same rule.
 
 ## Verify before you commit
 
@@ -45,6 +49,9 @@ python3 -m forecast_swarm.walkthrough
 cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked
 git diff --check
 ```
+
+To re-check the recorded testnet run (network, no key), see the README's step 6 or
+`docs/TESTNET.md`.
 
 The Python commands need only the standard library (3.10+). The first cargo run downloads
 dependencies; add `--offline` only once they are cached. Generated output belongs under

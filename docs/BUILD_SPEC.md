@@ -4,7 +4,7 @@
 
 Commission a forecast with inspectable evidence. A customer specifies a binary question, a precise resolution source, a resolution time, delivery deadline, acceptance policy and job budget. Three roles produce analysis, criticism and verification. A final report exposes uncertainty and missing information.
 
-Initial tracks: AI Swarms and Agent Economy. Scope is independent of BUMM's security product. A knowledge-page view can follow after the core flow works.
+A knowledge-page view (the encyclopedia) publishes only paid, valid, consented deliveries.
 
 ## Offline deliverable
 
@@ -20,22 +20,18 @@ Define a versioned schema and canonical serialization before hashing. Exclude no
 
 Keep forecast quality, delivery validity and customer payment acceptance separate. A validly delivered forecast can be wrong. Never release payment merely because a forecast later happened to be right.
 
-## Planned payment state machine
+## Payment state machine
 
-Specify owner/worker permissions, budget accounting and legal transitions before implementing the contract. Candidate states: OPEN, ASSIGNED, SUBMITTED, ACCEPTED, REFUNDED, DISPUTED. Cancellation, submission, acceptance and deadline boundaries must be unambiguous.
+Specify customer/worker permissions, budget accounting and legal transitions for the contract (see `docs/PAYMENT_STATE_MACHINE.md`). States include OPEN, ASSIGNED, SUBMITTED, ACCEPTED, REFUNDED, DISPUTED. Cancellation, submission, acceptance and deadline boundaries must be unambiguous.
 
-Do not automatically award money based on a vote of the same agents that produced the work. First version uses explicit customer acceptance. Define what happens to submitted but unaccepted work; do not leave funds permanently locked by an unspecified timeout. Demonstrate no double release or refund/release race. For the offline milestone use a clearly labelled simulator; NEAR contract and sandbox tests follow.
+Do not automatically award money based on a vote of the same agents that produced the work. First version uses explicit customer acceptance. Define what happens to submitted but unaccepted work; do not leave funds permanently locked by an unspecified timeout. Demonstrate no double release or refund/release race. The offline flow uses a clearly labelled simulator; the NEAR contract is tested natively, on a local sandbox and on NEAR testnet (`docs/TESTNET.md`).
 
-For the real contract, account for asynchronous transfer failure and idempotent recovery. Function-call key allowance limits gas; job spending limits belong in contract logic.
+The contract accounts for asynchronous transfer failure and idempotent recovery. A job binds the order hash and four deadlines. Function-call key allowance limits gas; job spending limits belong in contract logic.
 
 ## Validation
 
 Meaningful tests: future-data rejection, unavailable versus zero data, outcome finality, stable commitments, permission checks, duplicate submission/payment and deadline/refund races. Run the offline demo and inspect generated outputs. Report actual results and limitations.
 
-## Next milestone
+## Scope
 
-After completing the offline milestone and contract specification, implement a minimal NEAR contract with local sandbox tests. Private inference and Agent Market are optional adapters after the independent flow works. Intents dry quotes do not demonstrate settlement. No authenticated integrations or token spending without owner-provided access and authorization.
-
-## Context outside the public repository
-
-The local parent document `near-hackathon/FIT_AND_MVP_2026-11-06_UK.md` contains the full feasibility research. Read it locally as needed; do not import private reports wholesale. Submission deadline is 2026-11-14 23:59 UTC (2026-11-15 01:59 Kyiv). Scope estimates are not guarantees of delivery.
+Private inference and agent-market integrations are optional adapters; the flow works without them. Intents dry quotes do not demonstrate settlement. Authenticated integrations and token spending are outside the repository's scope and are decisions for the operator who runs the commands. Estimates of scope are not guarantees of delivery.

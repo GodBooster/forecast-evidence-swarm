@@ -1,8 +1,8 @@
 # Demo: order → research → evidence checks → acceptance/payment → knowledge page
 
-One scenario, followed end to end. Every command below was run on the reference machine
-(Intel macOS, Python 3.14.7, Rust 1.99.1, Docker Desktop 29.9.2) on 2026-11-08; outputs
-are quoted from those runs. All data is **synthetic**. Paths A–C use **scripted** roles;
+One scenario, followed end to end. Path E checks a recorded run on NEAR testnet. Every command below was run on the reference machine
+(Intel macOS, Python 3.14.7, Rust 1.99.1, Docker Desktop 29.9.2) on 2026-11-08 and 2026-11-09; outputs
+are quoted from those runs. All data is **synthetic**. Paths A–C and E use **scripted** roles;
 path D swaps the analyst for the bounded **LLM worker** replayed from a hand-authored cassette.
 
 The focus case is job `synthetic-01`: *"Will the next synthetic registry event be YES?"*.
@@ -74,14 +74,14 @@ before rebuilding (the exporter is single-writer, not an atomic deployment).
 ## Path B — replay receipts recorded from the local NEAR Sandbox (≈1 s)
 
 ```sh
-python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-08/near-receipts.json --out artifacts/walkthrough-sandbox
+python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-09/near-receipts.json --out artifacts/walkthrough-sandbox
 ```
 
 Expected difference in step 4:
 
 ```text
-4. ACCEPTANCE / PAYMENT  receipts: LOCAL_NEAR_SANDBOX (docs/evidence/sandbox-2026-11-08/near-receipts.json)
-   job 0: PAID for exactly this delivery hash; 6 transaction IDs recorded
+4. ACCEPTANCE / PAYMENT  receipts: LOCAL_NEAR_SANDBOX (docs/evidence/sandbox-2026-11-09/near-receipts.json)
+   job 0: PAID for exactly this delivery hash; 10 transaction IDs recorded
    refunded deliveries kept private: 1; public paid claims: 1
    LOCAL_NEAR_SANDBOX receipts come from an ephemeral local chain; not a public explorer record.
 ```
@@ -92,10 +92,10 @@ simulator in Path A accepts both). The transaction IDs include the rejected wron
 and duplicate-acceptance calls. The receipt file is a copy of real runner output, but the
 chain was ephemeral: the IDs cannot be looked up anywhere. The paid claim's encyclopedia
 page shows "Customer acceptance · local NEAR Sandbox receipt" with the receipt summary
-(`PAID · job 0 · 6 tx`); the stored claim JSON and its hashes still carry the core report's
+(`PAID · job 0 · 10 tx`); the stored claim JSON and its hashes still carry the core report's
 replayed simulator state, and the full chain payment provenance is in
 `artifacts/walkthrough-sandbox/knowledge/payment-provenance.json`. See
-[docs/evidence/sandbox-2026-11-08](docs/evidence/sandbox-2026-11-08/README.md).
+[docs/evidence/sandbox-2026-11-09](docs/evidence/sandbox-2026-11-09/README.md).
 
 ## Path C — fresh run on a local NEAR Sandbox (Docker, ≈5–10 min)
 
@@ -112,14 +112,14 @@ FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh
 The script regenerates the core report, builds the contract wasm, starts one container
 (no wallet mounts, no published ports), and runs two integration tests, each in its own
 process against its own local NEAR Sandbox node. The first run compiles dependencies for
-several minutes; on 2026-11-08 the tests themselves took 113 s and 94 s. Expected output
+several minutes; on 2026-11-09 the tests themselves took 105 s and 97 s. Expected output
 (excerpt):
 
 ```text
 test real_local_chain_escrow_and_transfer_recovery ... ok
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 113.15s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 104.80s
 test real_local_chain_dispute_resolve_timeout_and_cancel ... ok
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 93.54s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 97.01s
 Public paid receipts: 1
 Local NEAR receipt: .../artifacts/near-sandbox-run.XXXXXX/near-receipts.json
 Dispute/cancel diagnostics: .../artifacts/near-sandbox-run.XXXXXX/near-dispute-cancel-diagnostics.json
@@ -185,7 +185,20 @@ Invalid model output (unknown or post-cutoff citations, non-numeric probability,
 uncertainty, truncated output, later dates) makes the delivery INVALID; provider failures
 and budget refusals make it INSUFFICIENT_DATA; both are refunded, never repaired. These
 cases are covered by `tests/test_llm_worker.py`. A live run (`--live`, paid) requires the
-owner's provider choice, key and spending limit; see [docs/AI_WORKER.md](docs/AI_WORKER.md).
+operator's provider choice, key and spending limit; see [docs/AI_WORKER.md](docs/AI_WORKER.md).
+
+## Path E — check the recorded NEAR testnet run (no key, needs network)
+
+```sh
+python3 -m forecast_swarm.verify --bundle docs/evidence/testnet-2026-11-09/deliveries/a.json --near-contract escrow.forecast-evidence-swarm.testnet --job-id 0
+python3 -m forecast_swarm.knowledge_demo --core-report docs/evidence/testnet-2026-11-09/core-report.json --receipts docs/evidence/testnet-2026-11-09/near-receipts.json --chain-snapshot docs/evidence/testnet-2026-11-09/chain-snapshot.json --out artifacts/testnet-knowledge
+```
+
+Expected: `chain status: ACCEPTED`, `order vs chain: MATCH`, `result: SAFE TO ACCEPT …`; then
+`Public paid receipts: 1`. The transactions are public; see
+[docs/evidence/testnet-2026-11-09](docs/evidence/testnet-2026-11-09/README.md). To run the
+whole flow on testnet yourself (about 16 minutes, testnet NEAR only) see
+[docs/TESTNET.md](docs/TESTNET.md).
 
 ## Other commands
 
@@ -200,6 +213,6 @@ cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked  
 
 No live LLM inference in this demo (path D replays hand-authored answers; one separate
 live run is recorded in [docs/VALIDATION.md](docs/VALIDATION.md)), no live data source,
-authenticated customer identity, testnet/mainnet transaction, real funds, or evidence of
-forecasting skill. The consent grants in
+authenticated customer identity, mainnet transaction, real funds, or evidence of
+forecasting skill (paths A–D use no testnet transaction either; path E is the only one). The consent grants in
 `fixtures_encyclopedia/core_demo_consent.json` are synthetic fixtures.

@@ -8,25 +8,48 @@ detectable against a retained copy). Deterministic gates decide whether a delive
 valid; the customer's acceptance of the exact hash decides payment; the contract itself
 binds hashes and deadlines and does not inspect validity.
 
-> **Status (2026-11-08): working prototype, synthetic data only.** The Python product
-> runs offline; the NEAR contract is unit-tested and was exercised end to end on a
-> local, ephemeral NEAR Sandbox. By default analyst/critic/verifier are **scripted
-> functions**. `--roles llm` swaps the analyst for a **bounded LLM worker** inside the same
-> deterministic gates (provider-neutral adapter, per-order budget, committed call trace);
-> it is verified offline with a **hand-authored** replay cassette and was exercised in **one
-> owner-approved live run** (OpenAI `gpt-6.1-terra`, 3 calls, ≈$0.005; all outputs passed the
-> gates — see [docs/VALIDATION.md](docs/VALIDATION.md)). No testnet/mainnet deployment, real funds or live data source is
-> used. Forecast accuracy and trading profitability are **not** established.
+> **Status (2026-11-09): working prototype, synthetic data only.** The Python product
+> runs offline. The NEAR escrow contract is unit-tested, exercised on a local, ephemeral
+> NEAR Sandbox, and has been run end to end on **NEAR testnet** (accounts and transactions
+> you can look up: [docs/evidence/testnet-2026-11-09](docs/evidence/testnet-2026-11-09/README.md)).
+> By default analyst/critic/verifier are **scripted functions**; the testnet run uses only
+> these scripted roles. `--roles llm` swaps the analyst for a **bounded LLM worker** inside
+> the same deterministic gates; it is verified offline with a **hand-authored** replay
+> cassette and was exercised in **one live run** (OpenAI `gpt-6.1-terra`, 3 calls, about
+> $0.005; all outputs passed the gates, see [docs/VALIDATION.md](docs/VALIDATION.md)).
+> No mainnet deployment and no real funds exist. Forecast accuracy and trading
+> profitability are **not** established.
 
 **Who it is for.** A customer who wants to commission research from a worker they do not
 know (a person or an AI agent) and pay only for the exact artifact they inspected; a worker
 who wants a payment promise that does not depend on the customer's goodwill after delivery.
 
-**Why NEAR.** The escrow contract gives trustless custody between the customer and an
-anonymous worker, hash-bound acceptance anyone can verify against the delivered bytes,
-permissionless timeout refund and transfer retry driven by block time, and a public
-liability counter (`get_escrowed_rewards`) that must return to zero. The optional LLM
-analyst can run on NEAR AI Cloud through the same OpenAI-compatible adapter.
+**Why NEAR.** Properties used by this project, not generic claims:
+
+- **Named accounts per role.** The testnet run gives the escrow contract, customer, worker
+  and resolver their own readable sub-accounts.
+- **Function-call access keys.** The worker agent signs with a key restricted to this
+  contract and to `submit` and `dispute`, so it cannot move NEAR, deploy code or change keys
+  ([docs/TESTNET.md](docs/TESTNET.md)).
+- **Block-time deadlines and cheap, fast finality.** Timeout refunds and transfer retries
+  are permissionless and driven by block time; minute-scale deadlines make a full run
+  practical in about 16 minutes.
+- **Standard events and metadata.** NEP-297 events for every state change and NEP-330
+  source metadata, so a third party can follow a job without trusting this repository.
+- **Storage staking paid per job** (a fixed 0.01 NEAR deposit) instead of a job-count cap,
+  and deploy plus `new` in one batch transaction.
+- A public liability counter (`get_escrowed_rewards`) that must return to zero. The optional
+  LLM analyst can run on NEAR AI Cloud through the same OpenAI-compatible adapter.
+
+**How it relates to existing work** (our reading on 2026-11-09; complementary, not a
+comparison of quality). [NEAR AI Agent Market](https://market.near.ai) is a hosted
+marketplace where agents bid, deliver and are paid through the platform's own escrow
+ledger; we found no public permissionless contract and no acceptance bound to a hash the
+client checks itself. [ERC-8183](https://eips.ethereum.org/EIPS/eip-8183) (draft) has the
+same job-escrow shape on EVM (client, provider, evaluator; expiry refunds the client). This
+project contributes an open escrow contract on NEAR where payment is bound to the order
+hash and to the delivery hash the customer re-derives by replaying the delivery, plus
+consent-gated publication. It could sit under a marketplace; it is not one.
 
 "Swarm" names the analyst, critic and verifier **roles in a fixed pipeline**, not a market
 of many autonomous agents.
@@ -70,14 +93,14 @@ From the repository root. No install, network, credentials or wallet needed.
 2. **Replay the recorded local-chain receipts instead of simulated ones.**
 
    ```sh
-   python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-08/near-receipts.json --out artifacts/walkthrough-sandbox
+   python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-09/near-receipts.json --out artifacts/walkthrough-sandbox
    ```
 
    **See:** step 4 reports `receipts: LOCAL_NEAR_SANDBOX`, one `PAID` job with transaction
    IDs, and the chain-refunded `zero_successes` delivery kept private
-   (`public paid claims: 1`). These receipts were produced by the local sandbox run
-   recorded in [docs/evidence](docs/evidence/sandbox-2026-11-08/README.md); that chain no
-   longer exists, so the IDs cannot be checked on an explorer.
+   (`public paid claims: 1`). These receipts come from the local sandbox run recorded in
+   [docs/evidence](docs/evidence/sandbox-2026-11-09/README.md); that chain no longer
+   exists, so the IDs cannot be checked on an explorer (the testnet run in step 6 can).
 
 3. **Run the same flow with the LLM analyst, offline.**
 
@@ -90,7 +113,7 @@ From the repository root. No install, network, credentials or wallet needed.
    (request/response SHA-256, tokens, cost estimate); step 3 notes that the model is not
    called when the evidence gate fails. The cassette answers were **written by hand**, not
    by a model — the label appears in the output, report and encyclopedia page. With a key
-   and the owner's approval the same command runs `--live` against Anthropic or any
+   and the operator's approval the same command runs `--live` against Anthropic or any
    OpenAI-compatible endpoint (e.g. NEAR AI Cloud); see [docs/AI_WORKER.md](docs/AI_WORKER.md).
 
 4. **Look at the pages.**
@@ -112,7 +135,25 @@ From the repository root. No install, network, credentials or wallet needed.
    python3 -m unittest discover -s tests_encyclopedia -q
    ```
 
-   **See:** `Ran 84 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
+   **See:** `Ran 154 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
+
+6. **Check the NEAR testnet run yourself.** No key and no install, but network access:
+   the first command reads the contract on testnet and checks the delivered bundle
+   against it; the second rebuilds the knowledge page offline from the recorded chain
+   snapshot.
+
+   ```sh
+   python3 -m forecast_swarm.verify --bundle docs/evidence/testnet-2026-11-09/deliveries/a.json --near-contract escrow.forecast-evidence-swarm.testnet --job-id 0
+   python3 -m forecast_swarm.knowledge_demo --core-report docs/evidence/testnet-2026-11-09/core-report.json --receipts docs/evidence/testnet-2026-11-09/near-receipts.json --chain-snapshot docs/evidence/testnet-2026-11-09/chain-snapshot.json --out artifacts/testnet-knowledge
+   ```
+
+   **See:** the first prints `chain status: ACCEPTED`, `order vs chain: MATCH` and
+   `result: SAFE TO ACCEPT (bytes match the committed hash and the order; truth is not
+   proven)`. The second ends with `Public paid receipts: 1`; in this mode a receipt is
+   accepted only if it matches the snapshot, and publication consent comes from the
+   contract's own flag. The accounts and every transaction are listed with explorer links
+   in [docs/evidence/testnet-2026-11-09](docs/evidence/testnet-2026-11-09/README.md);
+   to run it yourself see [docs/TESTNET.md](docs/TESTNET.md).
 
 The full scripted demo, with expected output and the optional fresh chain run, is in
 [DEMO.md](DEMO.md).
@@ -137,13 +178,14 @@ customer order ──► analyst ─► critic ─► verifier ──► deliver
 | --- | --- | --- |
 | Evidence pipeline | `forecast_swarm/evidence.py`, `demo.py` | Five synthetic scenarios; cutoff, completeness and finality gates; canonical integer-only JSON; domain-separated SHA-256 commitments; HTML/JSON report |
 | Budget simulator | `forecast_swarm/payments.py` | Synchronous model of the escrow states (labelled SIMULATION) |
-| Knowledge gate | `forecast_swarm/knowledge_demo.py` | Strict receipt schema; publishes only paid, valid, consented deliveries; payment provenance sidecar |
+| Knowledge gate | `forecast_swarm/knowledge_demo.py` | Strict receipt schema; publishes only paid, valid, consented deliveries; payment provenance sidecar; in NEAR_TESTNET mode receipts must match a chain snapshot |
 | Walkthrough | `forecast_swarm/walkthrough.py` | The end-to-end "do X, see Y" command with self-checks; `--roles scripted\|llm` |
-| Customer verifier | `forecast_swarm/verify.py` | Replays a delivered bundle, requires VALID and compares its SHA-256 with the on-chain digest before `accept` |
+| Customer verifier | `forecast_swarm/verify.py` | Replays a delivered bundle, requires VALID and compares its SHA-256 and the order hash with the on-chain values before `accept` (`--near-contract` reads the chain itself); also the resolver's dispute rule |
+| Chain layer | `forecast_swarm/near_rpc.py`, `chain.py`, `scripts/testnet_demo.sh` | Read-only testnet RPC client; order, create-job, worker-run, customer-check, dispute, resolver-check, timeout, consent and snapshot actions (dry run unless `--execute`, signing by near-cli-rs, no key access); the one-command testnet run, see [docs/TESTNET.md](docs/TESTNET.md) |
 | AI worker | `forecast_swarm/inference.py`, `llm_roles.py`, `llm_cli.py` | Provider-neutral adapter (OpenAI-compatible incl. NEAR AI Cloud, Anthropic Messages), per-order call/token/time/cost limits, committed call trace, record/replay cassettes, LLM analyst behind evidence and output gates |
 | Encyclopedia | `forecast_encyclopedia/` | Private-by-default claim pages, append-only hash-linked history, core report adapter |
-| NEAR contract | `contracts/forecast_jobs/` | `near-sdk` 5.17.2 escrow: bounded jobs, deadlines, hash-bound acceptance, disputes with a named resolver, timeouts, cancel, async payout/refund with fixed-beneficiary retry |
-| Sandbox harness | `sandbox/` | `near-workspaces` 0.24 integration tests against a local NEAR Sandbox in Docker |
+| NEAR contract | `contracts/forecast_jobs/` | `near-sdk` 5.17.2 escrow: order-hash-bound jobs, deadlines, hash-bound acceptance, disputes with a named resolver, timeouts, cancel, async payout/refund with fixed-beneficiary retry, NEP-297 events, on-chain publication consent |
+| Sandbox harness | `sandbox/` | `near-workspaces` 0.24 integration tests against a local NEAR Sandbox in Docker (2 tests) |
 
 ## Customer verification before `accept`
 
@@ -161,7 +203,9 @@ the bytes. So the customer's own check is part of the protocol. Before calling
 
    **See:** `replay: OK`, `hash: MATCH`, `delivery validity: VALID`, exit code 0. Any
    tampering, a non-VALID delivery or a different digest prints `DO NOT ACCEPT` and exits 1.
-   `--bundle` takes a bundle JSON, a core `report.json` or a directory holding one.
+   `--bundle` takes a bundle JSON, a core `report.json` or a directory holding one. With
+   `--near-contract <account> --job-id <n>` the tool reads `get_job` itself and also checks
+   the order hash and the four deadlines against the chain (step 6 above).
 3. Only then call `accept` with exactly that digest. A match proves byte agreement with
    the committed artifact and that the evidence gates passed; it does not prove the
    forecast is right.
@@ -170,10 +214,11 @@ the bytes. So the customer's own check is part of the protocol. Before calling
 
 | Claim | Evidence | How to reproduce |
 | --- | --- | --- |
-| Evidence gates, commitments, simulator, knowledge gate, walkthrough, customer verifier, AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 84 Python tests | `python3 -m unittest discover -s tests -q` |
+| Evidence gates, commitments, simulator, knowledge gate, walkthrough, customer verifier, chain layer (RPC client, chain-mode verifier, snapshot-gated receipts), AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 154 Python tests | `python3 -m unittest discover -s tests -q` |
 | Encyclopedia history, consent, adapter | 30 Python tests | `python3 -m unittest discover -s tests_encyclopedia -q` |
-| Contract state machine and transfer recovery | 8 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked` (first run downloads crates; add `--offline` once they are cached) |
-| Real local-chain payout, timeout refund, failed-transfer retry, dispute/resolve, cancel | 2 sandbox integration tests, checked by balances and liabilities | `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker, ~5–10 min) — see [docs/SANDBOX.md](docs/SANDBOX.md) |
+| Contract state machine and transfer recovery | 14 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked` (first run downloads crates; add `--offline` once they are cached) |
+| Real local-chain payout, timeout refund, failed-transfer retry, dispute/resolve, cancel, events, consent, callback gas | 2 sandbox integration tests, checked by balances and liabilities | `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker, ~5–10 min) — see [docs/SANDBOX.md](docs/SANDBOX.md) |
+| Public testnet run: deploy, payout, timeout refund, dispute then payout, on-chain consent | One recorded run on 2026-11-09, transactions on the explorer | step 6 above; rerun with [docs/TESTNET.md](docs/TESTNET.md) (about 16 min) |
 
 Details and exact recorded values: [docs/VALIDATION.md](docs/VALIDATION.md).
 
@@ -195,18 +240,24 @@ cargo +1.99.1 fetch --manifest-path contracts/forecast_jobs/Cargo.toml
   [docs/AI_WORKER.md](docs/AI_WORKER.md).
 - **Synthetic data only.** Sources such as `synthetic://event-registry/v1` are fixture labels,
   not authenticated feeds. A SHA-256 commitment proves byte agreement, not truth.
-- **Local chain only.** No testnet or mainnet deployment. Sandbox transaction IDs come from
-  an ephemeral chain and are runner evidence, not public anchoring.
-- **Contract prototype limits.** Single trusted resolver; a callback that fails to execute
-  (e.g. out of gas) can leave a pending transfer with unknown outcome, which is deliberately
-  not retryable, and the 10 TGas callback allowance has not been measured; deploy and `new`
-  must be one atomic batch on a public network (the local harness separates them). The
-  ten-job limit is a **lifetime** cap per deployment: any account can exhaust it with ten
-  1-yoctoNEAR jobs, after which the contract accepts no more work. `retry_transfer` always
-  pays the originally fixed beneficiary, so if a named beneficiary account is deleted the
-  funds stay locked in the contract. See [docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md).
-- **Customer free-ride risk.** If the customer stays silent after a valid submission, the
-  acceptance deadline refunds the customer; the worker's only recourse is `dispute`, which
+- **Testnet only, no mainnet.** The contract ran on NEAR testnet, whose tokens have no
+  value and which can be reset. Nothing is audited; no mainnet deployment exists.
+- **One RPC node is trusted.** The chain-reading tools (`near_rpc.py`, `verify --near-contract`,
+  `chain.py`) ask a single RPC endpoint (default `https://rpc.testnet.fastnear.com`) and do
+  not verify light-client proofs. The recorded snapshot is a copy of what that node returned.
+- **Scripted roles on the testnet path.** The LLM analyst is not used there (its replay
+  cassette is tied to fixture timestamps).
+- **Agent key is a file.** The worker agent's restricted key is a plaintext file in
+  near-cli's legacy store on the operator's disk. The restriction (contract, `submit` and
+  `dispute` only) limits what a leak allows; it is not hardware custody.
+- **Contract prototype limits.** Single trusted resolver. If the callback itself never
+  runs, the job stays in a pending transfer with unknown outcome, deliberately not
+  retryable; callback gas was measured only on the local sandbox (1.7 TGas against a 10 TGas
+  allowance). `retry_transfer` always pays the originally fixed beneficiary, so if a named
+  beneficiary account is deleted the funds stay locked in the contract. See
+  [docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md).
+- **Customer silence refunds the customer.** If the customer stays silent after a valid
+  submission, the acceptance deadline refunds the customer (as ERC-8183 expiry does); the worker's only recourse is `dispute`, which
   depends on the single named resolver acting before the dispute deadline. The contract
   does not inspect the delivery, so the customer's validation before `accept` is the only
   check that an accepted hash is a VALID bundle.
@@ -220,6 +271,7 @@ cargo +1.99.1 fetch --manifest-path contracts/forecast_jobs/Cargo.toml
 - [DEMO.md](DEMO.md) — scripted demo with expected output.
 - [docs/AI_WORKER.md](docs/AI_WORKER.md) — LLM analyst: architecture, gates, trace format, costs, limits.
 - [docs/BUILD_SPEC.md](docs/BUILD_SPEC.md), [docs/SCHEMA.md](docs/SCHEMA.md), [docs/PAYMENT_STATE_MACHINE.md](docs/PAYMENT_STATE_MACHINE.md) — product, commitments, simulator.
+- [docs/TESTNET.md](docs/TESTNET.md) — run and re-check the NEAR testnet demo.
 - [docs/NEAR_CONTRACT.md](docs/NEAR_CONTRACT.md), [docs/SANDBOX.md](docs/SANDBOX.md) — contract API and chain harness.
 - [docs/ENCYCLOPEDIA.md](docs/ENCYCLOPEDIA.md), [docs/KNOWLEDGE_DEMO.md](docs/KNOWLEDGE_DEMO.md) — history, consent and receipt gate.
 - [docs/VALIDATION.md](docs/VALIDATION.md) — what was actually executed, when, with what result.

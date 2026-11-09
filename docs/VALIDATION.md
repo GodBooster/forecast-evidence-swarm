@@ -1,9 +1,10 @@
 # Validation log
 
 > **This is a chronological log.** Each section records what was executed on that date,
-> with the test counts of that moment; earlier counts (35, 41, 44) are historical.
-> **Current totals: 84 Python tests (`tests/`), 30 encyclopedia tests
-> (`tests_encyclopedia/`), 8 native Rust contract tests and 2 sandbox integration tests.**
+> with the test counts of that moment; earlier counts (35, 41, 44, 84, 8 Rust tests) are historical.
+> **Current totals: 154 Python tests (`tests/`), 30 encyclopedia tests
+> (`tests_encyclopedia/`), 14 native Rust contract unit tests and 2 sandbox integration tests.**
+> The latest entry is [2026-11-09: contract v2, chain layer, testnet run](#2026-11-09-contract-v2-chain-layer-testnet-run).
 > Re-verify with the commands in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Offline milestone validation — 2026-11-06
@@ -86,8 +87,8 @@ integration and do not establish that a NEAR transfer occurred.
 
 The independent `contracts/forecast_jobs/` crate compiled using Rust 1.99.1 and
 cached dependencies. Eight native unit tests passed and a release wasm build
-succeeded. The output is 230,688 bytes; SHA-256:
-`1ac693ee9f3a44b230cc6cfc076d90f557209938adc122e10b4de6bfd0ea6c3c`.
+succeeded. The output was 230,688 bytes (superseded wasm: first-generation contract, replaced
+on 2026-11-09; current hash below), SHA-256 `1ac693ee9f3a44b230cc6cfc076d90f557209938adc122e10b4de6bfd0ea6c3c`.
 See [contract specification](NEAR_CONTRACT.md) for the actual API and transfer recovery
 limits. Sandbox tests remain uncompiled/unexecuted because dependency setup through
 Docker was blocked by an automatic approval account usage limit. No sandbox receipt
@@ -100,7 +101,7 @@ with Docker Desktop 29.9.2. The runner image `forecast-near-runner:1.99` (Debian
 rustc 1.99.1) compiled `sandbox/` with the committed `Cargo.lock` (near-workspaces 0.24.0,
 near-sandbox 0.4.0 / node 2.14.0) and ran **1 integration test: passed in 95.05 s**.
 Native checks on the same code still passed at that time: 41 + 30 Python tests, 8 Rust unit tests;
-the wasm hash is unchanged (`1ac693ee…0ea6c3c`).
+the wasm hash was unchanged (`1ac693ee…0ea6c3c`, superseded wasm).
 
 Verified on the ephemeral local chain with a 2 NEAR reward per job: exact worker payout
 after customer acceptance (wrong caller and duplicate rejected), exact customer refund of
@@ -124,7 +125,7 @@ python3 -m unittest discover -s tests -q            # Ran 44 tests ... OK (count
 python3 -m unittest discover -s tests_encyclopedia -q   # Ran 30 tests ... OK
 cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline   # 8 passed
 python3 -m forecast_swarm.walkthrough               # All walkthrough checks passed.
-python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-08/near-receipts.json --out artifacts/walkthrough-sandbox
+python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-09/near-receipts.json --out artifacts/walkthrough-sandbox   # path as of 2026-11-09; was sandbox-2026-11-08 (superseded)
 FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh     # 2 chain tests ok (separate processes)
 git diff --check
 ```
@@ -140,8 +141,8 @@ git diff --check
   2 NEAR → 0, assigned job not cancellable and refunded at the delivery deadline. The
   existing escrow/recovery test passed again in the same run. Two failed attempts before
   the passing run, their causes and fixes are recorded in `docs/SANDBOX.md`.
-- Wasm unchanged: SHA-256 `1ac693ee9f3a44b230cc6cfc076d90f557209938adc122e10b4de6bfd0ea6c3c`.
-- The recorded receipts/diagnostics were copied to `docs/evidence/sandbox-2026-11-08/` and
+- Wasm unchanged that day: SHA-256 `1ac693ee9f3a44b230cc6cfc076d90f557209938adc122e10b4de6bfd0ea6c3c` (superseded wasm).
+- The recorded receipts/diagnostics were copied to `docs/evidence/sandbox-2026-11-08/` (superseded path: removed on 2026-11-09, replaced by `docs/evidence/sandbox-2026-11-09/`) and
   replayed through the walkthrough (1 public paid claim; refunded claim private).
 - A scan of the full Git history for private-key, token and NEAR secret-key patterns found
   no matches (pattern scan, not a guarantee).
@@ -254,10 +255,10 @@ page "Customer acceptance · local NEAR Sandbox receipt" (one new test), and the
 Commands executed on the reference Intel Mac (Python 3.14.7, Rust 1.99.1) after the change:
 
 ```sh
-python3 -m unittest discover -s tests -q                 # Ran 84 tests ... OK
+python3 -m unittest discover -s tests -q                 # Ran 154 tests ... OK
 python3 -m unittest discover -s tests_encyclopedia -q    # Ran 30 tests ... OK
 python3 -m forecast_swarm.walkthrough                    # All walkthrough checks passed.
-python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-08/near-receipts.json --out artifacts/walkthrough-sandbox
+python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-09/near-receipts.json --out artifacts/walkthrough-sandbox   # path as of 2026-11-09; was sandbox-2026-11-08 (superseded)
 python3 -m forecast_swarm.walkthrough --roles llm --replay fixtures/llm_cassettes/hand_authored_analyst.json --out artifacts/walkthrough-llm
 python3 -m forecast_swarm.verify --bundle artifacts/walkthrough --expect-sha256 ba7aa4bf1e5ae00ac6a1a124f042c9dab37ab0bae903671ad640451066db816d   # exit 0
 cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked   # 8 passed
@@ -266,3 +267,68 @@ cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked  
 
 The contract source, wasm and sandbox harness were not changed; the sandbox run was not
 repeated. Scripted delivery hashes are unchanged (focus `ba7aa4bf…816d`).
+
+## 2026-11-09: contract v2, chain layer, testnet run
+
+Changes since the entries above: contract v2 (order hash in `create_job`, a 0.01 NEAR
+non-refundable storage deposit per job instead of the ten-job cap, NEP-297 events, on-chain
+publication consent, NEP-330 metadata view, new views), a read-only RPC client and chain tooling
+in Python (`forecast_swarm/near_rpc.py`, `chain.py`, chain mode of `verify.py`), receipts v2 and
+chain snapshots for the knowledge demo, and `scripts/testnet_demo.sh`. Documentation:
+[NEAR_CONTRACT.md](NEAR_CONTRACT.md), [SANDBOX.md](SANDBOX.md), [TESTNET.md](TESTNET.md).
+
+Native checks (reference Intel Mac, Python 3.14.7, Rust 1.99.1):
+
+```sh
+python3 -m unittest discover -s tests -q                 # Ran 154 tests ... OK
+python3 -m unittest discover -s tests_encyclopedia -q    # Ran 30 tests ... OK
+cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked --offline   # test result: ok. 14 passed; 0 failed
+python3 -m forecast_swarm.walkthrough                    # All walkthrough checks passed.
+python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-09/near-receipts.json --out artifacts/walkthrough-sandbox
+python3 -m forecast_swarm.verify --bundle artifacts/walkthrough --expect-sha256 ba7aa4bf1e5ae00ac6a1a124f042c9dab37ab0bae903671ad640451066db816d   # result: SAFE TO ACCEPT, exit 0
+```
+
+The scripted delivery hash of the focus scenario is unchanged (`ba7aa4bf…816d`). The release
+wasm is 301,209 bytes, SHA-256 `cfb2e8649877b6d1c9424a46231c815c31f5487e4b0393633725a30a9f52a089`.
+The worst-case job record measured in a unit test is 390 bytes (0.0039 NEAR) against the
+0.01 NEAR storage deposit.
+
+Local NEAR Sandbox, `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker runner), both
+tests passed against that wasm:
+
+```text
+test real_local_chain_escrow_and_transfer_recovery ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 104.80s
+test real_local_chain_dispute_resolve_timeout_and_cancel ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 97.01s
+```
+
+Five jobs in each test, final reward liability 0. Beyond the 2026-11-08 assertions the tests now
+check the order hash (recomputed independently in Rust), the NEP-297 events of every transition,
+storage-deposit accounting and the worst-case record, publication consent and its revocation, the
+NEP-330 view and callback gas: the 12 `on_transfer_complete` receipts burnt 1.736 to 1.768 TGas
+against the 10 TGas allowance (5.7 times the maximum; the harness requires 2 times). The recorded
+files and their hashes are in
+[`docs/evidence/sandbox-2026-11-09/`](evidence/sandbox-2026-11-09/README.md).
+
+NEAR testnet, `scripts/testnet_demo.sh` with parent account `forecast-evidence-swarm.testnet` on
+2026-11-09: contract `escrow.forecast-evidence-swarm.testnet`, deployed and initialized in one
+transaction; the on-chain code hash `EymcyzFbW1UKzjmeNzrtKfhTMmbENzXgDt17a91Gx73v` equals the
+local wasm SHA-256 above (`deployment.json`). Three synthetic jobs of 0.1 NEAR with scripted roles:
+accept and payout followed by on-chain publication consent; customer silence followed by a
+permissionless `timeout` refund; a dispute decided by the resolver's rule (chain-mode `verify`).
+Transactions, explorer links and the snapshot are in
+[`docs/evidence/testnet-2026-11-09/README.md`](evidence/testnet-2026-11-09/README.md) and are
+described in [TESTNET.md](TESTNET.md). Re-check without keys (needs network access):
+
+```sh
+python3 -m forecast_swarm.verify --bundle docs/evidence/testnet-2026-11-09/deliveries/a.json --near-contract escrow.forecast-evidence-swarm.testnet --job-id 0
+python3 -m forecast_swarm.knowledge_demo --core-report docs/evidence/testnet-2026-11-09/core-report.json --receipts docs/evidence/testnet-2026-11-09/near-receipts.json --chain-snapshot docs/evidence/testnet-2026-11-09/chain-snapshot.json --out artifacts/testnet-knowledge
+```
+
+Not covered: a callback that runs out of gas or never executes, an adversarial test of
+initialization takeover (the testnet deployment avoids it with a single deploy-and-initialize
+transaction), gas measurement on testnet (gas figures are from the local sandbox), mainnet,
+`rustfmt`, a security audit, any LLM inference on the chain path (testnet roles are scripted),
+and mobile visual QA. The testnet reads trust one RPC node; testnet NEAR has no value and the
+network can be reset.

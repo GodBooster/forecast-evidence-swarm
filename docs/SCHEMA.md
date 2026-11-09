@@ -112,3 +112,61 @@ JSON rules with the domain prefix `forecast-evidence-swarm/llm-analyst/v1:` (`ev
 `bundle`). `validate_bundle` replays the gates against the recorded model text rather
 than calling a model. Reports in this mode use mode `SYNTHETIC_SIMULATION_LLM_ANALYST`
 and an unhashed `role_mode` wrapper. Full description: [AI_WORKER.md](AI_WORKER.md).
+
+## Order commitment and on-chain deadlines
+
+The escrow contract binds each job to the customer's order. The order commitment is
+`order_commitment(terms)` in `forecast_swarm/evidence.py`: SHA-256 of
+`UTF8("forecast-evidence-swarm/v1:terms\n") || canonical_json_bytes(terms)` with the same
+canonical JSON rules as above and the domain `terms`. It always uses the v1 schema prefix,
+whatever the delivery schema, so scripted and LLM deliveries of one order share one order hash.
+`terms` is validated first (exact fields, ordering rules). Because every delivery bundle
+contains `content.inputs.terms`, the order hash can be recomputed from the delivered bytes.
+The contract stores it as `order_sha256` (64 lowercase hex characters) and does not interpret it.
+
+The four on-chain deadlines are the terms' times as epoch milliseconds (UTC, whole seconds times 1000):
+
+| Contract argument | Terms field |
+| --- | --- |
+| `decision_deadline_ms` | `decision_at` |
+| `delivery_deadline_ms` | `delivery_deadline` |
+| `acceptance_deadline_ms` | `acceptance_deadline` |
+| `dispute_deadline_ms` | `dispute_deadline` |
+
+`resolution_at` and `budget_credits` are not on chain; the reward is the NEAR deposit.
+See [NEAR_CONTRACT.md](NEAR_CONTRACT.md) for how the check is used.
+
+## NEAR receipts, chain snapshot and run log
+
+These are recording formats for the chain layer; none of them is hashed into a delivery. All
+fields are required and unknown fields are rejected by the readers.
+
+**`forecast-near-receipts/v1`** (modes `SIMULATION`, `LOCAL_NEAR_SANDBOX`): top level
+`schema_version`, `mode`, `jobs`; each job has `job_id`, `artifact_sha256`, `customer`,
+`worker`, `status`, `transaction_ids`. See [KNOWLEDGE_DEMO.md](KNOWLEDGE_DEMO.md).
+
+**`forecast-near-receipts/v2`** (mode `NEAR_TESTNET`, network `testnet`): top level
+`schema_version`, `mode`, `network`, `contract_id`, `jobs`. Each job has the v1 fields plus
+`chain_job_id` (integer id on the contract) and `order_sha256`. `status` is `PAID` or
+`REFUNDED`; `transaction_ids` must be nonempty; `chain_job_id` and `job_id` are unique.
+
+**`forecast-near-chain-snapshot/v1`**: `schema_version`, `network` (`testnet`), `contract_id`,
+`rpc_url`, `captured_at` (UTC timestamp), `block_height`, `block_hash`, `config` (the
+contract's `get_config` answer) and `jobs`, an object keyed by decimal job id whose values are
+the `get_job` answers: `id`, `customer`, `worker`, `reward`, `order_sha256`, the four
+`*_deadline_ms`, `artifact_sha256`, `status`, `pending_attempt_id`, `publication_consent`
+(boolean). It records what one RPC node answered at one block; it is not a proof.
+
+**`forecast-near-run-log/v1`**: `schema_version`, `network`, `contract_id`, `entries`. Each entry
+of a sent call has `step`, `method`, `args`, `signer`, `key` (which near-cli key store signed),
+`deposit_yocto`, `tx_hash`, `explorer`, `succeeded`, and optional context such as `job_id`,
+`job_ref`, `previous_status`, `verified`. A `job_created` entry (`step`, `job_id`, `job_ref`,
+`tx_hash`) maps the contract's job id to the order's `job_id`. Receipts v2 take their
+transaction IDs from this log.
+
+## Contract event envelope
+
+Contract v2 logs NEP-297 events as `EVENT_JSON:` followed by
+`{"standard":"forecast_jobs","version":"1.0.0","event":<name>,"data":[<one object>]}`.
+Numbers (job and attempt ids, yoctoNEAR amounts, millisecond deadlines) are strings. The event
+names and their fields are listed in [NEAR_CONTRACT.md](NEAR_CONTRACT.md#events).

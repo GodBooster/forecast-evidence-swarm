@@ -221,7 +221,8 @@ In LLM mode the walkthrough writes `demo-consent.json` next to its outputs: synt
 publication consent bound to that run's delivery hashes, because new model text means new
 hashes and consent never transfers between hashes. The recorded local-sandbox receipts in
 `docs/evidence/` bind scripted delivery hashes and therefore cannot be combined with
-`--roles llm`; a fresh chain run over LLM deliveries has not been done.
+`--roles llm`. The testnet run also uses scripted roles; a chain run over LLM deliveries
+has not been done.
 
 ## Tests
 
@@ -250,5 +251,6 @@ in a subprocess with sockets disabled.
   not to the whole request, so a slow-dripping provider can exceed it in total. The
   response body is read without a size bound before it is parsed.
 - TEE attestation is not fetched or verified.
-- The escrow contract is unchanged: it binds a hash and does not know which role mode
-  produced it.
+- The escrow contract does not know which role mode produced a delivery: it binds an
+  order hash and a delivery hash, and the order hash is the same for scripted and LLM
+  deliveries of one order.

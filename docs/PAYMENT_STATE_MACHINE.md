@@ -7,7 +7,10 @@ are integer synthetic credits. The NEAR contract that implements this machine on
 in `contracts/forecast_jobs/` and documented in [NEAR_CONTRACT.md](NEAR_CONTRACT.md).
 One deliberate difference: the simulator replays `validate_bundle` and rejects a
 non-VALID delivery at `submit`; the contract checks only digest syntax and leaves
-validity to the customer's own check before `accept`.
+validity to the customer's own check before `accept` (`forecast_swarm.verify`, including
+its chain mode). The contract also differs by binding each job to an order hash, taking a
+fixed storage deposit per job, logging NEP-297 events and recording publication consent;
+none of that changes the state machine below.
 
 ## Terms, authority and conservation
 
@@ -81,8 +84,9 @@ reviewer does not make forecast truth or customer acceptance automatic.
 
 These requirements guided the contract in `contracts/forecast_jobs/`. Its API, state
 diagram, recovery limits and the local-sandbox evidence for each point are in
-[NEAR_CONTRACT.md](NEAR_CONTRACT.md) and [SANDBOX.md](SANDBOX.md); callback out-of-gas
-recovery and gas measurement remain open.
+[NEAR_CONTRACT.md](NEAR_CONTRACT.md) and [SANDBOX.md](SANDBOX.md); the callback gas was
+measured in the local sandbox, while recovery from a callback that never runs remains
+untested.
 
 - Use predecessor identity, authenticated ownership and block timestamp. Reserve
   storage/gas independently of job rewards; specify units and storage deposits.
@@ -101,7 +105,8 @@ recovery and gas measurement remain open.
 - Sandbox tests must exercise actual successful/failed transfer receipts, permission
   failures, duplicate callbacks/claims, timeout races and conservation including
   outstanding liabilities and fees. Python simulation is not a replacement. (Two such
-  tests ran on a local NEAR Sandbox on 2026-11-08; see SANDBOX.md.)
+  tests ran on a local NEAR Sandbox on 2026-11-08 and again against contract v2 on
+  2026-11-09; see SANDBOX.md.)
 
 See [NEAR reuse assessment](NEAR_REUSE.md) for adjacent BUMM work and the product
 boundary. No existing NEAR code or external dependencies were copied in this milestone.

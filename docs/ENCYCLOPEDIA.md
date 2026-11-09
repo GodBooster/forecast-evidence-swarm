@@ -338,7 +338,7 @@ core code, root README and other projects are unchanged by this work.
 
 Own betting market, market data integration, authenticated source adapters,
 production consent, live web hosting and real-money flows remain planned. (Since this
-section was written, the core added a NEAR escrow contract with a local sandbox harness
-and a bounded LLM analyst; see `NEAR_CONTRACT.md` and `AI_WORKER.md`. This module itself
+section was written, the core added a NEAR escrow contract with a local sandbox harness,
+a NEAR testnet deployment and a bounded LLM analyst; see `NEAR_CONTRACT.md` and `AI_WORKER.md`. This module itself
 still runs no inference and executes no payments.) No market odds are invented from a model probability. This milestone
 uses no paid APIs, accounts, keys, mainnet, external publication or submission.

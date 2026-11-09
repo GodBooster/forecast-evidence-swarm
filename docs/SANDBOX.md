@@ -1,11 +1,15 @@
 # Local NEAR Sandbox integration
 
-**Harness status: compiled and executed on 2026-11-08.** `sandbox/tests/near_sandbox.rs`
+**Harness status: executed on 2026-11-09 against contract v2** (first executed on 2026-11-08 against the first-generation contract). `sandbox/tests/near_sandbox.rs`
 contains two integration tests. Each deploys the `forecast_jobs` WASM to its own fresh,
 ephemeral local NEAR Sandbox node, creates local test accounts, and checks onchain job
 state, receipts, account balances and the contract's outstanding reward liability. No
-Testnet or Mainnet is used. See "Executed runs" below. This is a local-chain prototype check, not a security
-audit, a public deployment or evidence of forecasting skill.
+Testnet or Mainnet is used by the harness. See "Executed runs" below. This is a local-chain prototype check, not a security
+audit or evidence of forecasting skill. The separate testnet run is described in [TESTNET.md](TESTNET.md).
+
+Recorded output of the 2026-11-09 run is committed in
+[`docs/evidence/sandbox-2026-11-09/`](evidence/sandbox-2026-11-09/README.md) (contract wasm SHA-256
+`cfb2e8649877b6d1c9424a46231c815c31f5487e4b0393633725a30a9f52a089`, 301,209 bytes).
 
 ## Run it
 
@@ -44,8 +48,8 @@ reference machine (Intel i5, Docker Desktop VM with 3.8 GiB) the run used
 
 Each successful run publishes into its own unique directory under `artifacts/near-sandbox-run.*`:
 
-- `near-receipts.json` has exactly the `forecast-near-receipts/v1` receipt fields expected by the knowledge demo.
-- `near-diagnostics.json` records contract WASM hash, local network mode, assertions, transaction IDs from recovery scenarios, balance deltas and final escrowed liabilities.
+- `near-receipts.json` has exactly the `forecast-near-receipts/v1` (mode `LOCAL_NEAR_SANDBOX`) receipt fields expected by the knowledge demo.
+- `near-diagnostics.json` records contract WASM hash, local network mode, NEP-330 metadata, the contract configuration, assertions, transaction IDs from recovery scenarios, balance deltas, the storage-deposit and worst-case-record measurements, callback gas and final escrowed liabilities.
 - `near-dispute-cancel-diagnostics.json` records the same for the dispute/resolve/timeout/cancel test. It exports no receipts, so the knowledge demo is unaffected by it.
 - `knowledge-demo/` is generated from the two exported chain receipts and the explicit synthetic-fixture consent setting.
 
@@ -60,9 +64,21 @@ inside `sandbox/`.
 
 ## Chain assertions
 
+Every job in both tests is created with `create_job(order_sha256, …)` and an attached deposit of the 2 NEAR reward plus the 0.01 NEAR storage deposit.
+
 The first test (`real_local_chain_escrow_and_transfer_recovery`) checks that the customer funds a fixed reward, assigns a worker, and the worker submits the hash from the generated core report. Customer acceptance transfers exactly the reward once. A stranger cannot accept, a second acceptance fails, and the job reaches `ACCEPTED` only after the transfer callback. The test separately submits a `zero_successes` delivery, advances sandbox block time to the acceptance boundary, and checks the customer receives the exact refund and the job reaches `REFUNDED`.
 
 Two additional jobs exercise asynchronous failure recovery. The test deletes and recreates only ephemeral accounts on the local sandbox so the payout and refund transfer receipts fail. It checks `PAYOUT_READY` and `REFUND_READY`, then retries each fixed entitlement and verifies the exact balance increase. It also checks that outstanding reward liability reaches zero after each successful callback and at the end. These recovery cases appear in diagnostics, not the exported receipt list.
+
+Contract v2 added these assertions to the same test (5 jobs in total: paid, timeout, payout retry, refund retry and a worst-case-record job):
+
+- **Order hash.** The harness recomputes the order hash independently in Rust (canonical JSON of the report's order terms under the domain prefix `forecast-evidence-swarm/v1:terms\n`, implemented separately from the Python code) and creates each job with it; the stored `order_sha256` is the value the contract returns.
+- **Events.** Each transition's transaction logs exactly the expected NEP-297 events in order, for example `job_accepted` then `transfer_settled` for a payout, `job_timeout` then `transfer_failed` for a refund to a deleted account, `transfer_retried` then `transfer_settled` for a retry. Every event carries standard `forecast_jobs` and version `1.0.0`.
+- **Publication consent.** `consent_publication` is rejected before the job is `ACCEPTED`, from a stranger, and for a different digest; it succeeds for the customer and the accepted digest and sets `publication_consent` in `get_job`. `revoke_publication` clears it on chain.
+- **Storage deposit accounting.** `get_config` returns the 0.01 NEAR `job_storage_deposit`; after five jobs `get_storage_deposits` is exactly five deposits, the reward liability is 0, and the contract balance is at least the 1 NEAR reserve plus the deposits.
+- **Worst-case record.** A job between two 64-character accounts, accepted, with consent granted and revoked, grows the contract's `storage_usage` by 382 bytes; adding the 8 bytes held while a transfer is pending gives 390 bytes (0.0039 NEAR), and the test requires the 0.01 NEAR deposit to be at least twice that (it is 2.56 times).
+- **NEP-330.** `contract_source_metadata` responds with standard `nep330` 1.3.0 and a link equal to this repository.
+- **Callback gas.** The gas burnt by each `on_transfer_complete` receipt is read from the transaction outcome and the test requires the 10 TGas allowance (`get_config().callback_gas`) to be at least twice the measured maximum.
 
 ### Dispute, resolution, timeout and cancellation (second test)
 
@@ -85,33 +101,53 @@ each with a 2 NEAR reward:
 - **E. Assigned job.** `cancel` is rejected after `assign`; at the delivery deadline a
   stranger's `timeout` refunds the customer exactly.
 
-The final liability must be 0 and the job count 5.
+The final liability must be 0 and the job count 5. This test also measures the gas burnt by its five callbacks and applies the same 2x requirement.
 
 All deadlines come from the sandbox's current block timestamp. The harness advances blocks until the requested timestamp is reached, with a bounded loop. It does not sleep against wall-clock time.
 
-## Executed runs — 2026-11-08
+## Executed runs — 2026-11-09 (contract v2)
 
-### Run 2 (two tests): `artifacts/near-sandbox-run.h0OzqV/`
+Command: `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh`. Both tests passed against the
+v2 wasm (301,209 bytes, SHA-256 `cfb2e8649877b6d1c9424a46231c815c31f5487e4b0393633725a30a9f52a089`):
 
-Command: `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` with the two-process runner.
-Results: `real_local_chain_escrow_and_transfer_recovery ... ok` (113.15 s) and
-`real_local_chain_dispute_resolve_timeout_and_cancel ... ok` (93.54 s). Same runner image,
-crates and wasm hash as run 1. Copies of the three JSON outputs are committed in
-[`docs/evidence/sandbox-2026-11-08/`](evidence/sandbox-2026-11-08/README.md).
+```text
+test real_local_chain_escrow_and_transfer_recovery ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 104.80s
+test real_local_chain_dispute_resolve_timeout_and_cancel ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 97.01s
+```
 
-| Test | Contract account (ephemeral) | Jobs | Final liability |
-| --- | --- | --- | --- |
-| escrow and transfer recovery | `dev-20261108123358-54379614604896.test.near` | 4 | 0 |
-| dispute, resolve, timeout, cancel | `dev-20261108123536-14330370930581.test.near` | 5 | 0 |
+| Test | Jobs | Final reward liability |
+| --- | --- | --- |
+| `real_local_chain_escrow_and_transfer_recovery` | 5 | 0 |
+| `real_local_chain_dispute_resolve_timeout_and_cancel` | 5 | 0 |
 
-Recorded balance deltas: every payout/refund not signed by its recipient was exactly
-2 000 000 000 000 000 000 000 000 yoctoNEAR (jobs A, B, C, E and all four jobs of the first
-test). Cancel (D): customer delta 1 999 576 724 983 275 300 000 000 yoctoNEAR, i.e. the reward
-minus ≈0.00042 NEAR of the customer's own gas; contract liability went 2 NEAR → 0. The
-exported receipts again contain paid `valid_wrong` (`ba7aa4bf…816d`, 6 tx IDs) and refunded
-`zero_successes` (`05c826d4…d54a`, 4 tx IDs); the knowledge demo published 1 paid receipt.
+The exported receipts hold job 0 `PAID` (10 transaction IDs, including rejected calls) and job 1
+`REFUNDED` (4 transaction IDs); transfers not signed by their recipient were exact 2 NEAR deltas.
+The files, their SHA-256 hashes and the transaction-ID caveat are in
+[`docs/evidence/sandbox-2026-11-09/README.md`](evidence/sandbox-2026-11-09/README.md).
 
-Two earlier attempts of this run on the same day failed and are recorded for honesty:
+**Measured gas.** The 12 `on_transfer_complete` receipts (7 in the first test, 5 in the second)
+burnt between 1.736 and 1.768 TGas. The contract's static allowance is 10 TGas, 5.7 times the
+maximum (5.65 and 5.72 per test); the harness requires at least 2 times. These are figures from the
+local sandbox runtime. The recorded diagnostics also contain the storage-deposit and worst-case
+record measurements (390 bytes, 0.0039 NEAR) and the NEP-330 response.
+
+## Earlier runs — 2026-11-08 (first-generation contract, superseded)
+
+These runs used the first-generation contract (230,688-byte wasm, no order hash, no storage
+deposit, no events, ten-job cap). That wasm and the evidence directory that held its recorded
+output were replaced by the 2026-11-09 versions above; the notes below are kept as history
+and for the two failed attempts, whose fixes are still in the harness.
+
+- **Run 1 (single test):** `1 passed; 0 failed` in 95.05 s: exact payout, timeout refund,
+  and one failed payout and one failed refund receipt recovered by `retry_transfer`; 4 jobs.
+- **Run 2 (two tests):** `real_local_chain_escrow_and_transfer_recovery ... ok` (113.15 s) and
+  `real_local_chain_dispute_resolve_timeout_and_cancel ... ok` (93.54 s). Cancel (D) measured a
+  customer delta of 1 999 576 724 983 275 300 000 000 yoctoNEAR, the reward minus about 0.00042
+  NEAR of the customer's own gas.
+
+Two earlier attempts of run 2 failed and are recorded for honesty:
 (1) job D measured the customer balance before the refund of `max_gas()` prepayment
 (1 PGas in near-workspaces 0.24) arrived — delta ≈1.0012 NEAR — fixed by attaching 50 Tgas
 and waiting 5 blocks; (2) with both tests in one process, the second node did not answer
@@ -119,54 +155,26 @@ RPC within 10 s five times ("Failed to bind to available ports after 5 retries")
 the 60 s timeout and one process per test. In both failed attempts jobs A–C of the new test
 had already passed with exact balances.
 
-### Run 1 (single test): `artifacts/near-sandbox-run.nzgFCx/`
+Runner and crate versions (unchanged for 2026-11-09): Docker 29.9.2, `rust:1.99-slim-trixie`
+(Debian 13.7, glibc 2.41), rustc/cargo 1.99.1, near-workspaces 0.24.0, near-sandbox 0.4.0
+(node 2.14.0), near-primitives 0.38.0, near-jsonrpc-client 0.23.0.
 
-Command: `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh`. Result: `1 passed; 0 failed`
-in 95.05 s of test time (plus one-off dependency compilation of about 4 minutes).
-Run directory: `artifacts/near-sandbox-run.nzgFCx/` (Git-ignored local evidence; copies of
-`run.log`, `near-receipts.json` and `near-diagnostics.json` are kept there).
-
-| Item | Value |
-| --- | --- |
-| Runner | Docker 29.9.2, `rust:1.99-slim-trixie` (Debian 13.7, glibc 2.41), rustc/cargo 1.99.1 |
-| Crates | near-workspaces 0.24.0, near-sandbox 0.4.0 (node 2.14.0), near-primitives 0.38.0, near-jsonrpc-client 0.23.0 |
-| Contract wasm SHA-256 | `1ac693ee9f3a44b230cc6cfc076d90f557209938adc122e10b4de6bfd0ea6c3c` |
-| Contract account | `dev-20261108120557-42595781977676.test.near` (ephemeral) |
-| Paid artifact (`valid_wrong`) | `ba7aa4bf1e5ae00ac6a1a124f042c9dab37ab0bae903671ad640451066db816d` |
-| Refunded artifact (`zero_successes`) | `05c826d4f5aa43404a884150fe0b488a06c85b3af6436edf02fe4ced277cd54a` |
-| Jobs on chain | 4; final `get_escrowed_rewards` = 0 yoctoNEAR |
-
-Assertions recorded in `near-diagnostics.json`, all with a 2 NEAR reward
-(2 000 000 000 000 000 000 000 000 yoctoNEAR):
-
-1. Job 0 (paid): wrong caller rejected, acceptance paid the worker exactly the reward,
-   status `ACCEPTED` after the callback, duplicate acceptance rejected, liability 0.
-2. Job 1 (timeout): submitted but unaccepted work refunded the customer exactly the
-   reward at the acceptance deadline; status `REFUNDED`; liability 0.
-3. Job 2 (payout recovery): worker account deleted before acceptance; the transfer
-   receipt failed (1 failed receipt), status became `PAYOUT_READY`; after recreating
-   the same local account a permissionless `retry_transfer` paid exactly the reward;
-   status `ACCEPTED`; liability 0.
-4. Job 3 (refund recovery): customer account deleted before the deadline; the refund
-   receipt failed, status `REFUND_READY`; retry refunded exactly the reward; status
-   `REFUNDED`; liability 0.
-
-`knowledge_demo` then validated the `LOCAL_NEAR_SANDBOX` receipts against the exact core
-report and, with the synthetic fixture consent, published one paid receipt bound to claim
-`claim-43c6dc2d…` in `payment-provenance.json`; the refunded receipt stayed out of public
-records. The landing page, encyclopedia pages and provenance sidecar were generated in the
-run directory and opened over a local HTTP preview.
+The knowledge demo validated the `LOCAL_NEAR_SANDBOX` receipts against the exact core
+report and, with the synthetic fixture consent, published one paid receipt in
+`payment-provenance.json`; the refunded receipt stayed out of public records.
 
 ## Limitations
 
 - Transaction hashes are from an ephemeral local chain that no longer exists; they are
   runner evidence, not a public explorer record or a cryptographic payment proof.
 - The harness uses `dev_deploy` and a separate `new` call; initialization takeover is not
-  tested. Callback out-of-gas (unknown transfer outcome) is not tested on chain; see
-  `docs/NEAR_CONTRACT.md`. Dispute/resolve/timeout/cancel were exercised on chain in run 2.
+  tested. Callback out-of-gas or a callback that never runs (unknown transfer outcome) is not
+  tested on chain; see [NEAR_CONTRACT.md](NEAR_CONTRACT.md). Gas figures are from the local
+  sandbox runtime.
 - The resolver is a single trusted local account; no multi-party or bonded resolution exists.
-- Only the Docker runner was exercised. `rustfmt` was not run. No Testnet, Mainnet,
-  wallet, real funds or external service was used.
+- Only the Docker runner was exercised. `rustfmt` was not run. The harness uses no Testnet,
+  Mainnet, wallet, real funds or external service; the testnet run is separate
+  ([TESTNET.md](TESTNET.md)).
 
 ## Upstream references
 
