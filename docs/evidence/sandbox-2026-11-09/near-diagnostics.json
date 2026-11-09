@@ -1,0 +1,116 @@
+{
+  "artifact_sha256": "ba7aa4bf1e5ae00ac6a1a124f042c9dab37ab0bae903671ad640451066db816d",
+  "assertions": [
+    {
+      "assertion": "acceptance transfers exact reward once; wrong caller and duplicate rejected; consent only after ACCEPTED, by the customer, for the accepted digest",
+      "consent_before_acceptance_rejected": true,
+      "duplicate_rejected": true,
+      "escrowed_rewards_after_job_yocto": "0",
+      "events": [
+        "job_accepted",
+        "transfer_settled"
+      ],
+      "job_id": 0,
+      "order_sha256": "d8fd25ee4cd3b4a2bff67434cafd218a8fd8aa8af2542e8ace9b48d101e67a8d",
+      "publication_consent": true,
+      "status": "ACCEPTED",
+      "stranger_consent_rejected": true,
+      "worker_balance_increase_yocto": "2000000000000000000000000",
+      "wrong_caller_rejected": true,
+      "wrong_digest_consent_rejected": true
+    },
+    {
+      "assertion": "unaccepted submitted work refunds at acceptance deadline",
+      "customer_balance_increase_yocto": "2000000000000000000000000",
+      "escrowed_rewards_after_job_yocto": "0",
+      "job_id": 1,
+      "status": "REFUNDED"
+    },
+    {
+      "assertion": "failed payout receipt preserves worker entitlement and permissionless retry pays once",
+      "escrowed_rewards_after_job_yocto": "0",
+      "failed_transfer_receipts": 1,
+      "failed_transfer_status": "PAYOUT_READY",
+      "final_status": "ACCEPTED",
+      "job_id": 2,
+      "retry_balance_increase_yocto": "2000000000000000000000000",
+      "transaction_ids": [
+        "GWSXnLeRH9ezPeDAEponpkBDeQfSTmWjhRUVsUS6MbGV",
+        "UW872QeY452YiE1BM5qGyoKjTvhAzAoMQc6EtteB4Qo",
+        "CL4qQiyHKNYJriyXjTj6kvnQ9FAMvyXgrcvCzeGgjzc7",
+        "5UzJKGAaSv1KhonLR83mxb8Aj3N7gGgqNPcGY4zGr8Jd",
+        "Hagj9bc8AyPjrDNeaPvsVxuREC7wJWXn8AAKboaxRy68"
+      ]
+    },
+    {
+      "assertion": "failed refund receipt preserves customer entitlement and permissionless retry refunds once",
+      "escrowed_rewards_after_job_yocto": "0",
+      "failed_transfer_receipts": 1,
+      "failed_transfer_status": "REFUND_READY",
+      "final_status": "REFUNDED",
+      "job_id": 3,
+      "retry_balance_increase_yocto": "2000000000000000000000000",
+      "transaction_ids": [
+        "5oQCo5eivqrzdC7bR5bxMLtZgPeXWLptc2uNCpGKbcB6",
+        "H4hst5xL2vPLi5HJ2gMzjjCCpTkBbNfcyAKhCYhPg8LF",
+        "66QoSDWQiKecSjHGCrMhw7ENG7SyKy99VABX7PiycDhN",
+        "7XKTeoPqmGSj6ocApHwpXeLyNqyanouuvVsctkt6haLb",
+        "324c68pvttxfMG4r5L13jdwHhbGzw22judxuByNA66RD"
+      ]
+    },
+    {
+      "assertion": "worst-case job record (64-char accounts, both hashes) fits the storage deposit with >= 2x margin; consent revoked on chain",
+      "final_status": "ACCEPTED",
+      "job_id": 4,
+      "job_storage_deposit_yocto": "10000000000000000000000",
+      "publication_consent_after_revoke": false,
+      "settled_record_storage_bytes": 382,
+      "worst_case_cost_yocto": "3900000000000000000000",
+      "worst_case_record_bytes_while_transfer_pending": 390
+    }
+  ],
+  "callback_gas": {
+    "callback_gas_allowance": "10000000000000",
+    "margin_x100": "565",
+    "measured_max_gas_burnt": "1768445130354",
+    "measured_min_gas_burnt": "1737425691229",
+    "samples": 7
+  },
+  "config_at_init": {
+    "callback_gas": "10000000000000",
+    "escrowed_rewards": "0",
+    "event_standard": "forecast_jobs",
+    "event_version": "1.0.0",
+    "job_count": 0,
+    "job_storage_deposit": "10000000000000000000000",
+    "resolver": "resolver.test.near",
+    "storage_deposits": "0",
+    "storage_reserve": "1000000000000000000000000"
+  },
+  "contract_account": "dev-20261109214313-30531750366032.test.near",
+  "contract_source_metadata": {
+    "link_matches_repository": true,
+    "metadata": {
+      "build_info": null,
+      "link": "https://github.com/GodBooster/forecast-evidence-swarm",
+      "standards": [
+        {
+          "standard": "nep330",
+          "version": "1.3.0"
+        }
+      ],
+      "version": "0.1.0"
+    },
+    "responds": true
+  },
+  "contract_status": "deployed and initialized",
+  "contract_wasm_sha256": "cfb2e8649877b6d1c9424a46231c815c31f5487e4b0393633725a30a9f52a089",
+  "final_contract_balance_yocto": "100049832490298876900000000",
+  "final_escrowed_rewards_yocto": "0",
+  "job_count": 5,
+  "mode": "LOCAL_NEAR_SANDBOX",
+  "network_mode": "local ephemeral NEAR sandbox",
+  "note": "Transaction hashes and statuses are from this local ephemeral chain; no Testnet or Mainnet was contacted.",
+  "runtime": "near-workspaces-rs 0.24.0 / near-sandbox",
+  "storage_deposits_yocto": "50000000000000000000000"
+}
