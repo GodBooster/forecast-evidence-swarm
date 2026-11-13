@@ -73,9 +73,10 @@ on chain, the customer re-runs the validator before accepting the hash (see
 "Customer verification before `accept`" below). A page update appends a version and never edits the
 original forecast.
 
-**One-page demo** ([docs/demo](docs/demo/index.html)): a recorded AI forecast, the paid NEAR
-testnet job and a hash check you run in your browser by changing one observation. No wallet,
-key or network needed:
+**One-page demo: https://godbooster.github.io/forecast-evidence-swarm/demo/** (source in
+[docs/demo](docs/demo/index.html)): a recorded AI forecast, the paid NEAR testnet job and a
+hash check you run in your browser by changing one observation. No wallet or key needed. To
+run it locally:
 
 ```sh
 python3 -m http.server 8000 --bind 127.0.0.1 --directory docs/demo
