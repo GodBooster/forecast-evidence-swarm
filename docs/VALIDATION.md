@@ -1,10 +1,10 @@
 # Validation log
 
 > **This is a chronological log.** Each section records what was executed on that date,
-> with the test counts of that moment; earlier counts (35, 41, 44, 84, 8 Rust tests) are historical.
-> **Current totals: 154 Python tests (`tests/`), 30 encyclopedia tests
+> with the test counts of that moment; earlier counts (35, 41, 44, 84, 154, 8 Rust tests) are historical.
+> **Current totals: 157 Python tests (`tests/`), 30 encyclopedia tests
 > (`tests_encyclopedia/`), 14 native Rust contract unit tests and 2 sandbox integration tests.**
-> The latest entry is [2026-11-09: contract v2, chain layer, testnet run](#2026-11-09-contract-v2-chain-layer-testnet-run).
+> The latest entry is [2026-11-13: failed-transfer exit code](#2026-11-13-failed-transfer-exit-code).
 > Re-verify with the commands in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Offline milestone validation — 2026-11-06
@@ -255,7 +255,7 @@ page "Customer acceptance · local NEAR Sandbox receipt" (one new test), and the
 Commands executed on the reference Intel Mac (Python 3.14.7, Rust 1.99.1) after the change:
 
 ```sh
-python3 -m unittest discover -s tests -q                 # Ran 154 tests ... OK
+python3 -m unittest discover -s tests -q                 # Ran 84 tests ... OK
 python3 -m unittest discover -s tests_encyclopedia -q    # Ran 30 tests ... OK
 python3 -m forecast_swarm.walkthrough                    # All walkthrough checks passed.
 python3 -m forecast_swarm.walkthrough --receipts docs/evidence/sandbox-2026-11-09/near-receipts.json --out artifacts/walkthrough-sandbox   # path as of 2026-11-09; was sandbox-2026-11-08 (superseded)
@@ -332,3 +332,18 @@ transaction), gas measurement on testnet (gas figures are from the local sandbox
 `rustfmt`, a security audit, any LLM inference on the chain path (testnet roles are scripted),
 and mobile visual QA. The testnet reads trust one RPC node; testnet NEAR has no value and the
 network can be reset.
+
+## 2026-11-13: failed-transfer exit code
+
+`forecast_swarm/chain.py` treated `PAYOUT_READY` and `REFUND_READY` (the transfer receipt
+failed; nothing was paid yet) like a finished payment and exited 0. It now prints
+`TRANSFER NOT COMPLETED` and exits 3, and a new `retry-transfer` subcommand repeats the
+transfer for the fixed beneficiary. Three tests cover a failed payout followed by a retry,
+a failed refund after timeout, and a refused retry. The contract is unchanged. README
+Limitations now also name two known gaps: chain snapshots are read in several calls, not
+at one block, and `resolver-check` judges whatever copy of the delivery it is given.
+
+```sh
+python3 -m unittest discover -s tests -q                 # Ran 157 tests ... OK
+python3 -m unittest discover -s tests_encyclopedia -q    # Ran 30 tests ... OK
+```

@@ -47,6 +47,7 @@ class FakeChain:
         self.txs = {}           # tx hash -> bool success
         self.height = 1000
         self.tx_counter = 0
+        self.fail_transfers = False  # True: the transfer receipt fails, as an unreachable recipient would
 
     # -- clock ------------------------------------------------------------------------
     def sleep(self, seconds):
@@ -157,6 +158,9 @@ class FakeChain:
         job["artifact"], job["status"] = artifact_sha256, "SUBMITTED"
 
     def _settle(self, job, pay_worker):
+        if self.fail_transfers:
+            job["status"] = "PAYOUT_READY" if pay_worker else "REFUND_READY"
+            return
         recipient = job["worker"] if pay_worker else job["customer"]
         self.paid.append((recipient, job["reward"]))
         self.escrowed -= job["reward"]
@@ -198,6 +202,11 @@ class FakeChain:
         self.require(job["artifact"] == artifact_sha256, "Artifact hash does not match the accepted artifact")
         self.require(not job["consent"], "Publication consent already granted")
         job["consent"] = True
+
+    def _retry_transfer(self, signer, deposit, job_id):
+        job = self._job(job_id)
+        self.require(job["status"] in ("PAYOUT_READY", "REFUND_READY"), "No failed transfer is ready to retry")
+        self._settle(job, job["status"] == "PAYOUT_READY")
 
     def methods_sent(self):
         return [command[5] for command in self.commands]
@@ -581,6 +590,42 @@ class TimeoutTests(ChainTestCase):
         self.assertEqual(code, 0)
         self.assertEqual(self.chain.now_ms, now)
         self.assertIn("DRY RUN", "\n".join(lines))
+
+
+class FailedTransferTests(ChainTestCase):
+    """A failed transfer receipt is not a payment: exit 3, a clear message, and a retry path."""
+
+    def test_failed_payout_is_reported_and_retry_pays_the_worker(self):
+        self.run_to("submit")
+        self.chain.fail_transfers = True
+        code, lines, err = self.cli("customer-check", "--customer", CUSTOMER, "--job-id", 0,
+                                    "--bundle", self.dir / "bundle.json", "--execute")
+        text = "\n".join(lines)
+        self.assertEqual((code, err), (chain.EXIT_NEEDS_RETRY, ""), text)
+        self.assertIn("job 0: PAYOUT_READY", text)
+        self.assertIn("TRANSFER NOT COMPLETED", text)
+        self.assertEqual(self.chain.paid, [])
+        self.chain.fail_transfers = False
+        code, lines, err = self.cli("retry-transfer", "--caller", "anyone.testnet", "--job-id", 0, "--execute")
+        self.assertEqual((code, err), (0, ""), lines)
+        self.assertEqual(self.job()["status"], "ACCEPTED")
+        self.assertEqual(self.chain.paid, [(WORKER, REWARD)])
+
+    def test_failed_refund_after_timeout_is_reported(self):
+        self.run_to("submit")
+        self.chain.fail_transfers = True
+        code, lines, _ = self.cli("timeout", "--caller", "anyone.testnet", "--job-id", 0, "--execute")
+        self.assertEqual(code, chain.EXIT_NEEDS_RETRY, lines)
+        self.assertEqual(self.job()["status"], "REFUND_READY")
+        self.assertIn("transfer to the customer failed", "\n".join(lines))
+
+    def test_retry_refused_without_a_failed_transfer(self):
+        self.run_to("accept")
+        sent = len(self.chain.commands)
+        code, _, err = self.cli("retry-transfer", "--caller", "anyone.testnet", "--job-id", 0, "--execute")
+        self.assertEqual(code, 2)
+        self.assertIn("no failed transfer to retry", err)
+        self.assertEqual(len(self.chain.commands), sent)
 
 
 class FailureTests(ChainTestCase):

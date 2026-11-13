@@ -131,10 +131,16 @@ it can and prints the exact `near` command. Common flags: `--contract`, `--rpc-u
 | `dispute` | customer or worker | Disputes a submission |
 | `resolver-check` | resolver | Applies the same verification rule to a disputed job and resolves it |
 | `timeout` | anyone | Waits for the applicable deadline and triggers the refund |
+| `retry-transfer` | anyone | Retries a failed payout or refund (`PAYOUT_READY` / `REFUND_READY`); the beneficiary cannot change |
 | `consent` | customer | Records publication consent for the accepted delivery on chain |
 | `snapshot` | anyone | Records `get_job` / `get_config` (and receipts with `--log`) for offline re-checking |
 | `deployment` | anyone | Checks that the deployed code hash equals a local wasm build |
 | `report` | anyone | Builds the core report for order cases (input of the knowledge demo) |
+
+Exit status of `chain.py`: `0` done; `1` the delivery failed the check and nothing was
+accepted; `2` an error, nothing more was sent; `3` the payout or refund transfer failed on
+chain, so nothing was paid yet: the job is `PAYOUT_READY` or `REFUND_READY` and
+`retry-transfer` repeats the transfer. Call a job paid only when its status is `ACCEPTED`.
 
 ## Limits
 

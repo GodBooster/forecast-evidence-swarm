@@ -135,7 +135,7 @@ From the repository root. No install, network, credentials or wallet needed.
    python3 -m unittest discover -s tests_encyclopedia -q
    ```
 
-   **See:** `Ran 154 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
+   **See:** `Ran 157 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
 
 6. **Check the NEAR testnet run yourself.** No key and no install, but network access:
    the first command reads the contract on testnet and checks the delivered bundle
@@ -214,7 +214,7 @@ the bytes. So the customer's own check is part of the protocol. Before calling
 
 | Claim | Evidence | How to reproduce |
 | --- | --- | --- |
-| Evidence gates, commitments, simulator, knowledge gate, walkthrough, customer verifier, chain layer (RPC client, chain-mode verifier, snapshot-gated receipts), AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 154 Python tests | `python3 -m unittest discover -s tests -q` |
+| Evidence gates, commitments, simulator, knowledge gate, walkthrough, customer verifier, chain layer (RPC client, chain-mode verifier, snapshot-gated receipts), AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 157 Python tests | `python3 -m unittest discover -s tests -q` |
 | Encyclopedia history, consent, adapter | 30 Python tests | `python3 -m unittest discover -s tests_encyclopedia -q` |
 | Contract state machine and transfer recovery | 14 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked` (first run downloads crates; add `--offline` once they are cached) |
 | Real local-chain payout, timeout refund, failed-transfer retry, dispute/resolve, cancel, events, consent, callback gas | 2 sandbox integration tests, checked by balances and liabilities | `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker, ~5–10 min) — see [docs/SANDBOX.md](docs/SANDBOX.md) |
@@ -245,6 +245,13 @@ cargo +1.99.1 fetch --manifest-path contracts/forecast_jobs/Cargo.toml
 - **One RPC node is trusted.** The chain-reading tools (`near_rpc.py`, `verify --near-contract`,
   `chain.py`) ask a single RPC endpoint (default `https://rpc.testnet.fastnear.com`) and do
   not verify light-client proofs. The recorded snapshot is a copy of what that node returned.
+  `chain.py snapshot` reads the config and each job in separate calls, so the values may
+  come from different blocks; a long-lived encyclopedia should read everything at one
+  finalized block and refresh a page when consent is revoked.
+- **The resolver judges the file it is given.** `resolver-check` refunds the customer when
+  the bundle it receives does not replay to the on-chain hash. A wrong or truncated copy
+  therefore looks like a bad delivery; a real deployment needs an agreed way to fetch the
+  original by its hash and a separate decision for "original unavailable".
 - **Scripted roles on the testnet path.** The LLM analyst is not used there (its replay
   cassette is tied to fixture timestamps).
 - **Agent key is a file.** The worker agent's restricted key is a plaintext file in

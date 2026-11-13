@@ -17,6 +17,10 @@ agent process can commit deliveries and nothing else: it cannot transfer NEAR, d
 or change keys. The customer (``customer-check``) and the resolver (``resolver-check``)
 apply the same deterministic rule, ``forecast_swarm.verify`` in chain mode.
 
+Exit status: 0 done; 1 the delivery failed the check (nothing accepted); 2 an error, nothing
+more was sent; 3 the payout or refund transfer failed on chain (``PAYOUT_READY`` /
+``REFUND_READY``): nothing was paid yet, the entitlement is kept and ``retry-transfer`` repeats it.
+
 Standard library only. All data are synthetic; nothing here establishes forecasting skill.
 """
 
@@ -49,6 +53,9 @@ SNAPSHOT_SCHEMA = "forecast-near-chain-snapshot/v1"
 RECEIPT_SCHEMA = "forecast-near-receipts/v2"
 ISO = "%Y-%m-%dT%H:%M:%SZ"
 SETTLED = {"ACCEPTED", "REFUNDED", "PAYOUT_READY", "REFUND_READY"}
+# The transfer receipt failed: the entitlement is kept and anyone can call retry_transfer.
+NEEDS_RETRY = {"PAYOUT_READY", "REFUND_READY"}
+EXIT_NEEDS_RETRY = 3
 # Never send a call this close to the deadline that would make it illegal.
 DEADLINE_MARGIN_MS = 10_000
 
@@ -320,7 +327,7 @@ def cmd_customer_check(session, args):
                           args.customer, note=note)
         if tx:
             final = session.wait_job(args.job_id, lambda j: j["status"] in SETTLED, "a settled payout")
-            session.out(f"job {args.job_id}: {final['status']}")
+            return report_settlement(session, args.job_id, final)
         return 0
     if args.dispute_on_fail:
         tx = session.send("dispute", "dispute", {"job_id": args.job_id}, args.customer, note=note)
@@ -383,6 +390,20 @@ def cmd_worker_run(session, args):
     return 0
 
 
+def report_settlement(session, job_id, job):
+    """Print the final status. ACCEPTED/REFUNDED -> 0. A failed transfer (PAYOUT_READY or
+    REFUND_READY) is not a payment: say so and return EXIT_NEEDS_RETRY."""
+    status = job["status"]
+    session.out(f"job {job_id}: {status}")
+    if status not in NEEDS_RETRY:
+        return 0
+    who = "worker" if status == "PAYOUT_READY" else "customer"
+    session.out(f"TRANSFER NOT COMPLETED: the transfer to the {who} failed on chain; the entitlement is kept "
+                f"and nothing was paid yet. Anyone can retry: python3 -m forecast_swarm.chain retry-transfer "
+                f"--contract {session.contract} --job-id {job_id} --caller <account> --execute")
+    return EXIT_NEEDS_RETRY
+
+
 # -- resolver and anyone -------------------------------------------------------------
 
 def cmd_resolver_check(session, args):
@@ -394,7 +415,7 @@ def cmd_resolver_check(session, args):
                       note={"job_id": args.job_id, "verified": ok})
     if tx:
         final = session.wait_job(args.job_id, lambda j: j["status"] in SETTLED, "a settled transfer")
-        session.out(f"job {args.job_id}: {final['status']}")
+        return report_settlement(session, args.job_id, final)
     return 0
 
 
@@ -409,7 +430,20 @@ def cmd_timeout(session, args):
                       note={"job_id": args.job_id, "previous_status": job["status"]})
     if tx:
         final = session.wait_job(args.job_id, lambda j: j["status"] in SETTLED, "a settled refund")
-        session.out(f"job {args.job_id}: {final['status']}")
+        return report_settlement(session, args.job_id, final)
+    return 0
+
+
+def cmd_retry_transfer(session, args):
+    job = session.job(args.job_id)
+    if job["status"] not in NEEDS_RETRY:
+        raise ChainError(f"Job {args.job_id} is {job['status']}; there is no failed transfer to retry")
+    tx = session.send("retry_transfer", "retry_transfer", {"job_id": args.job_id}, args.caller,
+                      note={"job_id": args.job_id, "previous_status": job["status"]})
+    if tx:
+        final = session.wait_job(args.job_id, lambda j: j["status"] in SETTLED and j.get("pending_attempt_id") is None,
+                                 "a settled transfer")
+        return report_settlement(session, args.job_id, final)
     return 0
 
 
@@ -592,6 +626,11 @@ def build_parser():
     item.add_argument("--bundle", required=True, type=Path)
 
     item = add("timeout", cmd_timeout, "Anyone: wait for the applicable deadline and trigger the refund")
+    item.add_argument("--caller", required=True)
+    item.add_argument("--job-id", required=True, type=int)
+
+    item = add("retry-transfer", cmd_retry_transfer,
+               "Anyone: retry a failed payout or refund (the beneficiary cannot change)")
     item.add_argument("--caller", required=True)
     item.add_argument("--job-id", required=True, type=int)
 
