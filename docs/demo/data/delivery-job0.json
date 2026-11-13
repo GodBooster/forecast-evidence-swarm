@@ -1,0 +1,60 @@
+{
+  "content": {
+    "delivery_validity": "VALID",
+    "evidence_sha256": "0ad0dc8b28092f5344696644f10066928f91ffcc7baaede1e1f4be6ebc5a12fb",
+    "inputs": {
+      "evidence": [
+        {
+          "available_at": "2026-11-09T20:50:18Z",
+          "id": "batch-01",
+          "observed_at": "2026-11-09T19:50:18Z",
+          "sample_count": 20,
+          "source": "synthetic://event-registry/v1",
+          "yes_count": 15
+        }
+      ],
+      "scenario": "testnet_valid_wrong",
+      "schema_version": "forecast-evidence-swarm/v1",
+      "synthetic": true,
+      "terms": {
+        "acceptance_deadline": "2026-11-09T22:01:18Z",
+        "budget_credits": 100,
+        "decision_at": "2026-11-09T21:50:18Z",
+        "delivery_deadline": "2026-11-09T21:56:18Z",
+        "dispute_deadline": "2026-11-09T22:11:18Z",
+        "job_id": "fes-testnet-a",
+        "question": "Will the next synthetic registry event be YES?",
+        "resolution_at": "2026-11-10T21:50:18Z",
+        "source": "synthetic://event-registry/v1"
+      },
+      "title": "Synthetic testnet order fes-testnet-a"
+    },
+    "roles": {
+      "analyst": {
+        "method": "Synthetic historical frequency; half-up rounding to basis points.",
+        "mode": "scripted",
+        "probability_bps": 7500,
+        "role": "analyst",
+        "status": "FORECAST"
+      },
+      "critic": {
+        "findings": [
+          "Synthetic observations do not establish predictive skill.",
+          "Historical frequency assumes comparable, independent observations; this is unproven.",
+          "A valid delivery may still contain an incorrect forecast."
+        ],
+        "mode": "scripted",
+        "role": "critic",
+        "status": "CAUTION"
+      },
+      "verifier": {
+        "mode": "scripted",
+        "reasons": [],
+        "role": "verifier",
+        "status": "VALID"
+      }
+    },
+    "schema_version": "forecast-evidence-swarm/v1"
+  },
+  "sha256": "ebb69f520eba9d71005afb006b731b251f41e4511fe10657263b96ef39509319"
+}

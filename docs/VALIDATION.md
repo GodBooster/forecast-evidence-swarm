@@ -1,10 +1,10 @@
 # Validation log
 
 > **This is a chronological log.** Each section records what was executed on that date,
-> with the test counts of that moment; earlier counts (35, 41, 44, 84, 154, 8 Rust tests) are historical.
-> **Current totals: 157 Python tests (`tests/`), 30 encyclopedia tests
+> with the test counts of that moment; earlier counts (35, 41, 44, 84, 154, 157, 8 Rust tests) are historical.
+> **Current totals: 162 Python tests (`tests/`), 30 encyclopedia tests
 > (`tests_encyclopedia/`), 14 native Rust contract unit tests and 2 sandbox integration tests.**
-> The latest entry is [2026-11-13: failed-transfer exit code](#2026-11-13-failed-transfer-exit-code).
+> The latest entry is [2026-11-13: one-page demo](#2026-11-13-one-page-demo).
 > Re-verify with the commands in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Offline milestone validation — 2026-11-06
@@ -346,4 +346,23 @@ at one block, and `resolver-check` judges whatever copy of the delivery it is gi
 ```sh
 python3 -m unittest discover -s tests -q                 # Ran 157 tests ... OK
 python3 -m unittest discover -s tests_encyclopedia -q    # Ran 30 tests ... OK
+```
+
+## 2026-11-13: one-page demo
+
+`docs/demo/` is a static page (HTML, CSS, browser JavaScript; no wallet, key or RPC) with
+three parts: the recorded AI forecast of the 2026-11-08 live run (`valid_wrong`, 72.73% YES,
+model range 52–88%, outcome NO; numbers from the table above), the paid NEAR testnet job 0
+from `docs/evidence/testnet-2026-11-09/` (a separate run with the scripted analyst), and a
+hash check: the browser recomputes the delivery commitment with Web Crypto using the same
+rule as `forecast_swarm/evidence.py`. The original delivery gives
+`ebb69f520eba9d71005afb006b731b251f41e4511fe10657263b96ef39509319`, equal to the accepted
+on-chain digest; changing `yes_count` 15 → 16 gives
+`e757b2cf109a904140b2518e90a20572fe0702e78285f6766d9241ee3af6de75`. The page checks the hash
+only; the full replay of the evidence rules stays in Python. `tests/test_demo_page.py` pins
+the page data to the committed evidence and, when Node.js is installed, runs the page's
+JavaScript against both values. Checked in a browser at 1280×720 and 375×812.
+
+```sh
+python3 -m unittest discover -s tests -q                 # Ran 162 tests ... OK
 ```

@@ -73,6 +73,16 @@ on chain, the customer re-runs the validator before accepting the hash (see
 "Customer verification before `accept`" below). A page update appends a version and never edits the
 original forecast.
 
+**One-page demo** ([docs/demo](docs/demo/index.html)): a recorded AI forecast, the paid NEAR
+testnet job and a hash check you run in your browser by changing one observation. No wallet,
+key or network needed:
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1 --directory docs/demo
+```
+
+Then open http://127.0.0.1:8000/.
+
 ## Try it in 30 seconds (Python 3.10+, standard library only)
 
 From the repository root. No install, network, credentials or wallet needed.
@@ -135,7 +145,7 @@ From the repository root. No install, network, credentials or wallet needed.
    python3 -m unittest discover -s tests_encyclopedia -q
    ```
 
-   **See:** `Ran 157 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
+   **See:** `Ran 162 tests … OK` and `Ran 30 tests … OK`. No test needs network or a key.
 
 6. **Check the NEAR testnet run yourself.** No key and no install, but network access:
    the first command reads the contract on testnet and checks the delivered bundle
@@ -214,7 +224,7 @@ the bytes. So the customer's own check is part of the protocol. Before calling
 
 | Claim | Evidence | How to reproduce |
 | --- | --- | --- |
-| Evidence gates, commitments, simulator, knowledge gate, walkthrough, customer verifier, chain layer (RPC client, chain-mode verifier, snapshot-gated receipts), AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 157 Python tests | `python3 -m unittest discover -s tests -q` |
+| Evidence gates, commitments, simulator, knowledge gate, walkthrough, customer verifier, chain layer (RPC client, chain-mode verifier, snapshot-gated receipts), AI worker (adapters, budgets, gates, provider failures, tampering, offline LLM walkthrough) | 162 Python tests | `python3 -m unittest discover -s tests -q` |
 | Encyclopedia history, consent, adapter | 30 Python tests | `python3 -m unittest discover -s tests_encyclopedia -q` |
 | Contract state machine and transfer recovery | 14 native Rust tests | `cargo +1.99.1 test --manifest-path contracts/forecast_jobs/Cargo.toml --locked` (first run downloads crates; add `--offline` once they are cached) |
 | Real local-chain payout, timeout refund, failed-transfer retry, dispute/resolve, cancel, events, consent, callback gas | 2 sandbox integration tests, checked by balances and liabilities | `FORECAST_DOCKER_MEMORY=3500m bash sandbox/run.sh` (Docker, ~5–10 min) — see [docs/SANDBOX.md](docs/SANDBOX.md) |

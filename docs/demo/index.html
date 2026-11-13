@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forecast Evidence Swarm · Demo</title>
+<meta name="description" content="A recorded AI forecast, a paid NEAR testnet job, and a hash check you can run in your browser. Synthetic data.">
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Forecast Evidence Swarm · NEAR HACKATHON · synthetic data</p>
+    <h1>Would you pay for a forecast that turned out wrong?</h1>
+    <p class="lede">You pay for research you can check, not for luck. Two recorded runs, shown separately:
+      an AI forecast (8 Nov 2026) and a paid job on NEAR testnet (9 Nov 2026).</p>
+  </header>
+
+  <div class="grid">
+    <section class="card" id="forecast" aria-labelledby="forecast-title">
+      <p class="tag" id="forecast-title">Recorded AI forecast · Synthetic data</p>
+      <p class="question" data-f="question">…</p>
+      <dl class="facts">
+        <div><dt>Evidence before the cutoff</dt><dd><span data-f="evidence">…</span></dd></div>
+        <div><dt>Model forecast</dt><dd class="big" data-f="probability">…</dd></div>
+        <div><dt>Range estimated by the model</dt><dd data-f="interval">…</dd></div>
+        <div><dt>How the model got the number</dt><dd><code data-f="method">…</code> (Laplace smoothing)</dd></div>
+        <div><dt>Later outcome</dt><dd class="outcome">✗ <span data-f="outcome">…</span> — the forecast was wrong, the delivery was still valid</dd></div>
+      </dl>
+      <p class="note" data-f="provenance">…</p>
+      <p class="note">No TEE attestation of the model run in this version (<code>attestation: null</code>).</p>
+    </section>
+
+    <div class="stack">
+      <section class="card" id="receipt" aria-labelledby="receipt-title">
+        <p class="tag" id="receipt-title">NEAR testnet receipt · Job 0 · Scripted worker</p>
+        <dl class="facts row">
+          <div><dt>Reward</dt><dd data-r="reward">…</dd></div>
+          <div><dt>Status on chain</dt><dd class="status-ok">✓ <span data-r="status">…</span></dd></div>
+          <div><dt>Publication consent</dt><dd data-r="consent">…</dd></div>
+        </dl>
+        <p class="note">Accepted delivery hash <button class="hash" type="button" data-hash="accepted" aria-expanded="false">…</button></p>
+        <p class="note" data-r="snapshot">…</p>
+        <p class="note">This job used the scripted analyst (75% YES), not the recorded AI run.</p>
+        <a class="button link" data-r="accept-link" href="#" target="_blank" rel="noopener">View acceptance transaction ↗</a>
+      </section>
+
+      <section class="card check" id="check" aria-labelledby="check-title" aria-live="polite">
+        <p class="tag" id="check-title">Check the delivery yourself</p>
+        <p class="explain">This checks whether the report matches the bytes accepted on NEAR.</p>
+        <p class="which" id="which">…</p>
+        <p class="note">Hash computed in your browser <button class="hash" type="button" data-hash="computed" aria-expanded="false">…</button></p>
+        <p class="result" id="result">…</p>
+        <div class="actions">
+          <button type="button" class="button" id="change">Change one observation</button>
+          <button type="button" class="button secondary" id="restore" disabled>Restore original</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <p>The browser checks the delivery hash only. The full replay of the evidence rules runs in Python:
+      <a href="https://github.com/GodBooster/forecast-evidence-swarm#try-it-in-30-seconds-python-310-standard-library-only">Reproduce the full check ↗</a>
+      · <a href="https://github.com/GodBooster/forecast-evidence-swarm">Source on GitHub ↗</a></p>
+    <p>Testnet only, synthetic data, no forecasting skill claimed. The receipt is a recorded snapshot of contract state.</p>
+  </footer>
+</main>
+<script src="demo.js"></script>
+</body>
+</html>

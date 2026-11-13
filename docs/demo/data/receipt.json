@@ -1,0 +1,26 @@
+{
+  "label": "NEAR testnet receipt · Job 0 · Scripted worker",
+  "source": "docs/evidence/testnet-2026-11-09 (chain-snapshot.json, near-receipts.json, run-log.json)",
+  "network": "testnet",
+  "contract_id": "escrow.forecast-evidence-swarm.testnet",
+  "chain_job_id": 0,
+  "order_ref": "fes-testnet-a",
+  "customer": "customer.forecast-evidence-swarm.testnet",
+  "worker": "worker.forecast-evidence-swarm.testnet",
+  "reward_yocto": "100000000000000000000000",
+  "status": "ACCEPTED",
+  "publication_consent": true,
+  "artifact_sha256": "ebb69f520eba9d71005afb006b731b251f41e4511fe10657263b96ef39509319",
+  "order_sha256": "2aae165ffe5b7ecc39bbe17626c392618a469e606b7a1ca238df4c95880ad521",
+  "snapshot": {
+    "captured_at": "2026-11-09T22:01:32Z",
+    "block_height": 276978852,
+    "block_hash": "C5qsXBqzEs9SmxBoyeZePGhHewPkyjmW7YABKs7cTH2n"
+  },
+  "accept_tx": "GdeKj3Ws5UsrsHbm3jeJJcprysRCrSmWYaNJyyhpuYXA",
+  "accept_explorer": "https://testnet.nearblocks.io/txns/GdeKj3Ws5UsrsHbm3jeJJcprysRCrSmWYaNJyyhpuYXA",
+  "consent_tx": "AX1b2bWTAbBHJFsRZXWeXqmAxXeJvDEvZpSKc3iAeY9c",
+  "consent_explorer": "https://testnet.nearblocks.io/txns/AX1b2bWTAbBHJFsRZXWeXqmAxXeJvDEvZpSKc3iAeY9c",
+  "contract_explorer": "https://testnet.nearblocks.io/address/escrow.forecast-evidence-swarm.testnet",
+  "analyst": "scripted (75.00% YES); not the AI run"
+}

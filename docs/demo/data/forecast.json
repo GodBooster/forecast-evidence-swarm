@@ -1,0 +1,23 @@
+{
+  "label": "Recorded AI forecast · Synthetic data",
+  "source": "docs/VALIDATION.md, section 'Bounded AI worker, one live run — 2026-11-08'",
+  "run_date": "2026-11-08",
+  "model": "gpt-6.1-terra",
+  "provider": "OpenAI API (OpenAI-compatible adapter)",
+  "scenario": "valid_wrong",
+  "question": "Will the next synthetic registry event be YES?",
+  "decision_at": "2026-11-01T12:00:00Z",
+  "evidence_id": "batch-01",
+  "yes_count": 15,
+  "sample_count": 20,
+  "probability_bps": 7273,
+  "interval_bps": [
+    5200,
+    8800
+  ],
+  "method": "(15 + 1) / (20 + 2)",
+  "outcome": "NO",
+  "delivery_validity": "VALID",
+  "delivery_sha256": "68241e6609272610e3f4787de141160c3dd8a75805e47ecf734b1520ac40615b",
+  "attestation": null
+}
