@@ -1,0 +1,29 @@
+{
+  "evaluation_at": "2026-11-13T09:14:48Z",
+  "evidence": [
+    {
+      "available_at": "2026-11-13T08:14:48Z",
+      "id": "batch-01",
+      "observed_at": "2026-11-13T07:14:48Z",
+      "sample_count": 20,
+      "source": "synthetic://event-registry/v1",
+      "yes_count": 15
+    }
+  ],
+  "outcome": null,
+  "scenario": "testnet_valid_wrong",
+  "schema_version": "forecast-evidence-swarm/v1",
+  "synthetic": true,
+  "terms": {
+    "acceptance_deadline": "2026-11-13T11:41:48Z",
+    "budget_credits": 100,
+    "decision_at": "2026-11-13T09:14:48Z",
+    "delivery_deadline": "2026-11-13T10:41:48Z",
+    "dispute_deadline": "2026-11-13T12:41:48Z",
+    "job_id": "fes-live-1",
+    "question": "Will the next synthetic registry event be YES?",
+    "resolution_at": "2026-11-14T09:14:48Z",
+    "source": "synthetic://event-registry/v1"
+  },
+  "title": "Synthetic testnet order fes-live-1"
+}

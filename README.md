@@ -11,7 +11,8 @@ binds hashes and deadlines and does not inspect validity.
 > **Status (2026-11-09): working prototype, synthetic data only.** The Python product
 > runs offline. The NEAR escrow contract is unit-tested, exercised on a local, ephemeral
 > NEAR Sandbox, and has been run end to end on **NEAR testnet** (accounts and transactions
-> you can look up: [docs/evidence/testnet-2026-11-09](docs/evidence/testnet-2026-11-09/README.md)).
+> you can look up: [docs/evidence/testnet-2026-11-09](docs/evidence/testnet-2026-11-09/README.md)
+> and [docs/evidence/testnet-2026-11-13](docs/evidence/testnet-2026-11-13/README.md)).
 > By default analyst/critic/verifier are **scripted functions**; the testnet run uses only
 > these scripted roles. `--roles llm` swaps the analyst for a **bounded LLM worker** inside
 > the same deterministic gates; it is verified offline with a **hand-authored** replay

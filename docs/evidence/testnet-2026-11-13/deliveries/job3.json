@@ -1,0 +1,60 @@
+{
+  "content": {
+    "delivery_validity": "VALID",
+    "evidence_sha256": "d9098dbb50e09c1224886b3dfce92b621af6195e8277d7f7ad2b3f2f133fa926",
+    "inputs": {
+      "evidence": [
+        {
+          "available_at": "2026-11-13T08:14:48Z",
+          "id": "batch-01",
+          "observed_at": "2026-11-13T07:14:48Z",
+          "sample_count": 20,
+          "source": "synthetic://event-registry/v1",
+          "yes_count": 15
+        }
+      ],
+      "scenario": "testnet_valid_wrong",
+      "schema_version": "forecast-evidence-swarm/v1",
+      "synthetic": true,
+      "terms": {
+        "acceptance_deadline": "2026-11-13T11:41:48Z",
+        "budget_credits": 100,
+        "decision_at": "2026-11-13T09:14:48Z",
+        "delivery_deadline": "2026-11-13T10:41:48Z",
+        "dispute_deadline": "2026-11-13T12:41:48Z",
+        "job_id": "fes-live-1",
+        "question": "Will the next synthetic registry event be YES?",
+        "resolution_at": "2026-11-14T09:14:48Z",
+        "source": "synthetic://event-registry/v1"
+      },
+      "title": "Synthetic testnet order fes-live-1"
+    },
+    "roles": {
+      "analyst": {
+        "method": "Synthetic historical frequency; half-up rounding to basis points.",
+        "mode": "scripted",
+        "probability_bps": 7500,
+        "role": "analyst",
+        "status": "FORECAST"
+      },
+      "critic": {
+        "findings": [
+          "Synthetic observations do not establish predictive skill.",
+          "Historical frequency assumes comparable, independent observations; this is unproven.",
+          "A valid delivery may still contain an incorrect forecast."
+        ],
+        "mode": "scripted",
+        "role": "critic",
+        "status": "CAUTION"
+      },
+      "verifier": {
+        "mode": "scripted",
+        "reasons": [],
+        "role": "verifier",
+        "status": "VALID"
+      }
+    },
+    "schema_version": "forecast-evidence-swarm/v1"
+  },
+  "sha256": "b7d10d265d2e6b726d6f60243c43afd56b5e68ec0e76d534a1122338605d2024"
+}

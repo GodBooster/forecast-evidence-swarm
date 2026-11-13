@@ -1,0 +1,60 @@
+{
+  "content": {
+    "delivery_validity": "VALID",
+    "evidence_sha256": "bbd68676a90e665a6c8374d8c940de1ba997678dcf7c3da08c4b334dca50d6eb",
+    "inputs": {
+      "evidence": [
+        {
+          "available_at": "2026-11-13T08:31:16Z",
+          "id": "batch-01",
+          "observed_at": "2026-11-13T07:31:16Z",
+          "sample_count": 20,
+          "source": "synthetic://event-registry/v1",
+          "yes_count": 15
+        }
+      ],
+      "scenario": "testnet_valid_wrong",
+      "schema_version": "forecast-evidence-swarm/v1",
+      "synthetic": true,
+      "terms": {
+        "acceptance_deadline": "2026-11-13T11:58:16Z",
+        "budget_credits": 100,
+        "decision_at": "2026-11-13T09:31:16Z",
+        "delivery_deadline": "2026-11-13T10:58:16Z",
+        "dispute_deadline": "2026-11-13T12:58:16Z",
+        "job_id": "fes-live-2",
+        "question": "Will the next synthetic registry event be YES?",
+        "resolution_at": "2026-11-14T09:31:16Z",
+        "source": "synthetic://event-registry/v1"
+      },
+      "title": "Synthetic testnet order fes-live-2"
+    },
+    "roles": {
+      "analyst": {
+        "method": "Synthetic historical frequency; half-up rounding to basis points.",
+        "mode": "scripted",
+        "probability_bps": 7500,
+        "role": "analyst",
+        "status": "FORECAST"
+      },
+      "critic": {
+        "findings": [
+          "Synthetic observations do not establish predictive skill.",
+          "Historical frequency assumes comparable, independent observations; this is unproven.",
+          "A valid delivery may still contain an incorrect forecast."
+        ],
+        "mode": "scripted",
+        "role": "critic",
+        "status": "CAUTION"
+      },
+      "verifier": {
+        "mode": "scripted",
+        "reasons": [],
+        "role": "verifier",
+        "status": "VALID"
+      }
+    },
+    "schema_version": "forecast-evidence-swarm/v1"
+  },
+  "sha256": "808e19c91fd1b72798fe41302c99370c4a2717353c514859807eaf3b6b54ab9e"
+}

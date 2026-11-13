@@ -366,3 +366,23 @@ JavaScript against both values. Checked in a browser at 1280×720 and 375×812.
 ```sh
 python3 -m unittest discover -s tests -q                 # Ran 162 tests ... OK
 ```
+
+## 2026-11-13: second testnet run, recorded on video
+
+Three more jobs on `escrow.forecast-evidence-swarm.testnet`, captured while filming the demo video:
+[`docs/evidence/testnet-2026-11-13/`](evidence/testnet-2026-11-13/README.md). Job 5 is the one shown
+end to end — fund, assign, agent submits with its `submit`/`dispute`-only function-call key, a
+one-character edit of the delivery is refused by the customer's check without sending a transaction,
+the genuine delivery is accepted and paid, and publication consent is recorded. Jobs 3 and 4 are
+rehearsals from the same afternoon, settled so that nothing stays escrowed.
+
+Contract state in the snapshot (block 277503826, 2026-11-13T11:27Z): `job_count` 6,
+`escrowed_rewards` 0, storage deposits 60000000000000000000000 yoctoNEAR (6 jobs × 0.01 NEAR).
+The committed delivery re-checks against the chain with no keys:
+
+```sh
+python3 -m forecast_swarm.verify --bundle docs/evidence/testnet-2026-11-13/deliveries/job5.json \
+  --near-contract escrow.forecast-evidence-swarm.testnet --job-id 5 \
+  --expect-order-sha256 d832e12efe1d10612ff57fbbad6adae2f1d471b06870d92ddc018268b1189e36
+# hash: MATCH, order vs chain: MATCH, deadlines vs chain: MATCH, result: SAFE TO ACCEPT
+```

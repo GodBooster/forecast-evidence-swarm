@@ -1,0 +1,60 @@
+{
+  "content": {
+    "delivery_validity": "VALID",
+    "evidence_sha256": "e509f72cbaf3aff07cf9dfcddbeb67725ce0ea071aeb68a31dd5b5a7915c7d96",
+    "inputs": {
+      "evidence": [
+        {
+          "available_at": "2026-11-13T08:42:07Z",
+          "id": "batch-01",
+          "observed_at": "2026-11-13T07:42:07Z",
+          "sample_count": 20,
+          "source": "synthetic://event-registry/v1",
+          "yes_count": 15
+        }
+      ],
+      "scenario": "testnet_valid_wrong",
+      "schema_version": "forecast-evidence-swarm/v1",
+      "synthetic": true,
+      "terms": {
+        "acceptance_deadline": "2026-11-13T12:09:07Z",
+        "budget_credits": 100,
+        "decision_at": "2026-11-13T09:42:07Z",
+        "delivery_deadline": "2026-11-13T11:09:07Z",
+        "dispute_deadline": "2026-11-13T13:09:07Z",
+        "job_id": "fes-live-1",
+        "question": "Will the next synthetic registry event be YES?",
+        "resolution_at": "2026-11-14T09:42:07Z",
+        "source": "synthetic://event-registry/v1"
+      },
+      "title": "Synthetic testnet order fes-live-1"
+    },
+    "roles": {
+      "analyst": {
+        "method": "Synthetic historical frequency; half-up rounding to basis points.",
+        "mode": "scripted",
+        "probability_bps": 7500,
+        "role": "analyst",
+        "status": "FORECAST"
+      },
+      "critic": {
+        "findings": [
+          "Synthetic observations do not establish predictive skill.",
+          "Historical frequency assumes comparable, independent observations; this is unproven.",
+          "A valid delivery may still contain an incorrect forecast."
+        ],
+        "mode": "scripted",
+        "role": "critic",
+        "status": "CAUTION"
+      },
+      "verifier": {
+        "mode": "scripted",
+        "reasons": [],
+        "role": "verifier",
+        "status": "VALID"
+      }
+    },
+    "schema_version": "forecast-evidence-swarm/v1"
+  },
+  "sha256": "a0fbc6345f72e6516356b5ac98341e4dba353b395ee7f24e4be451b410315247"
+}
